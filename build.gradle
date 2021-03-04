@@ -62,7 +62,7 @@ dependencies {
 }
 
 group = 'de.smartsquare.smartbot'
-version = '1.3'
+version = '1.4'
 description = 'smartbot-mqtt-starter'
 
 jar {
@@ -91,9 +91,8 @@ publishing {
         }
     }
     publications {
-        binaryAndSources(MavenPublication) {
-            from components.java
-            artifact sourcesJar
+        gpr(MavenPublication) {
+            from(components.java)
         }
     }
 }
