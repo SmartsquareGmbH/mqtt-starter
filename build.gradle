@@ -1,0 +1,87 @@
+buildscript {
+    ext {
+        javaVersion = JavaVersion.VERSION_11
+
+        junitVersion = "5.7.1"
+        kotlinVersion = "1.4.30"
+        jacksonVersion = "2.12.1"
+        springBootVersion = "2.4.2"
+        hivemqClientVersion = "1.2.1"
+        kluentVersion = "1.65"
+    }
+
+    repositories {
+        gradlePluginPortal()
+    }
+
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+}
+
+plugins {
+    id 'maven-publish'
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'io.gitlab.arturbosch.detekt' version "1.15.0"
+    id 'org.jlleitschuh.gradle.ktlint' version "10.0.0"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+java {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = javaVersion.toString()
+    }
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
+
+    implementation "com.hivemq:hivemq-mqtt-client:$hivemqClientVersion"
+
+
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.amshove.kluent:kluent:$kluentVersion"
+}
+
+group = 'de.smartsquare.smartbot'
+version = '1.0-SNAPSHOT'
+description = 'smartbot-spring-boot-starter'
+
+jar {
+    from fileTree('smartbot-lib/build/classes/kotlin/main') {
+        include '**/*.class'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+test {
+    useJUnitPlatform {
+        excludeEngines "junit-vintage"
+    }
+}

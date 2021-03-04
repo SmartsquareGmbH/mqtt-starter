@@ -1,0 +1,44 @@
+{
+  "groups": [
+    {
+      "name": "mqtt",
+      "type": "de.smartsquare.smartbot.starter.mqtt.MqttProperties",
+      "sourceType": "de.smartsquare.smartbot.starter.mqtt.MqttProperties",
+      "description": "MQTT-Configuration"
+    }
+  ],
+  "properties": [
+    {
+      "name": "mqtt.host",
+      "type": "java.lang.String[]",
+      "defaultValue": "127.0.0.1",
+      "description": "Broker Host"
+    },
+    {
+      "name": "mqtt.port",
+      "type": "java.lang.Integer",
+      "defaultValue": 1883,
+      "description": "Broker Port"
+    },
+    {
+      "name": "mqtt.client-id",
+      "type": "java.lang.String",
+      "description": "Client Identifier (This is also used for session takeover)"
+    },
+    {
+      "name": "mqtt.username",
+      "type": "java.lang.String",
+      "description": "Username for authentication."
+    },
+    {
+      "name": "mqtt.password",
+      "type": "java.lang.String",
+      "description": "Password for authentication."
+    },
+    {
+      "name": "mqtt.ssl",
+      "type": "java.lang.Boolean",
+      "description": "Whether the connection should be secured or not."
+    }
+  ]
+}
