@@ -17,13 +17,13 @@ class AnnotationCollector : BeanPostProcessor {
 
         val erroneousSubscriberDefinitions = collectedSubscribers.filter { it.parameterCount != 1 }
         if (erroneousSubscriberDefinitions.size == 1) {
-            val subscriberName = erroneousSubscriberDefinitions.first().name
+            val subscriber = erroneousSubscriberDefinitions.first().name
 
-            throw SmartbotConfigurationException("Subscriber $subscriberName should have exactly one parameter.")
+            throw SmartbotConfigurationException("Subscriber $subscriber should have exactly one parameter.")
         } else if (erroneousSubscriberDefinitions.size > 1) {
-            val joinedSubscriberNames = erroneousSubscriberDefinitions.joinToString(separator = ", ") { it.name }
+            val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") { it.name }
 
-            throw SmartbotConfigurationException("$joinedSubscriberNames should have exactly one parameter.")
+            throw SmartbotConfigurationException("Subscriber [$joinedSubscribers] should have exactly one parameter.")
         }
 
         for (subscriber in collectedSubscribers) {
