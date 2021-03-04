@@ -2,7 +2,7 @@ name: CD
 
 on:
   release:
-    types: [published, edited, released]
+    types: [ created ]
 
 jobs:
   publish-maven-artifact:
