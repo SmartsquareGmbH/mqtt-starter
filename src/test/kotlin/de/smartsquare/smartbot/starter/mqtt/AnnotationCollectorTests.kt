@@ -19,33 +19,10 @@ internal class AnnotationCollectorTests {
     @Autowired
     private lateinit var annotationCollector: AnnotationCollector
 
-    @Autowired
-    private lateinit var context: ApplicationContext
-
-    @Autowired
-    private lateinit var jackson: ObjectMapper
-
     @Test
     internal fun `find subscriber bean`() {
         annotationCollector.subscribers.shouldHaveSize(1)
-
-        for ((bean, subscribers) in annotationCollector.subscribers) {
-            for (subscriber in subscribers) {
-                val resolvedParameters = subscriber.parameterTypes.map { getBean(it) ?: jackson.readValue("""{"value": 1}""", it) }
-
-                subscriber.invoke(bean, *resolvedParameters.toTypedArray())
-            }
-        }
     }
-
-    private fun getBean(parameter: Class<*>): Any? {
-        return try {
-            context.getBean(parameter)
-        } catch (e: NoSuchBeanDefinitionException) {
-            null
-        }
-    }
-
 
     @Configuration
     open class JacksonConfiguration {
@@ -53,7 +30,6 @@ internal class AnnotationCollectorTests {
         @Bean
         open fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
     }
-
 
     @Configuration
     open class PostProcessorConfiguration {
@@ -71,8 +47,7 @@ internal class AnnotationCollectorTests {
     class Subscriber {
 
         @MqttSubscribe(topic = "topic", qos = EXACTLY_ONCE)
-        fun onMessage(payload: TemperatureMessage, anySpringBean: AnnotationCollector) {
-            println("Invoked :) [Temp: ${payload.value}, Collector: ${anySpringBean}]")
+        fun onMessage(payload: TemperatureMessage) {
         }
     }
 }

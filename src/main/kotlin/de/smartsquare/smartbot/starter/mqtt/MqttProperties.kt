@@ -10,19 +10,19 @@ import javax.validation.constraints.NotEmpty
 @ConfigurationProperties(prefix = "mqtt")
 class MqttProperties(
 
-    val port: Int,
+  val port: Int,
 
-    @NotEmpty
-    val host: String,
+  @NotEmpty
+  val host: String,
 
-    @NotEmpty
-    val clientId: String,
+  @NotEmpty
+  val clientId: String,
 
-    @NotEmpty
-    val username: String,
+  @NotEmpty
+  val username: String,
 
-    @NotEmpty
-    val password: String,
+  @NotEmpty
+  val password: String,
 
-    val ssl: Boolean
+  val ssl: Boolean
 )

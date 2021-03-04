@@ -6,9 +6,9 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class MqttSubscribe(
 
-    val topic: String,
+  val topic: String,
 
-    val qos: MqttQos,
+  val qos: MqttQos,
 
-    val shared: Boolean = false,
+  val shared: Boolean = false,
 )

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class Adapter(
-    private val collector: AnnotationCollector,
-    private val jackson: ObjectMapper,
-    private val client: Mqtt3Client
+  private val collector: AnnotationCollector,
+  private val jackson: ObjectMapper,
+  private val client: Mqtt3Client
 ) : InitializingBean {
 
     private val asyncClient = client.toAsync()
@@ -24,7 +24,7 @@ class Adapter(
                 asyncClient.subscribeWith()
                     .topicFilter(topic)
                     .qos(annotation.qos)
-                    .callback { msg -> subscriber.invoke(bean, jackson.readValue(msg.payloadAsBytes, payloadType)) } // TODO: Primitive Check
+                    .callback { msg -> subscriber.invoke(bean, jackson.readValue(msg.payloadAsBytes, payloadType)) }
                     .send()
             }
         }

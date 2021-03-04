@@ -3,7 +3,6 @@ package de.smartsquare.smartbot.starter.mqtt
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.stereotype.Component
-import java.lang.RuntimeException
 import java.lang.reflect.Method
 
 @Component
@@ -20,11 +19,11 @@ class AnnotationCollector : BeanPostProcessor {
         if (erroneousSubscriberDefinitions.size == 1) {
             val subscriberName = erroneousSubscriberDefinitions.first().name
 
-            throw RuntimeException("Subscriber $subscriberName should have exactly one parameter.")
+            throw SmartbotConfigurationException("Subscriber $subscriberName should have exactly one parameter.")
         } else if (erroneousSubscriberDefinitions.size > 1) {
             val joinedSubscriberNames = erroneousSubscriberDefinitions.joinToString(separator = ", ") { it.name }
 
-            throw RuntimeException("Subscribers [$joinedSubscriberNames] should all have exactly one parameter.")
+            throw SmartbotConfigurationException("$joinedSubscriberNames should have exactly one parameter.")
         }
 
         for (subscriber in collectedSubscribers) {
