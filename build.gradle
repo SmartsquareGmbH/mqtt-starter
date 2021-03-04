@@ -62,20 +62,12 @@ dependencies {
 }
 
 group = 'de.smartsquare.smartbot'
-version = '1.4'
+version = '1.0'
 description = 'smartbot-mqtt-starter'
 
 jar {
     from fileTree('smartbot-lib/build/classes/kotlin/main') {
         include '**/*.class'
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
     }
 }
 
