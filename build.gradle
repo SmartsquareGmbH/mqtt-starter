@@ -63,8 +63,8 @@ dependencies {
 }
 
 group = 'de.smartsquare.smartbot'
-version = '1.0-SNAPSHOT'
-description = 'smartbot-spring-boot-starter'
+version = '1.0'
+description = 'smartbot-mqtt-starter'
 
 jar {
     from fileTree('smartbot-lib/build/classes/kotlin/main') {
@@ -75,6 +75,24 @@ jar {
 publishing {
     publications {
         maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/SmartsquareGmbH/smartbot-mqtt-starter")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
             from(components.java)
         }
     }
