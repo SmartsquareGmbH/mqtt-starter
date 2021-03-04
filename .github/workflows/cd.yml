@@ -30,6 +30,9 @@ jobs:
 
       - name: Publish
         run: ./gradlew publish
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          TOKEN: ${{ secrets.TOKEN }}
 
       - name: Upload Gradle reports
         uses: actions/upload-artifact@v2.1.3
