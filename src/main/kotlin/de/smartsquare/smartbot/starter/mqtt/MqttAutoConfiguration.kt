@@ -9,8 +9,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.TimeoutException
 
 @Configuration
 @ConditionalOnClass(MqttClient::class)
@@ -37,11 +37,21 @@ open class MqttAutoConfiguration {
             baseClient.build()
         }
 
-        logger.debug("Configured mqtt client. (${config.username}@${config.host}:${config.port})")
-        client.toBlocking().connect()
-        logger.debug("Connected to broker.")
+        logger.debug("Connecting to ${config.username}@${config.host}:${config.port}...")
 
-        return client
+        try {
+            val acknowledgement = client.toAsync().connect().get(10, SECONDS)
+
+            if (acknowledgement.returnCode.isError) {
+                throw BrokerConnectException(acknowledgement)
+            } else {
+                logger.debug("Successfully connected to broker.")
+
+                return client
+            }
+        } catch (e: TimeoutException) {
+            throw BrokerConnectException("Broker ${config.host}:${config.port} did not respond within 10 seconds.")
+        }
     }
 
     @Bean
