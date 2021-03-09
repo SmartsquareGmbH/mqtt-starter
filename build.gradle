@@ -62,7 +62,7 @@ dependencies {
 }
 
 group = 'de.smartsquare.smartbot'
-version = '1.0'
+version = '1.1'
 description = 'smartbot-mqtt-starter'
 
 jar {

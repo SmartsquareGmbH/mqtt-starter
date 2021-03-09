@@ -29,7 +29,7 @@ jobs:
         run: ./gradlew check
 
       - name: Publish
-        run: ./gradlew publish
+        run: ./gradlew publishMavenPublicationToGitHubPackagesRepository
         env:
           USERNAME: ${{ secrets.USERNAME }}
           TOKEN: ${{ secrets.TOKEN }}
