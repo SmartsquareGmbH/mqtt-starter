@@ -1,6 +1,7 @@
 package de.smartsquare.smartbot.starter.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import org.slf4j.LoggerFactory
@@ -37,9 +38,19 @@ class Adapter(
 
     private fun deliver(subscriber: Method, bean: Any, msg: Mqtt3Publish, payloadType: Class<*>) {
         try {
-            subscriber.invoke(bean, jackson.readValue(msg.payloadAsBytes, payloadType))
+            val parameters = subscriber.parameterTypes.map { resolve(it, msg, payloadType) }.toTypedArray()
+
+            subscriber.invoke(bean, *parameters)
         } catch (e: Exception) {
             logger.error("Error while delivering the message.", e)
+        }
+    }
+
+    private fun resolve(it: Class<*>, msg: Mqtt3Publish, payloadType: Class<*>): Any? {
+        return if (it.isAssignableFrom(MqttTopic::class.java)) {
+            msg.topic
+        } else {
+            jackson.readValue(msg.payloadAsBytes, payloadType)
         }
     }
 }

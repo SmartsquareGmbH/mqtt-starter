@@ -1,7 +1,9 @@
 package de.smartsquare.smartbot.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttQos.EXACTLY_ONCE
+import com.hivemq.client.mqtt.datatypes.MqttTopic
 import org.amshove.kluent.invoking
+import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withMessage
 import org.junit.jupiter.api.Test
@@ -9,6 +11,30 @@ import org.junit.jupiter.api.Test
 internal class AnnotationCollectorTests {
 
     private val annotationCollector = AnnotationCollector()
+
+    @Test
+    internal fun `passes if only a parameter is defined`() {
+        val bean = object {
+            @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
+            fun onMessage(a: String) {
+            }
+        }
+
+        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+            .shouldNotThrow(SmartbotConfigurationException::class)
+    }
+
+    @Test
+    internal fun `passes if parameter and topic is defined`() {
+        val bean = object {
+            @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
+            fun onMessage(a: String, topic: MqttTopic) {
+            }
+        }
+
+        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+            .shouldNotThrow(SmartbotConfigurationException::class)
+    }
 
     @Test
     internal fun `throws if one subscriber has more than one parameter`() {
