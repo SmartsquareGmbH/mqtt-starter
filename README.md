@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component
 @Component
 class TestConsumer {
 
-    // ✅Topic and payload
+    // ✅ Topic and payload
     @MqttSubscribe(topic = "/home/+/temperature", qos = AT_LEAST_ONCE)
     fun subscribe(payload: TemperaturePayload, topic: MqttTopic) {
         println("Temperature is ${payload.value} °C in room ${topic.levels[1]}]")
