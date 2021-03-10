@@ -23,7 +23,6 @@ plugins {
     id 'maven-publish'
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'io.gitlab.arturbosch.detekt' version "1.15.0"
 }
 
 repositories {

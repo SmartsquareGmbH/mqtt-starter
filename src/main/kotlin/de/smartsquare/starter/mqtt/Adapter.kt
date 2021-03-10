@@ -7,6 +7,7 @@ import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.stereotype.Component
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 @Component
@@ -46,7 +47,7 @@ class Adapter(
             val parameters = subscriber.parameterTypes.map { resolve(it, msg, payloadType) }.toTypedArray()
 
             subscriber.invoke(bean, *parameters)
-        } catch (e: Exception) {
+        } catch (e: InvocationTargetException) {
             logger.error("Error while delivering the message.", e)
         }
     }
