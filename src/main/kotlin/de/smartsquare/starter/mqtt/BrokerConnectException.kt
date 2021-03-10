@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck
 

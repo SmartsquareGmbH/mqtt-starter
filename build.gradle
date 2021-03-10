@@ -51,31 +51,24 @@ dependencies {
 
     implementation "com.hivemq:hivemq-mqtt-client:$hivemqClientVersion"
 
-
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
 
+    testImplementation "org.amshove.kluent:kluent:$kluentVersion"
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-    testImplementation "org.amshove.kluent:kluent:$kluentVersion"
 }
 
-group = 'de.smartsquare.smartbot'
-version = '1.2'
-description = 'smartbot-mqtt-starter'
-
-jar {
-    from fileTree('smartbot-lib/build/classes/kotlin/main') {
-        include '**/*.class'
-    }
-}
+group = 'de.smartsquare'
+version = '1.0'
+description = 'Spring Boot Starter wrapping the hivemq mqtt client.'
 
 publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/SmartsquareGmbH/smartbot-mqtt-starter")
+            url = uri("https://maven.pkg.github.com/SmartsquareGmbH/mqtt-starter")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
@@ -84,6 +77,8 @@ publishing {
     }
     publications {
         maven(MavenPublication) {
+            version = System.getenv("GITHUB_VERSION") ?: project.version
+
             from(components.java)
         }
     }

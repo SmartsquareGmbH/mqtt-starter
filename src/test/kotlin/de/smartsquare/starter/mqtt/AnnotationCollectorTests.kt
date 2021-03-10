@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttQos.EXACTLY_ONCE
 import com.hivemq.client.mqtt.datatypes.MqttTopic
@@ -21,7 +21,7 @@ internal class AnnotationCollectorTests {
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
-            .shouldNotThrow(SmartbotConfigurationException::class)
+            .shouldNotThrow(MqttConfigurationException::class)
     }
 
     @Test
@@ -33,7 +33,7 @@ internal class AnnotationCollectorTests {
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
-            .shouldNotThrow(SmartbotConfigurationException::class)
+            .shouldNotThrow(MqttConfigurationException::class)
     }
 
     @Test
@@ -45,7 +45,7 @@ internal class AnnotationCollectorTests {
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
-            .shouldThrow(SmartbotConfigurationException::class)
+            .shouldThrow(MqttConfigurationException::class)
             .withMessage("Subscriber onMessage should have exactly one parameter.")
     }
 
@@ -62,7 +62,7 @@ internal class AnnotationCollectorTests {
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
-            .shouldThrow(SmartbotConfigurationException::class)
+            .shouldThrow(MqttConfigurationException::class)
             .withMessage("Subscriber [first, second] should have exactly one parameter.")
     }
 

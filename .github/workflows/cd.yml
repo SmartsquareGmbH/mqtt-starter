@@ -33,6 +33,7 @@ jobs:
         env:
           USERNAME: ${{ secrets.USERNAME }}
           TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_VERSION: ${{ github.event.release.tag_name }}
 
       - name: Upload Gradle reports
         uses: actions/upload-artifact@v2.1.3

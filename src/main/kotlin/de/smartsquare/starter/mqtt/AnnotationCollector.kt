@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import org.slf4j.LoggerFactory
@@ -20,11 +20,11 @@ class AnnotationCollector : BeanPostProcessor {
         if (erroneousSubscriberDefinitions.size == 1) {
             val subscriber = erroneousSubscriberDefinitions.first().name
 
-            throw SmartbotConfigurationException("Subscriber $subscriber should have exactly one parameter.")
+            throw MqttConfigurationException("Subscriber $subscriber should have exactly one parameter.")
         } else if (erroneousSubscriberDefinitions.size > 1) {
             val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") { it.name }
 
-            throw SmartbotConfigurationException("Subscriber [$joinedSubscribers] should have exactly one parameter.")
+            throw MqttConfigurationException("Subscriber [$joinedSubscribers] should have exactly one parameter.")
         }
 
         for (subscriber in collectedSubscribers) {

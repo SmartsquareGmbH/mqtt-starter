@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttTopic
@@ -12,6 +12,7 @@ import java.lang.reflect.Method
 @Component
 class Adapter(
     private val collector: AnnotationCollector,
+    private val config: MqttProperties,
     private val jackson: ObjectMapper,
     private val client: Mqtt3Client
 ) : InitializingBean {
@@ -25,7 +26,11 @@ class Adapter(
             for (subscriber in subscribers) {
                 val payloadType = subscriber.parameterTypes.first()
                 val annotation = subscriber.getAnnotation(MqttSubscribe::class.java)
-                val topic = if (annotation.shared) "\$share/smartbot/${annotation.topic}" else annotation.topic
+                val topic = if (annotation.shared && config.group != null) {
+                    "\$share/${config.group}/${annotation.topic}"
+                } else{
+                    annotation.topic
+                }
 
                 asyncClient.subscribeWith()
                     .topicFilter(topic)

@@ -2,8 +2,8 @@
   "groups": [
     {
       "name": "mqtt",
-      "type": "de.smartsquare.smartbot.starter.mqtt.MqttProperties",
-      "sourceType": "de.smartsquare.smartbot.starter.mqtt.MqttProperties",
+      "type": "de.smartsquare.starter.mqtt.MqttProperties",
+      "sourceType": "de.smartsquare.starter.mqtt.MqttProperties",
       "description": "MQTT-Configuration"
     }
   ],
@@ -34,6 +34,11 @@
       "name": "mqtt.password",
       "type": "java.lang.String",
       "description": "Password for authentication."
+    },
+    {
+      "name": "mqtt.group",
+      "type": "java.lang.String",
+      "description": "The group name used if a topic is shared."
     },
     {
       "name": "mqtt.ssl",

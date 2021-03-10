@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -61,7 +61,12 @@ open class MqttAutoConfiguration {
     open fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
-    open fun adapter(collector: AnnotationCollector, mapper: ObjectMapper, mqttClient: Mqtt3Client): Adapter {
-        return Adapter(collector, mapper, mqttClient)
+    open fun adapter(
+        collector: AnnotationCollector,
+        mapper: ObjectMapper,
+        config: MqttProperties,
+        client: Mqtt3Client
+    ): Adapter {
+        return Adapter(collector, config, mapper, client)
     }
 }

@@ -1,4 +1,4 @@
-package de.smartsquare.smartbot.starter.mqtt
+package de.smartsquare.starter.mqtt
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
@@ -23,6 +23,8 @@ class MqttProperties(
 
   @NotEmpty
   val password: String,
+
+  val group: String? = null,
 
   val ssl: Boolean
 )
