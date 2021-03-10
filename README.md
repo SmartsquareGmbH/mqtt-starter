@@ -1,4 +1,4 @@
-# mqtt-starter
+# :honeybee: HiveMQ Spring Boot Starter
 
 This project contains a basic configuration to consume mqtt messages using the hivemq client. 
 
