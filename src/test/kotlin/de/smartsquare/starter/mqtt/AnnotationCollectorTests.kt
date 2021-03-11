@@ -4,8 +4,8 @@ import com.hivemq.client.mqtt.datatypes.MqttQos.EXACTLY_ONCE
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldNotThrow
+import org.amshove.kluent.shouldStartWith
 import org.amshove.kluent.shouldThrow
-import org.amshove.kluent.withMessage
 import org.junit.jupiter.api.Test
 
 internal class AnnotationCollectorTests {
@@ -13,7 +13,7 @@ internal class AnnotationCollectorTests {
     private val annotationCollector = AnnotationCollector()
 
     @Test
-    internal fun `passes if only a parameter is defined`() {
+    internal fun `passes if only payload is defined`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String) {
@@ -25,7 +25,19 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `passes if parameter and topic is defined`() {
+    internal fun `passes if only topic is defined`() {
+        val bean = object {
+            @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
+            fun onMessage(t: MqttTopic) {
+            }
+        }
+
+        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+            .shouldNotThrow(MqttConfigurationException::class)
+    }
+
+    @Test
+    internal fun `passes if payload and topic is defined`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, topic: MqttTopic) {
@@ -37,7 +49,19 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `throws if one subscriber has more than one parameter`() {
+    internal fun `passes if a subscriber has no parameters`() {
+        val bean = object {
+            @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
+            fun onMessage() {
+            }
+        }
+
+        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+            .shouldNotThrow(MqttConfigurationException::class)
+    }
+
+    @Test
+    internal fun `throws if one subscriber has more than one payload parameter`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, b: String) {
@@ -46,11 +70,12 @@ internal class AnnotationCollectorTests {
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
             .shouldThrow(MqttConfigurationException::class)
-            .withMessage("Subscriber onMessage should have exactly one parameter.")
+            .exceptionMessage
+            .shouldStartWith("Following subscribers are invalid [testBean#onMessage]")
     }
 
     @Test
-    internal fun `throws if multiple subscribers have more than one parameter`() {
+    internal fun `throws if multiple subscribers have more than one payload parameter`() {
         val bean = object {
             @MqttSubscribe(topic = "a", qos = EXACTLY_ONCE)
             fun first(a: String, b: String) {
@@ -63,7 +88,8 @@ internal class AnnotationCollectorTests {
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
             .shouldThrow(MqttConfigurationException::class)
-            .withMessage("Subscriber [first, second] should have exactly one parameter.")
+            .exceptionMessage
+            .shouldStartWith("Following subscribers are invalid [testBean#first, testBean#second].")
     }
 
 }

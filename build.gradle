@@ -48,7 +48,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
 
-    implementation "com.hivemq:hivemq-mqtt-client:$hivemqClientVersion"
+    api "com.hivemq:hivemq-mqtt-client:$hivemqClientVersion"
 
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"

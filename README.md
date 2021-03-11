@@ -1,10 +1,12 @@
 # :honeybee: HiveMQ Spring Boot Starter
 
-This project contains a basic configuration to consume mqtt messages using the hivemq client. 
+This project contains a basic configuration to consume MQTT messages using the HiveMQ client.
 
 ## Getting Started
 
 ### Gradle Configuration
+
+You can either use the pre-built packages hosted on Github, using your GH credentials.
 
 ```groovy
 repositories {
@@ -18,7 +20,22 @@ repositories {
 
 dependencies {
 	implementation("de.smartsquare:mqtt-starter:0.9.0")
-	implementation("com.hivemq:hivemq-mqtt-client:1.2.1")
+}
+```
+
+Or clone this repo and build and publish to your local maven repo.
+
+```shell
+./gradlew publishToMavenLocal
+```
+
+```groovy
+repositories {
+	mavenLocal()
+}
+
+dependencies {
+	implementation("de.smartsquare:mqtt-starter:1.0")
 }
 ```
 
@@ -64,6 +81,12 @@ class TestConsumer {
     @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
     fun subscribe(ping: Int) {
         println("Ping of iot system is $ping")
+    }
+
+    // ✅ No parameters, for whatever reason
+    @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
+    fun subscribe() {
+        println("Something happened")
     }
 
     // ❌ Conflicting payload declaration
