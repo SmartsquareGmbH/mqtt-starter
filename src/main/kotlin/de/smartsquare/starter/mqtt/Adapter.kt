@@ -29,7 +29,7 @@ class Adapter(
                 val annotation = subscriber.getAnnotation(MqttSubscribe::class.java)
                 val topic = if (annotation.shared && config.group != null) {
                     "\$share/${config.group}/${annotation.topic}"
-                } else{
+                } else {
                     annotation.topic
                 }
 
@@ -55,6 +55,8 @@ class Adapter(
     private fun resolve(it: Class<*>, msg: Mqtt3Publish, payloadType: Class<*>): Any? {
         return if (it.isAssignableFrom(MqttTopic::class.java)) {
             msg.topic
+        } else if (it.isAssignableFrom(String::class.java)) {
+            msg.payloadAsBytes.decodeToString()
         } else {
             jackson.readValue(msg.payloadAsBytes, payloadType)
         }
