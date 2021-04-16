@@ -16,7 +16,7 @@ class MqttProperties(
   val host: String,
 
   @NotEmpty
-  val clientId: String,
+  val clientId: String? = null,
 
   @NotEmpty
   val username: String,
