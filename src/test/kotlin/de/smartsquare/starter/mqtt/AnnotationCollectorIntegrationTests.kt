@@ -12,31 +12,31 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 
 @SpringBootTest(classes = [AnnotationCollectorIntegrationTests.PostProcessorConfiguration::class, AnnotationCollectorIntegrationTests.JacksonConfiguration::class])
-internal class AnnotationCollectorIntegrationTests {
+class AnnotationCollectorIntegrationTests {
 
     @Autowired
     private lateinit var annotationCollector: AnnotationCollector
 
     @Test
-    internal fun `find subscriber bean`() {
+    fun `find subscriber bean`() {
         annotationCollector.subscribers.shouldHaveSize(1)
     }
 
     @Configuration
-    open class JacksonConfiguration {
+    class JacksonConfiguration {
 
         @Bean
-        open fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
+        fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
     }
 
     @Configuration
-    open class PostProcessorConfiguration {
+    class PostProcessorConfiguration {
 
         @Bean
-        open fun annotationCollector() = AnnotationCollector()
+        fun annotationCollector() = AnnotationCollector()
 
         @Bean
-        open fun subscriber() = Subscriber()
+        fun subscriber() = Subscriber()
     }
 
     data class TemperatureMessage(val value: Int)

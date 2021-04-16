@@ -15,12 +15,12 @@ import java.util.concurrent.TimeoutException
 @Configuration
 @ConditionalOnClass(MqttClient::class)
 @EnableConfigurationProperties(MqttProperties::class)
-open class MqttAutoConfiguration {
+class MqttAutoConfiguration {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
-    open fun mqttClient(config: MqttProperties): Mqtt3Client {
+    fun mqttClient(config: MqttProperties): Mqtt3Client {
         val baseClient = Mqtt3Client.builder()
             .serverHost(config.host)
             .serverPort(config.port)
@@ -37,7 +37,7 @@ open class MqttAutoConfiguration {
         }
 
         val client = if (config.clientId != null) {
-            builder.identifier(config.clientId).build()
+            builder.identifier(config.clientId!!).build()
         } else {
             builder.build()
         }
@@ -60,13 +60,13 @@ open class MqttAutoConfiguration {
     }
 
     @Bean
-    open fun annotationCollector() = AnnotationCollector()
+    fun annotationCollector() = AnnotationCollector()
 
     @Bean
-    open fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
+    fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
-    open fun adapter(
+    fun adapter(
         collector: AnnotationCollector,
         mapper: ObjectMapper,
         config: MqttProperties,
