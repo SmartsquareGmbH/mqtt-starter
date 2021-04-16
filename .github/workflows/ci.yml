@@ -28,3 +28,10 @@ jobs:
 
       - name: Check
         run: ./gradlew check
+
+      - name: Upload Gradle reports
+        uses: actions/upload-artifact@v2.1.3
+        if: failure()
+        with:
+          name: Gradle Reports
+          path: "**/build/reports"
