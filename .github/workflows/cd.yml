@@ -31,8 +31,8 @@ jobs:
       - name: Publish
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
         env:
-          USERNAME: ${{ secrets.USERNAME }}
-          TOKEN: ${{ secrets.TOKEN }}
+          OSSRHUSER: ${{ secrets.OSSRHUSER }}
+          OSSRHPASSWORD: ${{ secrets.OSSRHPASSWORD }}
           GITHUB_VERSION: ${{ github.event.release.tag_name }}
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
