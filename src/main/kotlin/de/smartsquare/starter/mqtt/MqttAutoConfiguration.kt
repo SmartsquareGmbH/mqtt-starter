@@ -15,14 +15,13 @@ import java.util.concurrent.TimeoutException
 @Configuration
 @ConditionalOnClass(MqttClient::class)
 @EnableConfigurationProperties(MqttProperties::class)
-open class MqttAutoConfiguration {
+class MqttAutoConfiguration {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Bean
-    open fun mqttClient(config: MqttProperties): Mqtt3Client {
+    fun mqttClient(config: MqttProperties): Mqtt3Client {
         val baseClient = Mqtt3Client.builder()
-            .identifier(config.clientId)
             .serverHost(config.host)
             .serverPort(config.port)
             .automaticReconnectWithDefaultConfig()
@@ -31,13 +30,19 @@ open class MqttAutoConfiguration {
             .password(config.password.toByteArray())
             .applySimpleAuth()
 
-        val client = if (config.ssl) {
-            baseClient.sslWithDefaultConfig().build()
+        val builder = if (config.ssl) {
+            baseClient.sslWithDefaultConfig()
         } else {
-            baseClient.build()
+            baseClient
         }
 
-        logger.debug("Connecting to ${config.username}@${config.host}:${config.port}...")
+        val client = if (config.clientId != null) {
+            builder.identifier(config.clientId!!).build()
+        } else {
+            builder.build()
+        }
+
+        logger.info("Connecting to ${config.username}@${config.host}:${config.port}...")
 
         try {
             val acknowledgement = client.toAsync().connect().get(10, SECONDS)
@@ -45,7 +50,7 @@ open class MqttAutoConfiguration {
             if (acknowledgement.returnCode.isError) {
                 throw BrokerConnectException(acknowledgement)
             } else {
-                logger.debug("Successfully connected to broker.")
+                logger.info("Successfully connected to broker.")
 
                 return client
             }
@@ -55,13 +60,13 @@ open class MqttAutoConfiguration {
     }
 
     @Bean
-    open fun annotationCollector() = AnnotationCollector()
+    fun annotationCollector() = AnnotationCollector()
 
     @Bean
-    open fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
+    fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
-    open fun adapter(
+    fun adapter(
         collector: AnnotationCollector,
         mapper: ObjectMapper,
         config: MqttProperties,

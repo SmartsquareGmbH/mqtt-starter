@@ -8,12 +8,12 @@ import org.amshove.kluent.shouldStartWith
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 
-internal class AnnotationCollectorTests {
+class AnnotationCollectorTests {
 
     private val annotationCollector = AnnotationCollector()
 
     @Test
-    internal fun `passes if only payload is defined`() {
+    fun `passes if only payload is defined`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String) {
@@ -25,7 +25,7 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `passes if only topic is defined`() {
+    fun `passes if only topic is defined`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(t: MqttTopic) {
@@ -37,7 +37,7 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `passes if payload and topic is defined`() {
+    fun `passes if payload and topic is defined`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, topic: MqttTopic) {
@@ -49,7 +49,7 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `passes if a subscriber has no parameters`() {
+    fun `passes if a subscriber has no parameters`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage() {
@@ -61,7 +61,7 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `throws if one subscriber has more than one payload parameter`() {
+    fun `throws if one subscriber has more than one payload parameter`() {
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, b: String) {
@@ -75,7 +75,7 @@ internal class AnnotationCollectorTests {
     }
 
     @Test
-    internal fun `throws if multiple subscribers have more than one payload parameter`() {
+    fun `throws if multiple subscribers have more than one payload parameter`() {
         val bean = object {
             @MqttSubscribe(topic = "a", qos = EXACTLY_ONCE)
             fun first(a: String, b: String) {
