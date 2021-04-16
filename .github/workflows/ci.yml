@@ -1,27 +1,37 @@
-name: CD
+name: CI
 
 on: push
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 8, 16 ]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.1
 
-      - name: Setup JDK 14
+      - name: Setup JDK
         uses: actions/setup-java@v1.4.3
         with:
-          java-version: 14
+          java-version: ${{ matrix.java }}
 
       - name: Setup Gradle cache
         uses: actions/cache@v2.1.0
         with:
           path: ~/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('build.gradle') }}
+          key: ${{ runner.os }}-${{ matrix.java }}-gradle-${{ hashFiles('build.gradle') }}
           restore-keys: |
-            ${{ runner.os }}-gradle
+            ${{ runner.os }}-${{ matrix.java }}-gradle
 
       - name: Check
         run: ./gradlew check
+
+      - name: Upload Gradle reports
+        uses: actions/upload-artifact@v2.1.3
+        if: failure()
+        with:
+          name: Gradle Reports ${{ matrix.java }}
+          path: "**/build/reports"
