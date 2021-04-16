@@ -6,36 +6,13 @@ This project contains a basic configuration to consume MQTT messages using the H
 
 ### Gradle Configuration
 
-You can either use the pre-built packages hosted on Github, using your GH credentials.
-
 ```groovy
 repositories {
-	maven("https://maven.pkg.github.com/SmartsquareGmbH/mqtt-starter") {
-		credentials {
-			username = System.properties['GH_USER']
-			password = System.properties['GH_TOKEN'] // The token must have at least the privilege to read packages.
-		}
-	}
+    mavenCentral()
 }
 
 dependencies {
-	implementation("de.smartsquare:mqtt-starter:0.9.0")
-}
-```
-
-Or clone this repo and build and publish to your local maven repo.
-
-```shell
-./gradlew publishToMavenLocal
-```
-
-```groovy
-repositories {
-	mavenLocal()
-}
-
-dependencies {
-	implementation("de.smartsquare:mqtt-starter:1.0")
+    implementation "de.smartsquare:mqtt-starter:0.9.8"
 }
 ```
 
