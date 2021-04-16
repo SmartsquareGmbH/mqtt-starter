@@ -14,7 +14,9 @@ class AnnotationCollector : BeanPostProcessor {
     val subscribers: MutableMap<Any, List<Method>> = mutableMapOf()
 
     override fun postProcessBeforeInitialization(bean: Any, beanName: String): Any {
-        val collectedSubscribers = bean.javaClass.methods.filter { it.isAnnotationPresent(MqttSubscribe::class.java) }
+        val collectedSubscribers = bean.javaClass.methods
+            .filter { it.isAnnotationPresent(MqttSubscribe::class.java) }
+            .sortedBy { it.name }
 
         val erroneousSubscriberDefinitions = collectedSubscribers.filter { it.isInvalidSignature() }
         if (erroneousSubscriberDefinitions.isNotEmpty()) {
