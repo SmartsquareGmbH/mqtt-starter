@@ -8,23 +8,23 @@ import javax.validation.constraints.NotEmpty
 @Validated
 @ConstructorBinding
 @ConfigurationProperties(prefix = "mqtt")
-class MqttProperties(
+data class MqttProperties(
 
-  val port: Int,
+    val port: Int,
 
-  @NotEmpty
-  val host: String,
+    @NotEmpty
+    val host: String,
 
-  @NotEmpty
-  val clientId: String? = null,
+    @NotEmpty
+    val clientId: String? = null,
 
-  @NotEmpty
-  val username: String,
+    @NotEmpty
+    val username: String,
 
-  @NotEmpty
-  val password: String,
+    @NotEmpty
+    val password: String,
 
-  val group: String? = null,
+    val group: String? = null,
 
-  val ssl: Boolean
+    val ssl: Boolean
 )

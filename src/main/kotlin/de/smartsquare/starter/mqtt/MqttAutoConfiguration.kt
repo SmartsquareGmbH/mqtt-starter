@@ -55,7 +55,7 @@ class MqttAutoConfiguration {
                 return client
             }
         } catch (e: TimeoutException) {
-            throw BrokerConnectException("Broker ${config.host}:${config.port} did not respond within 10 seconds.")
+            throw BrokerConnectException("Broker ${config.host}:${config.port} did not respond within 10 seconds.", e)
         }
     }
 

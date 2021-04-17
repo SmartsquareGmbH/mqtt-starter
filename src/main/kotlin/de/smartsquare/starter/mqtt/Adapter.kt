@@ -15,7 +15,7 @@ class Adapter(
     private val collector: AnnotationCollector,
     private val config: MqttProperties,
     private val jackson: ObjectMapper,
-    private val client: Mqtt3Client
+    client: Mqtt3Client
 ) : InitializingBean {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -53,12 +53,10 @@ class Adapter(
     }
 
     private fun resolve(it: Class<*>, msg: Mqtt3Publish, payloadType: Class<*>): Any? {
-        return if (it.isAssignableFrom(MqttTopic::class.java)) {
-            msg.topic
-        } else if (it.isAssignableFrom(String::class.java)) {
-            msg.payloadAsBytes.decodeToString()
-        } else {
-            jackson.readValue(msg.payloadAsBytes, payloadType)
+        return when {
+            it.isAssignableFrom(MqttTopic::class.java) -> msg.topic
+            it.isAssignableFrom(String::class.java) -> msg.payloadAsBytes.decodeToString()
+            else -> jackson.readValue(msg.payloadAsBytes, payloadType)
         }
     }
 }

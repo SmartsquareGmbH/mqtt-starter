@@ -14,6 +14,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if only payload is defined`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String) {
@@ -26,6 +27,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if only topic is defined`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(t: MqttTopic) {
@@ -38,6 +40,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if payload and topic is defined`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, topic: MqttTopic) {
@@ -50,6 +53,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if a subscriber has no parameters`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage() {
@@ -62,6 +66,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `throws if one subscriber has more than one payload parameter`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
             fun onMessage(a: String, b: String) {
@@ -76,6 +81,7 @@ class AnnotationCollectorTests {
 
     @Test
     fun `throws if multiple subscribers have more than one payload parameter`() {
+        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
             @MqttSubscribe(topic = "a", qos = EXACTLY_ONCE)
             fun first(a: String, b: String) {
@@ -91,5 +97,4 @@ class AnnotationCollectorTests {
             .exceptionMessage
             .shouldStartWith("Following subscribers are invalid [testBean#first, testBean#second].")
     }
-
 }
