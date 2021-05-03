@@ -20,6 +20,8 @@ import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 @SpringBootTest(
     classes = [
@@ -53,7 +55,7 @@ class MqttIntegrationTests {
                 BindMode.READ_ONLY
             )
             .withExposedPorts(1883, 8081, 18083)
-            .waitingFor(Wait.forHttp("/status").forPort(8081))
+            .waitingFor(Wait.forHttp("/status").forPort(8081).withStartupTimeout(Duration.of(1, ChronoUnit.MINUTES)))
             .withLogConsumer(logConsumer.withPrefix("emqx"))
 
         init {
