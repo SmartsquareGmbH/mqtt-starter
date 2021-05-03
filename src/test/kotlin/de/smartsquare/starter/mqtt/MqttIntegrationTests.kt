@@ -78,6 +78,9 @@ class MqttIntegrationTests {
     private lateinit var client: Mqtt3Client
 
     @Autowired
+    private lateinit var publisher: MqttPublisher
+
+    @Autowired
     private lateinit var intSubscriber: IntSubscriber
 
     @Autowired
@@ -132,6 +135,13 @@ class MqttIntegrationTests {
         await untilCallTo { objectSubscriber.receivedPayload } has { value == 3 }
     }
 
+    @Test
+    fun `publishes message`() {
+        publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
+
+        await untilCallTo { intSubscriber.receivedPayload } has { this == 1 }
+    }
+
     @Component
     class IntSubscriber {
 
@@ -167,6 +177,4 @@ class MqttIntegrationTests {
             _receivedPayload = payload
         }
     }
-
-    data class TemperatureMessage(val value: Int)
 }
