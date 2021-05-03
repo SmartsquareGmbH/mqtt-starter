@@ -1,7 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import org.slf4j.LoggerFactory
@@ -11,10 +9,10 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 @Component
-class Adapter(
+class MqttRouter(
     private val collector: AnnotationCollector,
+    private val adapter: MqttMessageAdapter,
     private val config: MqttProperties,
-    private val jackson: ObjectMapper,
     client: Mqtt3Client
 ) : InitializingBean {
 
@@ -25,7 +23,6 @@ class Adapter(
     override fun afterPropertiesSet() {
         for ((bean, subscribers) in collector.subscribers) {
             for (subscriber in subscribers) {
-                val payloadType = subscriber.parameterTypes.first()
                 val annotation = subscriber.getAnnotation(MqttSubscribe::class.java)
                 val topic = if (annotation.shared && config.group != null) {
                     "\$share/${config.group}/${annotation.topic}"
@@ -36,27 +33,19 @@ class Adapter(
                 asyncClient.subscribeWith()
                     .topicFilter(topic)
                     .qos(annotation.qos)
-                    .callback { msg -> deliver(subscriber, bean, msg, payloadType) }
+                    .callback { message -> deliver(subscriber, bean, message) }
                     .send()
             }
         }
     }
 
-    private fun deliver(subscriber: Method, bean: Any, msg: Mqtt3Publish, payloadType: Class<*>) {
+    private fun deliver(subscriber: Method, bean: Any, message: Mqtt3Publish) {
         try {
-            val parameters = subscriber.parameterTypes.map { resolve(it, msg, payloadType) }.toTypedArray()
+            val parameters = subscriber.parameterTypes.map { adapter.adapt(message, it) }.toTypedArray()
 
             subscriber.invoke(bean, *parameters)
         } catch (e: InvocationTargetException) {
-            logger.error("Error while delivering the message.", e)
-        }
-    }
-
-    private fun resolve(it: Class<*>, msg: Mqtt3Publish, payloadType: Class<*>): Any? {
-        return when {
-            it.isAssignableFrom(MqttTopic::class.java) -> msg.topic
-            it.isAssignableFrom(String::class.java) -> msg.payloadAsBytes.decodeToString()
-            else -> jackson.readValue(msg.payloadAsBytes, payloadType)
+            logger.error("Error while delivering mqtt message.", e)
         }
     }
 }

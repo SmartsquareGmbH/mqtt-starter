@@ -11,7 +11,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 
-@SpringBootTest(classes = [AnnotationCollectorIntegrationTests.PostProcessorConfiguration::class, AnnotationCollectorIntegrationTests.JacksonConfiguration::class])
+@SpringBootTest(
+    classes = [
+        AnnotationCollectorIntegrationTests.PostProcessorConfiguration::class,
+        AnnotationCollectorIntegrationTests.JacksonConfiguration::class
+    ]
+)
 class AnnotationCollectorIntegrationTests {
 
     @Autowired
@@ -38,8 +43,6 @@ class AnnotationCollectorIntegrationTests {
         @Bean
         fun subscriber() = Subscriber()
     }
-
-    data class TemperatureMessage(val value: Int)
 
     @Component
     class Subscriber {
