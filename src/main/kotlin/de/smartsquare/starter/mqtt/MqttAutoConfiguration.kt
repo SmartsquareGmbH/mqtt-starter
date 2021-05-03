@@ -66,11 +66,7 @@ class MqttAutoConfiguration {
     fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
-    fun messageAdapter(
-        objectMapper: ObjectMapper,
-        config: MqttProperties,
-        client: Mqtt3Client
-    ): MqttMessageAdapter {
+    fun messageAdapter(objectMapper: ObjectMapper): MqttMessageAdapter {
         return MqttMessageAdapter(objectMapper)
     }
 
@@ -89,6 +85,6 @@ class MqttAutoConfiguration {
         messageAdapter: MqttMessageAdapter,
         client: Mqtt3Client
     ): MqttPublisher {
-        return MqttPublisher( messageAdapter, client)
+        return MqttPublisher(messageAdapter, client)
     }
 }
