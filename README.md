@@ -19,14 +19,14 @@ dependencies {
 ### Application Properties
 
 ```properties
-mqtt.host: test.mosquitto.org
-mqtt.port: 1883
+mqtt.host=test.mosquitto.org
+mqtt.port=1883
 
-mqtt.client-id: test
-mqtt.username: admin
-mqtt.password: test
+mqtt.client-id=test
+mqtt.username=admin
+mqtt.password=test
 
-mqtt.ssl: false
+mqtt.ssl?false
 ```
 
 ### Consumer Endpoints
@@ -71,5 +71,22 @@ class TestConsumer {
     fun subscribe(ping: Int, temperaturePayload: TemperaturePayload) {
         // throws de.smartsquare.starter.mqtt.MqttConfigurationException
     }
+}
+```
+
+### Publisher
+
+```kotlin
+import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
+import org.springframework.stereotype.Component
+
+@Component
+class TestPublisher(private val mqttPublisher: MqttPublisher) {
+
+    fun publish(payload: TemperaturePayload) {
+        mqttPublisher.publish("/home/temperature", AT_LEAST_ONCE, payload)
+    }
+
+    class TemperaturePayload(val value: Int)
 }
 ```
