@@ -55,7 +55,7 @@ class MqttIntegrationTests {
                 BindMode.READ_ONLY
             )
             .withExposedPorts(1883, 8081, 18083)
-            .waitingFor(Wait.forHttp("/status").forPort(8081).withStartupTimeout(Duration.of(1, ChronoUnit.MINUTES)))
+            .waitingFor(Wait.forLogMessage(".*is running now!.*", 1))
             .withLogConsumer(logConsumer.withPrefix("emqx"))
 
         init {
