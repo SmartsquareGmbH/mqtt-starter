@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
@@ -38,20 +37,11 @@ class MqttIntegrationTests {
         private val emqxImageName = DockerImageName.parse("emqx/emqx:4.2.10")
 
         private val emqx = KGenericContainer(emqxImageName)
-            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_mnesia")
-            .withEnv("EMQX_AUTH__MNESIA__AS", "username")
+            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_username")
+            .withEnv("EMQX_AUTH__USER__1__USERNAME", "admin")
+            .withEnv("EMQX_AUTH__USER__1__PASSWORD", "public")
             .withEnv("EMQX_ALLOW_ANONYMOUS", "false")
             .withEnv("WAIT_FOR_ERLANG", "60")
-            .withClasspathResourceMapping(
-                "acl.conf",
-                "/opt/emqx/etc/acl.conf",
-                BindMode.READ_ONLY
-            )
-            .withClasspathResourceMapping(
-                "mnesia.conf",
-                "/opt/emqx/etc/plugins/emqx_auth_mnesia.conf",
-                BindMode.READ_ONLY
-            )
             .withExposedPorts(1883, 8081, 18083)
             .waitingFor(Wait.forLogMessage(".*is running now!.*", 1))
             .withLogConsumer(logConsumer.withPrefix("emqx"))
