@@ -3,10 +3,8 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
-import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 
-@Component
 class AnnotationCollector : BeanPostProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
