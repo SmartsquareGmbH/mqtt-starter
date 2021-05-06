@@ -4,11 +4,9 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
-import org.springframework.stereotype.Component
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-@Component
 class MqttRouter(
     private val collector: AnnotationCollector,
     private val adapter: MqttMessageAdapter,

@@ -1,7 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttQos.EXACTLY_ONCE
 import org.amshove.kluent.shouldHaveSize
 import org.junit.jupiter.api.Test
@@ -11,12 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 
-@SpringBootTest(
-    classes = [
-        AnnotationCollectorIntegrationTests.PostProcessorConfiguration::class,
-        AnnotationCollectorIntegrationTests.JacksonConfiguration::class
-    ]
-)
+@SpringBootTest(classes = [AnnotationCollectorIntegrationTests.PostProcessorConfiguration::class])
 class AnnotationCollectorIntegrationTests {
 
     @Autowired
@@ -25,13 +18,6 @@ class AnnotationCollectorIntegrationTests {
     @Test
     fun `find subscriber bean`() {
         annotationCollector.subscribers.shouldHaveSize(1)
-    }
-
-    @Configuration
-    class JacksonConfiguration {
-
-        @Bean
-        fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
     }
 
     @Configuration

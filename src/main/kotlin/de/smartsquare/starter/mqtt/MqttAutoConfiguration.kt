@@ -1,6 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
@@ -63,11 +62,8 @@ class MqttAutoConfiguration {
     fun annotationCollector() = AnnotationCollector()
 
     @Bean
-    fun jackson(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
-
-    @Bean
-    fun messageAdapter(objectMapper: ObjectMapper): MqttMessageAdapter {
-        return MqttMessageAdapter(objectMapper)
+    fun messageAdapter(): MqttMessageAdapter {
+        return MqttMessageAdapter(jacksonObjectMapper().findAndRegisterModules())
     }
 
     @Bean
