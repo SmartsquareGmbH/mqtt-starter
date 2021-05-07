@@ -3,18 +3,18 @@ buildscript {
         javaVersion = JavaVersion.VERSION_1_8
 
         junitVersion = "5.7.1"
-        kotlinVersion = "1.4.30"
+        kotlinVersion = "1.5.0"
         detektVersion = "1.16.0"
         ktlintVersion = "10.0.0"
-        jacksonVersion = "2.12.1"
-        springBootVersion = "2.4.2"
+        jacksonVersion = "2.12.3"
+        springBootVersion = "2.4.5"
         awaitilityVersion = "4.0.3"
-        hivemqClientVersion = "1.2.1"
+        hivemqClientVersion = "1.2.2"
         testcontainersVersion = "1.15.2"
         kluentVersion = "1.65"
-        dokkaVersion = "1.4.30"
+        dokkaVersion = "1.4.32"
         dependencyManagementVersion = "1.0.11.RELEASE"
-        gradleNexusVersion = "1.0.0"
+        gradleNexusVersion = "1.1.0"
     }
 
     repositories {
@@ -27,14 +27,14 @@ buildscript {
 }
 
 plugins {
-    id 'signing'
-    id 'maven-publish'
+    id "signing"
+    id "maven-publish"
     id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlinVersion"
     id "org.jetbrains.dokka" version "$dokkaVersion"
     id "io.gitlab.arturbosch.detekt" version "$detektVersion"
     id "org.jlleitschuh.gradle.ktlint" version "$ktlintVersion"
-    id 'io.spring.dependency-management' version "$dependencyManagementVersion"
+    id "io.spring.dependency-management" version "$dependencyManagementVersion"
     id "io.github.gradle-nexus.publish-plugin" version "$gradleNexusVersion"
 }
 
@@ -59,6 +59,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    
     implementation "org.springframework.boot:spring-boot:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
@@ -76,7 +78,7 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:$testcontainersVersion"
     testImplementation "org.testcontainers:junit-jupiter:$testcontainersVersion"
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        exclude group: "org.junit.vintage", module: "junit-vintage-engine"
     }
 }
 
@@ -109,47 +111,47 @@ tasks.withType(Javadoc).all {
     it.dependsOn dokkaHtml
 }
 
-group = 'de.smartsquare'
+group = "de.smartsquare"
 version = System.getenv("GITHUB_VERSION") ?: "1.0.0-SNAPSHOT"
-description = 'Spring Boot Starter wrapping the hivemq mqtt client.'
+description = "Spring Boot Starter wrapping the hivemq mqtt client."
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'mqtt-starter'
+            artifactId = "mqtt-starter"
 
             from components.java
 
             pom {
-                name = 'Mqtt-Starter'
-                description = 'Spring Boot Starter wrapping the hivemq mqtt client.'
-                url = 'https://github.com/SmartsquareGmbH/mqtt-starter'
+                name = "Mqtt-Starter"
+                description = "Spring Boot Starter wrapping the hivemq mqtt client."
+                url = "https://github.com/SmartsquareGmbH/mqtt-starter"
 
                 licenses {
                     license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
+                        name = "MIT License"
+                        url = "https://opensource.org/licenses/MIT"
                     }
                 }
                 developers {
                     developer {
-                        id = 'deen13'
-                        name = 'Dennis Dierkes'
-                        email = 'dierkes@smartsquare.de'
+                        id = "deen13"
+                        name = "Dennis Dierkes"
+                        email = "dierkes@smartsquare.de"
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/SmartsquareGmbH/mqtt-starter.git'
-                    developerConnection = 'scm:git:ssh://github.com/SmartsquareGmbH/mqtt-starter.git'
-                    url = 'https://github.com/SmartsquareGmbH/mqtt-starter'
+                    connection = "scm:git:https://github.com/SmartsquareGmbH/mqtt-starter.git"
+                    developerConnection = "scm:git:ssh://github.com/SmartsquareGmbH/mqtt-starter.git"
+                    url = "https://github.com/SmartsquareGmbH/mqtt-starter"
                 }
                 organization {
-                    name = 'Smartsquare GmbH'
-                    url = 'https://github.com/SmartsquareGmbH'
+                    name = "Smartsquare GmbH"
+                    url = "https://github.com/SmartsquareGmbH"
                 }
                 issueManagement {
-                    system = 'GitHub'
-                    url = 'https://github.com/SmartsquareGmbH/mqtt-starter/issues'
+                    system = "GitHub"
+                    url = "https://github.com/SmartsquareGmbH/mqtt-starter/issues"
                 }
             }
         }
