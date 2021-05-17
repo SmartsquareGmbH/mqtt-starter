@@ -5,11 +5,18 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
 import java.lang.reflect.Method
 
+/**
+ * Helper class to find all beans with methods annotated with [MqttSubscribe].
+ */
 class AnnotationCollector : BeanPostProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    val subscribers: MutableMap<Any, List<Method>> = mutableMapOf()
+    /**
+     * Map of beans to it's methods annotated with [MqttSubscribe].
+     */
+    val subscribers: Map<Any, List<Method>> get() = _subscribers
+    private val _subscribers = mutableMapOf<Any, List<Method>>()
 
     override fun postProcessBeforeInitialization(bean: Any, beanName: String): Any {
         val collectedSubscribers = bean.javaClass.methods
@@ -17,9 +24,11 @@ class AnnotationCollector : BeanPostProcessor {
             .sortedBy { it.name }
 
         val erroneousSubscriberDefinitions = collectedSubscribers.filter { it.isInvalidSignature() }
+
         if (erroneousSubscriberDefinitions.isNotEmpty()) {
-            val joinedSubscribers =
-                erroneousSubscriberDefinitions.joinToString(separator = ", ") { "$beanName#${it.name}" }
+            val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") {
+                "$beanName#${it.name}"
+            }
 
             throw MqttConfigurationException(
                 """Following subscribers are invalid [$joinedSubscribers].
@@ -34,14 +43,14 @@ class AnnotationCollector : BeanPostProcessor {
         for (subscriber in collectedSubscribers) {
             logger.debug("Found subscriber ${subscriber.name} of ${bean.javaClass.simpleName}.")
 
-            subscribers[bean] = subscribers.getOrDefault(bean, emptyList()) + listOf(subscriber)
+            _subscribers[bean] = subscribers.getOrDefault(bean, emptyList()) + listOf(subscriber)
         }
 
         return bean
     }
 
     /**
-     * @return true if the method has defined more than one parameter beside the topic.
+     * Returns true if the method has defined more than one parameter besides the topic.
      */
     private fun Method.isInvalidSignature(): Boolean {
         val topicParamCount = this.parameterTypes.count { it.isAssignableFrom(MqttTopic::class.java) }

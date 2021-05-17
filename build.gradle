@@ -60,7 +60,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    
+
     implementation "org.springframework.boot:spring-boot:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-autoconfigure:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
@@ -86,12 +86,33 @@ dokkaHtml {
     outputDirectory.set(javadoc.destinationDir)
 
     dokkaSourceSets {
-        named("main") {
-            jdkVersion.set(javaVersion)
+        configureEach {
+            jdkVersion.set(project.ext.javaVersion.getMajorVersion() as Integer)
+
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
                 remoteUrl.set(new URL("https://github.com/SmartsquareGmbH/mqtt-starter/blob/master/src/main/kotlin"))
                 remoteLineSuffix.set("#L")
+            }
+
+            externalDocumentationLink {
+                url.set(new URL("https://docs.spring.io/spring-boot/docs/$springBootVersion/api/"))
+            }
+
+            externalDocumentationLink {
+                url.set(new URL("https://docs.spring.io/spring-framework/docs/current/javadoc-api/"))
+            }
+
+            externalDocumentationLink {
+                url.set(new URL("https://javaee.github.io/javaee-spec/javadocs/"))
+            }
+
+            externalDocumentationLink {
+                url.set(new URL("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/$hivemqClientVersion/"))
+            }
+
+            externalDocumentationLink {
+                url.set(new URL("https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/$jacksonVersion/"))
             }
         }
     }

@@ -7,6 +7,10 @@ import org.springframework.beans.factory.InitializingBean
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
+/**
+ * Helper class that subscribes to the mqtt broker and routes received messages to the configured subscribers (methods
+ * annotated with [MqttSubscribe]).
+ */
 class MqttRouter(
     private val collector: AnnotationCollector,
     private val adapter: MqttMessageAdapter,

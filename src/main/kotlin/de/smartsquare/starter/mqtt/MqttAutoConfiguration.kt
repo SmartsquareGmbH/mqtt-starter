@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.TimeoutException
 
+/**
+ * Main entry point for the spring auto configuration. Exposes all necessary beans for connection,
+ * subscription and publishing to configured mqtt broker.
+ */
 @Configuration
 @ConditionalOnClass(MqttClient::class)
 @EnableConfigurationProperties(MqttProperties::class)
@@ -18,6 +22,9 @@ class MqttAutoConfiguration {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Returns a configured and connected mqtt client.
+     */
     @Bean
     fun mqttClient(config: MqttProperties): Mqtt3Client {
         val baseClient = Mqtt3Client.builder()
