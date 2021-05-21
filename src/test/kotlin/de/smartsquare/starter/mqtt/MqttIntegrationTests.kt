@@ -34,10 +34,10 @@ class MqttIntegrationTests {
         private val logger = LoggerFactory.getLogger(this::class.java)
         private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
 
-        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.2.10")
+        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.3.1")
 
         private val emqx = KGenericContainer(emqxImageName)
-            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_username")
+            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_mnesia")
             .withEnv("EMQX_AUTH__USER__1__USERNAME", "admin")
             .withEnv("EMQX_AUTH__USER__1__PASSWORD", "public")
             .withEnv("EMQX_ALLOW_ANONYMOUS", "false")
