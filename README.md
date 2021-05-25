@@ -26,7 +26,7 @@ mqtt.client-id=test
 mqtt.username=admin
 mqtt.password=test
 
-mqtt.ssl?false
+mqtt.ssl=false
 ```
 
 ### Consumer Endpoints
