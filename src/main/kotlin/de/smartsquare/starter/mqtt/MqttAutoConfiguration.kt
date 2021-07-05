@@ -35,6 +35,14 @@ class MqttAutoConfiguration {
             .username(config.username)
             .password(config.password.toByteArray())
             .applySimpleAuth()
+            .addConnectedListener { logger.info("Connected to broker.") }
+            .addDisconnectedListener {
+                if (it.reconnector.isReconnect) {
+                    logger.warn("Disconnected from broker, reconnecting...")
+                } else {
+                    logger.info("Disconnected from broker.")
+                }
+            }
 
         val builder = if (config.ssl) {
             baseClient.sslWithDefaultConfig()
@@ -56,8 +64,6 @@ class MqttAutoConfiguration {
             if (acknowledgement.returnCode.isError) {
                 throw BrokerConnectException(acknowledgement)
             } else {
-                logger.info("Successfully connected to broker.")
-
                 return DisposableMqtt3Client(client)
             }
         } catch (e: TimeoutException) {
