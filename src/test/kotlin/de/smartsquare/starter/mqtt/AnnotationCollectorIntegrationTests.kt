@@ -33,8 +33,8 @@ class AnnotationCollectorIntegrationTests {
     @Component
     class Subscriber {
 
+        @Suppress("unused", "UNUSED_PARAMETER")
         @MqttSubscribe(topic = "topic", qos = EXACTLY_ONCE)
-        fun onMessage(payload: TemperatureMessage) {
-        }
+        fun onMessage(payload: TemperatureMessage) = Unit
     }
 }

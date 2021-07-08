@@ -1,20 +1,22 @@
 buildscript {
     ext {
         javaVersion = JavaVersion.VERSION_1_8
+        gradleVersion = "7.1.1"
 
-        junitVersion = "5.7.1"
-        kotlinVersion = "1.5.0"
-        detektVersion = "1.16.0"
-        ktlintVersion = "10.0.0"
-        jacksonVersion = "2.12.3"
-        springBootVersion = "2.4.5"
-        awaitilityVersion = "4.0.3"
+        junitVersion = "5.7.2"
+        kotlinVersion = "1.5.20"
+        detektVersion = "1.17.1"
+        ktlintVersion = "10.1.0"
+        jacksonVersion = "2.12.4"
+        springBootVersion = "2.5.2"
+        awaitilityVersion = "4.1.0"
         hivemqClientVersion = "1.2.2"
-        testcontainersVersion = "1.15.2"
-        kluentVersion = "1.65"
-        dokkaVersion = "1.4.32"
+        testcontainersVersion = "1.15.3"
+        kluentVersion = "1.67"
+        dokkaVersion = "1.5.0"
         dependencyManagementVersion = "1.0.11.RELEASE"
         gradleNexusVersion = "1.1.0"
+        gradleVersionsPluginVersion = "0.39.0"
     }
 
     repositories {
@@ -37,6 +39,7 @@ plugins {
     id "org.jlleitschuh.gradle.ktlint" version "$ktlintVersion"
     id "io.spring.dependency-management" version "$dependencyManagementVersion"
     id "io.github.gradle-nexus.publish-plugin" version "$gradleNexusVersion"
+    id "com.github.ben-manes.versions" version "$gradleVersionsPluginVersion"
 }
 
 group = "de.smartsquare"
@@ -45,7 +48,6 @@ description = "Spring Boot Starter wrapping the hivemq mqtt client."
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
@@ -212,4 +214,21 @@ signing {
     def signingPassword = findProperty("signingPassword") ?: System.getenv("GPG_PASSPHRASE")
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
+}
+
+dependencyUpdates {
+    rejectVersionIf {
+        isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+    }
+}
+
+static def isNonStable(String version) {
+    def stableKeyword = ["RELEASE", "FINAL", "GA"].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+
+    return !stableKeyword && !(version ==~ regex)
+}
+
+wrapper {
+    gradleVersion = project.ext.gradleVersion
 }

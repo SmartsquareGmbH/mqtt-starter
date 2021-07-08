@@ -14,11 +14,10 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if only payload is defined`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
-            fun onMessage(a: String) {
-            }
+            fun onMessage(a: String) = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
@@ -27,11 +26,10 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if only topic is defined`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
-            fun onMessage(t: MqttTopic) {
-            }
+            fun onMessage(t: MqttTopic) = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
@@ -40,11 +38,10 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if payload and topic is defined`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
-            fun onMessage(a: String, topic: MqttTopic) {
-            }
+            fun onMessage(a: String, topic: MqttTopic) = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
@@ -53,11 +50,10 @@ class AnnotationCollectorTests {
 
     @Test
     fun `passes if a subscriber has no parameters`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
-            fun onMessage() {
-            }
+            fun onMessage() = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
@@ -66,11 +62,10 @@ class AnnotationCollectorTests {
 
     @Test
     fun `throws if one subscriber has more than one payload parameter`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "test", qos = EXACTLY_ONCE)
-            fun onMessage(a: String, b: String) {
-            }
+            fun onMessage(a: String, b: String) = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
@@ -81,15 +76,14 @@ class AnnotationCollectorTests {
 
     @Test
     fun `throws if multiple subscribers have more than one payload parameter`() {
-        @Suppress("unused", "UNUSED_PARAMETER")
         val bean = object {
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "a", qos = EXACTLY_ONCE)
-            fun first(a: String, b: String) {
-            }
+            fun first(a: String, b: String) = Unit
 
+            @Suppress("unused", "UNUSED_PARAMETER")
             @MqttSubscribe(topic = "b", qos = EXACTLY_ONCE)
-            fun second(a: String, b: String) {
-            }
+            fun second(a: String, b: String) = Unit
         }
 
         invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
