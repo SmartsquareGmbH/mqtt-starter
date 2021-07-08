@@ -3,13 +3,14 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
-import de.smartsquare.starter.mqtt.MqttIntegrationTests.IntSubscriber
-import de.smartsquare.starter.mqtt.MqttIntegrationTests.ObjectSubscriber
-import de.smartsquare.starter.mqtt.MqttIntegrationTests.StringSubscriber
+import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.IntSubscriber
+import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.ObjectSubscriber
+import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.StringSubscriber
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.has
 import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,6 +21,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
+@ExtendWith(EmqxExtension::class)
 @SpringBootTest(
     classes = [
         MqttAutoConfiguration::class,
@@ -28,39 +30,7 @@ import org.testcontainers.utility.DockerImageName
         ObjectSubscriber::class
     ]
 )
-class MqttIntegrationTests {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(this::class.java)
-        private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
-
-        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.3.1")
-
-        private val emqx = KGenericContainer(emqxImageName)
-            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_mnesia")
-            .withEnv("EMQX_AUTH__USER__1__USERNAME", "admin")
-            .withEnv("EMQX_AUTH__USER__1__PASSWORD", "public")
-            .withEnv("EMQX_ALLOW_ANONYMOUS", "false")
-            .withEnv("WAIT_FOR_ERLANG", "60")
-            .withExposedPorts(1883, 8081, 18083)
-            .waitingFor(Wait.forLogMessage(".*is running now!.*", 1))
-            .withLogConsumer(logConsumer.withPrefix("emqx"))
-
-        init {
-            emqx.start()
-        }
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun brokerProperties(registry: DynamicPropertyRegistry) {
-            registry.add("mqtt.host") { emqx.host }
-            registry.add("mqtt.port") { emqx.firstMappedPort }
-            registry.add("mqtt.clientId") { "test" }
-            registry.add("mqtt.username") { "admin" }
-            registry.add("mqtt.password") { "public" }
-            registry.add("mqtt.ssl") { false }
-        }
-    }
+class MqttAutoConfigurationTest {
 
     @Autowired
     private lateinit var client: Mqtt3Client

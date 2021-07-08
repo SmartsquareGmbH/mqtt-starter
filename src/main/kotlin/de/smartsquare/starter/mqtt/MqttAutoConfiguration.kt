@@ -26,7 +26,7 @@ class MqttAutoConfiguration {
      * Returns a configured and connected mqtt client.
      */
     @Bean
-    fun mqttClient(config: MqttProperties): Mqtt3Client {
+    fun mqttClient(config: MqttProperties, configurers: List<MqttClientConfigurer>): Mqtt3Client {
         val clientBuilder = Mqtt3Client.builder()
             .serverHost(config.host)
             .serverPort(config.port)
@@ -45,6 +45,8 @@ class MqttAutoConfiguration {
             }
             .apply { if (config.ssl) sslWithDefaultConfig() }
             .apply { config.clientId?.also { clientId -> identifier(clientId) } }
+
+        configurers.forEach { it.configure(clientBuilder) }
 
         val mqttClient = clientBuilder.build()
 
