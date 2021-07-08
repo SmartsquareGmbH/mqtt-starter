@@ -54,8 +54,6 @@ data class MqttProperties(
 
     /**
      * The optional group subscriptions should be prefixed with.
-     *
-     * See [shared subscriptions](https://www.hivemq.com/blog/mqtt5-essentials-part7-shared-subscriptions).
      */
     val group: String? = null
 )

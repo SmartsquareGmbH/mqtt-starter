@@ -43,7 +43,7 @@ class MqttAutoConfiguration {
                     logger.info("Disconnected from broker.")
                 }
             }
-            .apply { if(config.ssl) sslWithDefaultConfig() }
+            .apply { if (config.ssl) sslWithDefaultConfig() }
             .apply { config.clientId?.also { clientId -> identifier(clientId) } }
 
         val mqttClient = clientBuilder.build()
