@@ -8,9 +8,16 @@ import org.springframework.beans.factory.InitializingBean
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+/**
+ * Subclass of the mqtt client to expose with awareness of the Spring lifecycle. Connects on creation and disconnects on
+ * destruction. All other methods are delegated to an internal instance.
+ *
+ * @property delegate The internal mqtt client.
+ * @property connectOptions Options to use when connecting.
+ */
 class SpringAwareMqtt3Client(
     private val delegate: Mqtt3Client,
-    private val connect: Mqtt3Connect
+    private val connectOptions: Mqtt3Connect = Mqtt3Connect.builder().build()
 ) : Mqtt3Client by delegate, InitializingBean, DisposableBean {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -24,7 +31,7 @@ class SpringAwareMqtt3Client(
 
         try {
             val acknowledgement = delegate.toAsync()
-                .connect(connect)
+                .connect(connectOptions)
                 .get(10, TimeUnit.SECONDS)
 
             if (acknowledgement.returnCode.isError) {
