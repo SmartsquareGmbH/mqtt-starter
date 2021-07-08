@@ -1,6 +1,6 @@
 # :honeybee: HiveMQ Spring Boot Starter
 
-This project contains a basic configuration to consume MQTT messages using the HiveMQ client.
+Use an automatically configured mqtt client in your Spring Boot project.
 
 ## Getting Started
 
@@ -16,20 +16,56 @@ dependencies {
 }
 ```
 
+## Configuration
+
 ### Application Properties
 
 ```properties
+# The host to connect to.
 mqtt.host=test.mosquitto.org
+
+# The port to connect to.
 mqtt.port=1883
 
+# The clientId to use when connecting (optional, random by default).
 mqtt.client-id=test
+
+# The username to use when connecting.
 mqtt.username=admin
+
+# The password to use when connecting.
 mqtt.password=test
 
+# If the connection should be encrypted.
 mqtt.ssl=false
+
+# If the session should be clean (optional, true by default).
+mqtt.clean=false
+
+# The group to use for shared subscriptions (optional).
+mqtt.group=group
 ```
 
-### Consumer Endpoints
+### Advanced
+
+It is possible to additionally configure the client programmatically by implementing the `MqttClientConfigurer`
+interface and exposing it as a bean.
+
+```kotlin
+@Component
+class IdentifierConfigurer : MqttClientConfigurer {
+
+    override fun configure(builder: Mqtt3ClientBuilder) {
+        builder.transportConfig().mqttConnectTimeout(10, TimeUnit.SECONDS)
+    }
+}
+```
+
+## Usage
+
+### Annotation based
+
+The `MqttSubscribe` annotation is scanned on application start and receives messages on the given payload.
 
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
@@ -76,6 +112,8 @@ class TestConsumer {
 
 ### Publisher
 
+Messages cann be published via the `MqttPublisher`.
+
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
 import org.springframework.stereotype.Component
@@ -88,5 +126,30 @@ class TestPublisher(private val mqttPublisher: MqttPublisher) {
     }
 
     class TemperaturePayload(val value: Int)
+}
+```
+
+### Direct usage
+
+The `MqttClient` is also exposed and can be used directly.
+
+```kotlin
+import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
+import org.springframework.stereotype.Service
+import java.util.concurrent.CompletableFuture
+
+@Service
+class TestService(private val mqttClient: Mqtt3Client) {
+
+    fun publishManually(payload: ByteArray): CompletableFuture<Mqtt3Publish> {
+        return mqttClient.toAsync()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("test")
+                    .payload(payload)
+                    .build()
+            )
+    }
 }
 ```
