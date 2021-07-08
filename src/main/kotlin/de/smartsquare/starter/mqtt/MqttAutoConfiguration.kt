@@ -27,7 +27,7 @@ class MqttAutoConfiguration {
      */
     @Bean
     fun mqttClient(config: MqttProperties): Mqtt3Client {
-        val baseClient = Mqtt3Client.builder()
+        val clientBuilder = Mqtt3Client.builder()
             .serverHost(config.host)
             .serverPort(config.port)
             .automaticReconnectWithDefaultConfig()
@@ -43,28 +43,23 @@ class MqttAutoConfiguration {
                     logger.info("Disconnected from broker.")
                 }
             }
+            .apply { if(config.ssl) sslWithDefaultConfig() }
+            .apply { config.clientId?.also { clientId -> identifier(clientId) } }
 
-        val builder = if (config.ssl) {
-            baseClient.sslWithDefaultConfig()
-        } else {
-            baseClient
-        }
-
-        val client = if (config.clientId != null) {
-            builder.identifier(config.clientId!!).build()
-        } else {
-            builder.build()
-        }
+        val mqttClient = clientBuilder.build()
 
         logger.info("Connecting to ${config.username}@${config.host}:${config.port}...")
 
         try {
-            val acknowledgement = client.toAsync().connect().get(10, SECONDS)
+            val acknowledgement = mqttClient.toAsync()
+                .connectWith()
+                .cleanSession(config.clean)
+                .send().get(10, SECONDS)
 
             if (acknowledgement.returnCode.isError) {
                 throw BrokerConnectException(acknowledgement)
             } else {
-                return DisposableMqtt3Client(client)
+                return DisposableMqtt3Client(mqttClient)
             }
         } catch (e: TimeoutException) {
             throw BrokerConnectException("Broker ${config.host}:${config.port} did not respond within 10 seconds.", e)

@@ -43,14 +43,19 @@ data class MqttProperties(
     val password: String,
 
     /**
+     * If ssl should be used for the connection to the mqtt broker.
+     */
+    val ssl: Boolean,
+
+    /**
+     * If the client should connect with a clean session.
+     */
+    val clean: Boolean = true,
+
+    /**
      * The optional group subscriptions should be prefixed with.
      *
      * See [shared subscriptions](https://www.hivemq.com/blog/mqtt5-essentials-part7-shared-subscriptions).
      */
-    val group: String? = null,
-
-    /**
-     * If ssl should be used for the connection to the mqtt broker.
-     */
-    val ssl: Boolean
+    val group: String? = null
 )
