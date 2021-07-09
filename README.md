@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation "de.smartsquare:mqtt-starter:0.11.0"
+    implementation "de.smartsquare:mqtt-starter:0.12.0"
 }
 ```
 
