@@ -1,53 +1,96 @@
 package de.smartsquare.starter.mqtt
 
+import com.hivemq.client.mqtt.datatypes.MqttQos
+import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
-import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.InitializingBean
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 /**
- * Helper class that subscribes to the mqtt broker and routes received messages to the configured subscribers (methods
- * annotated with [MqttSubscribe]).
+ * Abstract base class for all routers that handles the common implementation.
  */
-class MqttRouter(
+abstract class MqttRouter(
     private val collector: AnnotationCollector,
     private val adapter: MqttMessageAdapter,
-    private val config: MqttProperties,
-    client: Mqtt3Client
+    private val config: MqttProperties
 ) : InitializingBean {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val asyncClient = client.toAsync()
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun afterPropertiesSet() {
         for ((bean, subscribers) in collector.subscribers) {
             for (subscriber in subscribers) {
                 val annotation = subscriber.getAnnotation(MqttSubscribe::class.java)
-                val topic = if (annotation.shared && config.group != null) {
+
+                val subscribeTopic = if (annotation.shared && config.group != null) {
                     "\$share/${config.group}/${annotation.topic}"
                 } else {
                     annotation.topic
                 }
 
-                asyncClient.subscribeWith()
-                    .topicFilter(topic)
-                    .qos(annotation.qos)
-                    .callback { message -> deliver(subscriber, bean, message) }
-                    .send()
+                subscribe(subscribeTopic, annotation.qos) { topic, payload ->
+                    deliver(subscriber, bean, topic, payload)
+                }
             }
         }
     }
 
-    private fun deliver(subscriber: Method, bean: Any, message: Mqtt3Publish) {
+    protected abstract fun subscribe(topic: String, qos: MqttQos, subscribe: (MqttTopic, ByteArray) -> Unit)
+
+    private fun deliver(subscriber: Method, bean: Any, topic: MqttTopic, payload: ByteArray) {
         try {
-            val parameters = subscriber.parameterTypes.map { adapter.adapt(message, it) }.toTypedArray()
+            val parameters = subscriber.parameterTypes.map { adapter.adapt(topic, payload, it) }.toTypedArray()
 
             subscriber.invoke(bean, *parameters)
         } catch (e: InvocationTargetException) {
-            logger.error("Error while delivering mqtt message.", e)
+            logger.error("Error while delivering mqtt message.", e.cause)
         }
+    }
+}
+
+/**
+ * Helper class that subscribes to the mqtt broker and routes received messages to the configured subscribers (methods
+ * annotated with [MqttSubscribe]).
+ */
+class Mqtt3Router(
+    collector: AnnotationCollector,
+    adapter: MqttMessageAdapter,
+    config: MqttProperties,
+    client: Mqtt3Client
+) : MqttRouter(collector, adapter, config) {
+
+    private val asyncClient = client.toAsync()
+
+    override fun subscribe(topic: String, qos: MqttQos, subscribe: (MqttTopic, ByteArray) -> Unit) {
+        asyncClient.subscribeWith()
+            .topicFilter(topic)
+            .qos(qos)
+            .callback { subscribe(it.topic, it.payloadAsBytes) }
+            .send()
+    }
+}
+
+/**
+ * Helper class that subscribes to the mqtt broker and routes received messages to the configured subscribers (methods
+ * annotated with [MqttSubscribe]).
+ */
+class Mqtt5Router(
+    collector: AnnotationCollector,
+    adapter: MqttMessageAdapter,
+    config: MqttProperties,
+    client: Mqtt5Client
+) : MqttRouter(collector, adapter, config) {
+
+    private val asyncClient = client.toAsync()
+
+    override fun subscribe(topic: String, qos: MqttQos, subscribe: (MqttTopic, ByteArray) -> Unit) {
+        asyncClient.subscribeWith()
+            .topicFilter(topic)
+            .qos(qos)
+            .callback { subscribe(it.topic, it.payloadAsBytes) }
+            .send()
     }
 }

@@ -3,9 +3,9 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
-import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.IntSubscriber
-import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.ObjectSubscriber
-import de.smartsquare.starter.mqtt.MqttAutoConfigurationTest.StringSubscriber
+import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.IntSubscriber
+import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.ObjectSubscriber
+import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.StringSubscriber
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.has
 import org.awaitility.kotlin.untilCallTo
@@ -24,13 +24,13 @@ import org.springframework.stereotype.Component
         ObjectSubscriber::class
     ]
 )
-class MqttAutoConfigurationTest {
+class Mqtt3AutoConfigurationTest {
 
     @Autowired
     private lateinit var client: Mqtt3Client
 
     @Autowired
-    private lateinit var publisher: MqttPublisher
+    private lateinit var publisher: Mqtt3Publisher
 
     @Autowired
     private lateinit var intSubscriber: IntSubscriber

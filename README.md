@@ -1,6 +1,6 @@
 # :honeybee: HiveMQ Spring Boot Starter
 
-Use an automatically configured mqtt client in your Spring Boot project.
+Use an automatically configured mqtt 3 or 5 client in your Spring Boot project.
 
 ## Getting Started
 
@@ -20,36 +20,34 @@ dependencies {
 
 ### Application Properties
 
+The main configuration mechanism is via properties. All arguments are optional (the default being an anonymous broker on
+localhost:1883 with mqtt version 3).
+
 ```properties
 # The host to connect to.
 mqtt.host=test.mosquitto.org
-
 # The port to connect to.
 mqtt.port=1883
-
-# The clientId to use when connecting (optional, random by default).
+# The clientId to use when connecting (random by default).
 mqtt.client-id=test
-
 # The username to use when connecting.
 mqtt.username=admin
-
 # The password to use when connecting.
 mqtt.password=test
-
 # If the connection should be encrypted.
 mqtt.ssl=false
-
-# If the session should be clean (optional, true by default).
+# If the session should be clean (true by default).
 mqtt.clean=false
-
-# The group to use for shared subscriptions (optional).
+# The group to use for shared subscriptions.
 mqtt.group=group
+# The mqtt protocol version to use. 3 and 5 are supported.
+mqtt.version=3
 ```
 
 ### Advanced
 
-It is possible to additionally configure the client programmatically by implementing the `MqttClientConfigurer`
-interface and exposing it as a bean.
+It is possible to additionally configure the client programmatically by implementing either the `Mqtt3ClientConfigurer`
+or `Mqtt5ClientConfigurer` interface and exposing it as a bean.
 
 ```kotlin
 @Component
@@ -112,14 +110,14 @@ class TestConsumer {
 
 ### Publisher
 
-Messages cann be published via the `MqttPublisher`.
+Messages cann be published via the `Mqtt3Publisher` or `Mqtt5Publisher`.
 
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
 import org.springframework.stereotype.Component
 
 @Component
-class TestPublisher(private val mqttPublisher: MqttPublisher) {
+class TestPublisher(private val mqttPublisher: Mqtt3Publisher) {
 
     fun publish(payload: TemperaturePayload) {
         mqttPublisher.publish("/home/temperature", AT_LEAST_ONCE, payload)
@@ -131,7 +129,7 @@ class TestPublisher(private val mqttPublisher: MqttPublisher) {
 
 ### Direct usage
 
-The `MqttClient` is also exposed and can be used directly.
+Depending on the version, an `Mqtt3Client` or `Mqtt5Client` is also exposed and can be used directly.
 
 ```kotlin
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client

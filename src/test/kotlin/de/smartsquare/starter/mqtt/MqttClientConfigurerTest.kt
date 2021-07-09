@@ -27,7 +27,7 @@ class MqttClientConfigurerTest {
     }
 
     @Component
-    class IdentifierConfigurer : MqttClientConfigurer {
+    class IdentifierConfigurer : Mqtt3ClientConfigurer {
 
         override fun configure(builder: Mqtt3ClientBuilder) {
             builder.identifier("test")
