@@ -8,7 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS
 
+@DirtiesContext(classMode = BEFORE_CLASS)
 @ExtendWith(EmqxExtension::class)
 @SpringBootTest(
     classes = [

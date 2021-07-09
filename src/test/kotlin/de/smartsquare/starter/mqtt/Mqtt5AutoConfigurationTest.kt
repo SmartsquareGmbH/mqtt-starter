@@ -6,13 +6,17 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.has
 import org.awaitility.kotlin.untilCallTo
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 
+@DirtiesContext(classMode = BEFORE_CLASS)
 @ExtendWith(EmqxExtension::class)
 @SpringBootTest(
     classes = [
@@ -25,9 +29,9 @@ class Mqtt5AutoConfigurationTest {
     companion object {
 
         @JvmStatic
-        @BeforeAll
-        fun setUp() {
-            System.setProperty("mqtt.version", "5")
+        @DynamicPropertySource
+        fun mqttVersion(registry: DynamicPropertyRegistry) {
+            registry.add("mqtt.version") { "5" }
         }
     }
 

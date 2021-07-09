@@ -47,6 +47,5 @@ class EmqxExtension : BeforeAllCallback {
         System.setProperty("mqtt.port", emqx.getMappedPort(1883).toString())
         System.setProperty("mqtt.username", "admin")
         System.setProperty("mqtt.password", "public")
-        System.setProperty("mqtt.ssl", "false")
     }
 }
