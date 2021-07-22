@@ -3,6 +3,9 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
+import org.springframework.core.annotation.AnnotationUtils
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
 import java.lang.reflect.Method
 
 /**
@@ -13,21 +16,24 @@ class AnnotationCollector : BeanPostProcessor {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Map of beans to it's methods annotated with [MqttSubscribe].
+     * MultiMap of beans to its methods annotated with [MqttSubscribe] and the annotation itself.
      */
-    val subscribers: Map<Any, List<Method>> get() = _subscribers
-    private val _subscribers = mutableMapOf<Any, List<Method>>()
+    val subscribers: MultiValueMap<Any, ResolvedMqttSubscriber> = LinkedMultiValueMap()
 
-    override fun postProcessBeforeInitialization(bean: Any, beanName: String): Any {
+    override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
         val collectedSubscribers = bean.javaClass.methods
-            .filter { it.isAnnotationPresent(MqttSubscribe::class.java) }
-            .sortedBy { it.name }
+            .mapNotNull { method ->
+                val annotation = AnnotationUtils.findAnnotation(method, MqttSubscribe::class.java)
 
-        val erroneousSubscriberDefinitions = collectedSubscribers.filter { it.isInvalidSignature() }
+                annotation?.let { ResolvedMqttSubscriber(method, annotation) }
+            }
+            .sortedBy { (method) -> method.name }
+
+        val erroneousSubscriberDefinitions = collectedSubscribers.filter { (method) -> method.isInvalidSignature() }
 
         if (erroneousSubscriberDefinitions.isNotEmpty()) {
-            val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") {
-                "$beanName#${it.name}"
+            val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") { (method) ->
+                "$beanName#${method.name}"
             }
 
             throw MqttConfigurationException(
@@ -41,9 +47,9 @@ class AnnotationCollector : BeanPostProcessor {
         }
 
         for (subscriber in collectedSubscribers) {
-            logger.debug("Found subscriber ${subscriber.name} of ${bean.javaClass.simpleName}.")
+            logger.debug("Found subscriber ${subscriber.method.name} of ${bean.javaClass.simpleName}.")
 
-            _subscribers[bean] = subscribers.getOrDefault(bean, emptyList()) + listOf(subscriber)
+            subscribers.add(bean, subscriber)
         }
 
         return bean
@@ -58,4 +64,6 @@ class AnnotationCollector : BeanPostProcessor {
 
         return topicParamCount > 1 || payloadParamCount > 1
     }
+
+    data class ResolvedMqttSubscriber(val method: Method, val config: MqttSubscribe)
 }

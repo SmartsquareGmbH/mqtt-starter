@@ -68,7 +68,7 @@ class AnnotationCollectorTests {
             fun onMessage(a: String, b: String) = Unit
         }
 
-        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+        invoking { annotationCollector.postProcessAfterInitialization(bean, "testBean") }
             .shouldThrow(MqttConfigurationException::class)
             .exceptionMessage
             .shouldStartWith("Following subscribers are invalid [testBean#onMessage]")
@@ -86,7 +86,7 @@ class AnnotationCollectorTests {
             fun second(a: String, b: String) = Unit
         }
 
-        invoking { annotationCollector.postProcessBeforeInitialization(bean, "testBean") }
+        invoking { annotationCollector.postProcessAfterInitialization(bean, "testBean") }
             .shouldThrow(MqttConfigurationException::class)
             .exceptionMessage
             .shouldStartWith("Following subscribers are invalid [testBean#first, testBean#second].")

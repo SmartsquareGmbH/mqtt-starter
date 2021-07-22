@@ -22,17 +22,15 @@ abstract class MqttRouter(
 
     override fun afterPropertiesSet() {
         for ((bean, subscribers) in collector.subscribers) {
-            for (subscriber in subscribers) {
-                val annotation = subscriber.getAnnotation(MqttSubscribe::class.java)
-
-                val subscribeTopic = if (annotation.shared && config.group != null) {
-                    "\$share/${config.group}/${annotation.topic}"
+            for ((subscriberMethod, subscriberAnnotation) in subscribers) {
+                val subscribeTopic = if (subscriberAnnotation.shared && config.group != null) {
+                    "\$share/${config.group}/${subscriberAnnotation.topic}"
                 } else {
-                    annotation.topic
+                    subscriberAnnotation.topic
                 }
 
-                subscribe(subscribeTopic, annotation.qos) { topic, payload ->
-                    deliver(subscriber, bean, topic, payload)
+                subscribe(subscribeTopic, subscriberAnnotation.qos) { topic, payload ->
+                    deliver(subscriberMethod, bean, topic, payload)
                 }
             }
         }
