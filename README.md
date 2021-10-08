@@ -40,7 +40,7 @@ mqtt.ssl=false
 mqtt.clean=false
 # The group to use for shared subscriptions.
 mqtt.group=group
-# The mqtt protocol version to use. 3 and 5 are supported.
+# The mqtt protocol version to use. 3 and 5 are supported (3 by default).
 mqtt.version=3
 ```
 
@@ -51,7 +51,7 @@ or `Mqtt5ClientConfigurer` interface and exposing it as a bean.
 
 ```kotlin
 @Component
-class IdentifierConfigurer : MqttClientConfigurer {
+class MqttTimeoutConfigurer : MqttClientConfigurer {
 
     override fun configure(builder: Mqtt3ClientBuilder) {
         builder.transportConfig().mqttConnectTimeout(10, TimeUnit.SECONDS)
@@ -63,7 +63,7 @@ class IdentifierConfigurer : MqttClientConfigurer {
 
 ### Annotation based
 
-The `MqttSubscribe` annotation is scanned on application start and receives messages on the given payload.
+The `MqttSubscribe` annotation is scanned on application start and receives messages on the given topic.
 
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
@@ -110,7 +110,7 @@ class TestConsumer {
 
 ### Publisher
 
-Messages cann be published via the `Mqtt3Publisher` or `Mqtt5Publisher`.
+Messages can be published via the `Mqtt3Publisher` or `Mqtt5Publisher`.
 
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
