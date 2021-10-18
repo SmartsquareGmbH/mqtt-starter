@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 @ConditionalOnClass(MqttClient::class)
+@ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(MqttProperties::class)
 class MqttAutoConfiguration {
 
