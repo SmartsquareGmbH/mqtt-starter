@@ -42,6 +42,8 @@ mqtt.clean=false
 mqtt.group=group
 # The mqtt protocol version to use. 3 and 5 are supported (3 by default).
 mqtt.version=3
+# Disable or enable the mqtt client. Note that no beans are available to be injected if disabled.
+mqtt.enabled=true
 ```
 
 ### Advanced
