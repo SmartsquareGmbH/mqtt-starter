@@ -1,19 +1,19 @@
 buildscript {
     ext {
         javaVersion = JavaVersion.VERSION_1_8
-        gradleVersion = "7.1.1"
+        gradleVersion = "7.2"
 
-        junitVersion = "5.7.2"
-        kotlinVersion = "1.5.20"
-        detektVersion = "1.17.1"
-        ktlintVersion = "10.1.0"
-        jacksonVersion = "2.12.4"
-        springBootVersion = "2.5.2"
+        junitVersion = "5.8.1"
+        kotlinVersion = "1.5.31"
+        detektVersion = "1.18.1"
+        ktlintVersion = "10.2.0"
+        jacksonVersion = "2.13.0"
+        springBootVersion = "2.5.5"
         awaitilityVersion = "4.1.0"
         hivemqClientVersion = "1.2.2"
-        testcontainersVersion = "1.15.3"
-        kluentVersion = "1.67"
-        dokkaVersion = "1.5.0"
+        testcontainersVersion = "1.16.0"
+        kluentVersion = "1.68"
+        dokkaVersion = "1.5.31"
         dependencyManagementVersion = "1.0.11.RELEASE"
         gradleNexusVersion = "1.1.0"
         gradleVersionsPluginVersion = "0.39.0"
@@ -90,6 +90,24 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         jvmTarget = javaVersion.toString()
         allWarningsAsErrors = true
     }
+}
+
+// Make kapt work on recent java versions. Remove when upgrading to Kotlin 1.6.
+// https://youtrack.jetbrains.com/issue/KT-45545
+kotlin {
+    kotlinDaemonJvmArgs = [
+            "-Dfile.encoding=UTF-8",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+    ]
 }
 
 kapt {
