@@ -1,6 +1,6 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JacksonException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.datatypes.MqttTopic
@@ -47,10 +47,10 @@ abstract class MqttRouter(
             subscriber.invoke(bean, *parameters)
         } catch (e: InvocationTargetException) {
             logger.error("Error while delivering mqtt message", e.cause)
-        } catch (e: JsonParseException) {
-            logger.error("Error while delivering mqtt message: Failed to parse payload", e)
         } catch (e: JsonMappingException) {
             logger.error("Error while delivering mqtt message: Failed to map payload to target class", e)
+        } catch (e: JacksonException) {
+            logger.error("Error while delivering mqtt message: Failed to parse payload", e)
         }
     }
 }
