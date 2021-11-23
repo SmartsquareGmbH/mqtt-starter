@@ -22,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource
     classes = [
         MqttAutoConfiguration::class,
         Mqtt5AutoConfigurationTest.IntSubscriber::class,
+        Mqtt5AutoConfigurationTest.ErrorSubscriber::class,
     ]
 )
 class Mqtt5AutoConfigurationTest {
@@ -44,6 +45,9 @@ class Mqtt5AutoConfigurationTest {
     @Autowired
     private lateinit var intSubscriber: IntSubscriber
 
+    @Autowired
+    private lateinit var errorSubscriber: ErrorSubscriber
+
     @Test
     fun `receives int message`() {
         client.toBlocking()
@@ -55,6 +59,27 @@ class Mqtt5AutoConfigurationTest {
             )
 
         await untilCallTo { intSubscriber.receivedPayload } has { this == 2 }
+    }
+
+    @Test
+    fun `does not crash completely when subscriber throws exception`() {
+        client.toBlocking()
+            .publish(
+                Mqtt5Publish.builder()
+                    .topic("error")
+                    .payload("-1".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build()
+            )
+
+        client.toBlocking()
+            .publish(
+                Mqtt5Publish.builder()
+                    .topic("error")
+                    .payload("3".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build()
+            )
+
+        await untilCallTo { errorSubscriber.payloadSum } has { this == 3 }
     }
 
     @Test
@@ -73,6 +98,20 @@ class Mqtt5AutoConfigurationTest {
         @MqttSubscribe(topic = "int", qos = MqttQos.EXACTLY_ONCE)
         fun onMessage(payload: Int) {
             _receivedPayload = payload
+        }
+    }
+
+    @Component
+    class ErrorSubscriber {
+
+        val payloadSum get() = _payloadSum
+        private var _payloadSum: Int = 0
+
+        @MqttSubscribe(topic = "error", qos = MqttQos.EXACTLY_ONCE)
+        fun onMessage(payload: Int) {
+            require(payload >= 0) { "Synthetic validation error: $payload is less than 0" }
+
+            _payloadSum += payload
         }
     }
 }

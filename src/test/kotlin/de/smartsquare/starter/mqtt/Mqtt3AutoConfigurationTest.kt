@@ -91,6 +91,41 @@ class Mqtt3AutoConfigurationTest {
     }
 
     @Test
+    fun `does not crash completely when sending invalid json`() {
+        // language=json
+        val errorJson = """
+            {
+              "value": 18329456734851730954
+            }
+        """.trimIndent()
+
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("object")
+                    .payload(errorJson.toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build()
+            )
+
+        // language=json
+        val json = """
+            {
+              "value": 3
+            }
+        """.trimIndent()
+
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("object")
+                    .payload(json.toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build()
+            )
+
+        await untilCallTo { objectSubscriber.receivedPayload } has { value == 3 }
+    }
+
+    @Test
     fun `publishes message`() {
         publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
 
