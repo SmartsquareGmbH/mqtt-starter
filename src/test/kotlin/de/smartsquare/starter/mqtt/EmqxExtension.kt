@@ -15,7 +15,7 @@ class EmqxExtension : BeforeAllCallback {
         private val logger = LoggerFactory.getLogger(this::class.java)
         private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
 
-        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.3.14")
+        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.4.3")
 
         private val emqx = KGenericContainer(emqxImageName)
             .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_mnesia")
