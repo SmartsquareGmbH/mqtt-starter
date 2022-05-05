@@ -62,5 +62,10 @@ data class MqttProperties(
      * The mqtt protocol version to use.
      */
     @get:MqttVersion
-    val version: Int = 3
+    val version: Int = 3,
+
+    /**
+     * Disable or enable the mqtt client.
+     */
+    val enabled: Boolean = true
 )
