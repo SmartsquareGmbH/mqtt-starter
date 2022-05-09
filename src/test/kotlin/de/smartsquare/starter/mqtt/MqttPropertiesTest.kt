@@ -7,7 +7,6 @@ import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldStartWith
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
@@ -142,24 +141,6 @@ class MqttPropertiesTest {
 
                 rootError.validationErrors.allErrors.size shouldBeEqualTo 1
                 rootError.validationErrors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
-            }
-    }
-
-    @Test
-    fun `validates mqtt disabled`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
-            )
-            .withPropertyValues("mqtt.enabled=false")
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                invoking {
-                    context.getBean(MqttAutoConfiguration::class.java)
-                } shouldThrow NoSuchBeanDefinitionException::class
             }
     }
 }
