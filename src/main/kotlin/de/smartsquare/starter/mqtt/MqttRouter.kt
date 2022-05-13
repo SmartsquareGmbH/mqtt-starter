@@ -41,16 +41,23 @@ abstract class MqttRouter(
     protected abstract fun subscribe(topic: String, qos: MqttQos, subscribe: (MqttTopic, ByteArray) -> Unit)
 
     private fun deliver(subscriber: Method, bean: Any, topic: MqttTopic, payload: ByteArray) {
+        if (logger.isTraceEnabled) {
+            logger.trace("Received mqtt message on topic [$topic] with payload ${payload.toString(Charsets.UTF_8)}")
+        }
+
         try {
             val parameters = subscriber.parameterTypes.map { adapter.adapt(topic, payload, it) }.toTypedArray()
 
             subscriber.invoke(bean, *parameters)
         } catch (e: InvocationTargetException) {
-            logger.error("Error while delivering mqtt message", e.cause)
+            logger.error("Error while delivering mqtt message on topic [$topic]", e.cause)
         } catch (e: JsonMappingException) {
-            logger.error("Error while delivering mqtt message: Failed to map payload to target class", e)
+            logger.error(
+                "Error while delivering mqtt message on topic [$topic]: Failed to map payload to target class",
+                e
+            )
         } catch (e: JacksonException) {
-            logger.error("Error while delivering mqtt message: Failed to parse payload", e)
+            logger.error("Error while delivering mqtt message on topic [$topic]: Failed to parse payload", e)
         }
     }
 }
