@@ -3,9 +3,8 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
+import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.has
-import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,7 +57,9 @@ class Mqtt5AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { intSubscriber.receivedPayload } has { this == 2 }
+        await untilAssertedKluent {
+            intSubscriber.receivedPayload shouldBeEqualTo 2
+        }
     }
 
     @Test
@@ -79,14 +80,18 @@ class Mqtt5AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { errorSubscriber.payloadSum } has { this == 3 }
+        await untilAssertedKluent {
+            errorSubscriber.payloadSum shouldBeEqualTo 3
+        }
     }
 
     @Test
     fun `publishes message`() {
         publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
 
-        await untilCallTo { intSubscriber.receivedPayload } has { this == 1 }
+        await untilAssertedKluent {
+            intSubscriber.receivedPayload shouldBeEqualTo 1
+        }
     }
 
     @Component

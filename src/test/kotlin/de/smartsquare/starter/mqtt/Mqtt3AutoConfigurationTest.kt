@@ -6,9 +6,8 @@ import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.IntSubscriber
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.ObjectSubscriber
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.StringSubscriber
+import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
-import org.awaitility.kotlin.has
-import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,7 +53,9 @@ class Mqtt3AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { intSubscriber.receivedPayload } has { this == 2 }
+        await untilAssertedKluent {
+            intSubscriber.receivedPayload shouldBeEqualTo 2
+        }
     }
 
     @Test
@@ -67,7 +68,9 @@ class Mqtt3AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { stringSubscriber.receivedPayload } has { this == "test" }
+        await untilAssertedKluent {
+            stringSubscriber.receivedPayload shouldBeEqualTo "test"
+        }
     }
 
     @Test
@@ -87,7 +90,9 @@ class Mqtt3AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { objectSubscriber.receivedPayload } has { value == 3 }
+        await untilAssertedKluent {
+            objectSubscriber.receivedPayload?.value shouldBeEqualTo 3
+        }
     }
 
     @Test
@@ -122,14 +127,18 @@ class Mqtt3AutoConfigurationTest {
                     .qos(MqttQos.EXACTLY_ONCE).build()
             )
 
-        await untilCallTo { objectSubscriber.receivedPayload } has { value == 3 }
+        await untilAssertedKluent {
+            objectSubscriber.receivedPayload?.value shouldBeEqualTo 3
+        }
     }
 
     @Test
     fun `publishes message`() {
         publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
 
-        await untilCallTo { intSubscriber.receivedPayload } has { this == 1 }
+        await untilAssertedKluent {
+            intSubscriber.receivedPayload shouldBeEqualTo 1
+        }
     }
 
     @Component
