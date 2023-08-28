@@ -111,7 +111,7 @@ class MqttAutoConfiguration {
         messageAdapter: MqttMessageAdapter,
         collector: AnnotationCollector,
         config: MqttProperties,
-        client: Mqtt3Client
+        client: Mqtt3Client,
     ): Mqtt3Router {
         return Mqtt3Router(collector, messageAdapter, config, client)
     }
@@ -122,7 +122,7 @@ class MqttAutoConfiguration {
         messageAdapter: MqttMessageAdapter,
         collector: AnnotationCollector,
         config: MqttProperties,
-        client: Mqtt5Client
+        client: Mqtt5Client,
     ): Mqtt5Router {
         return Mqtt5Router(collector, messageAdapter, config, client)
     }

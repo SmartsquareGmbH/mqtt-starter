@@ -1,17 +1,15 @@
 package de.smartsquare.starter.mqtt
 
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotEmpty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.validation.annotation.Validated
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
-import javax.validation.constraints.NotEmpty
 
 /**
  * Properties for connection to the mqtt broker.
  */
 @Validated
-@ConstructorBinding
 @ConfigurationProperties(prefix = "mqtt")
 data class MqttProperties(
 
@@ -62,5 +60,5 @@ data class MqttProperties(
      * The mqtt protocol version to use.
      */
     @get:MqttVersion
-    val version: Int = 3
+    val version: Int = 3,
 )

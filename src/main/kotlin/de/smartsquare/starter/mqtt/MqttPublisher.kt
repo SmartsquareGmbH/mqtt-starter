@@ -25,7 +25,7 @@ class Mqtt3Publisher(private val adapter: MqttMessageAdapter, client: Mqtt3Clien
                 .topic(topic)
                 .qos(qos)
                 .payload(adapter.adapt(payload))
-                .build()
+                .build(),
         )
     }
 }
@@ -47,7 +47,7 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
                 .topic(topic)
                 .qos(qos)
                 .payload(adapter.adapt(payload))
-                .build()
+                .build(),
         )
     }
 }

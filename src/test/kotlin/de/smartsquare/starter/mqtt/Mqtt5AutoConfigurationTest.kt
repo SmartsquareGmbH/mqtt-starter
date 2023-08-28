@@ -22,7 +22,7 @@ import org.springframework.test.context.DynamicPropertySource
         MqttAutoConfiguration::class,
         Mqtt5AutoConfigurationTest.IntSubscriber::class,
         Mqtt5AutoConfigurationTest.ErrorSubscriber::class,
-    ]
+    ],
 )
 class Mqtt5AutoConfigurationTest {
 
@@ -54,7 +54,7 @@ class Mqtt5AutoConfigurationTest {
                 Mqtt5Publish.builder()
                     .topic("int")
                     .payload("2".toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {
@@ -69,7 +69,7 @@ class Mqtt5AutoConfigurationTest {
                 Mqtt5Publish.builder()
                     .topic("error")
                     .payload("-1".toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         client.toBlocking()
@@ -77,7 +77,7 @@ class Mqtt5AutoConfigurationTest {
                 Mqtt5Publish.builder()
                     .topic("error")
                     .payload("3".toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {

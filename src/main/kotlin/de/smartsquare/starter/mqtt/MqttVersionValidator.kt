@@ -1,8 +1,8 @@
 package de.smartsquare.starter.mqtt
 
-import javax.validation.Constraint
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
+import jakarta.validation.Constraint
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 import kotlin.reflect.KClass
 
 /**
@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 annotation class MqttVersion(
     val message: String = "Invalid mqtt version. Allowed are 3 and 5.",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<*>> = []
+    val payload: Array<KClass<*>> = [],
 )
 
 /**

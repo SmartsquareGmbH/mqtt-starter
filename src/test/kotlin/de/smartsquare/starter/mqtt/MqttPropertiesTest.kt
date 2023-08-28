@@ -27,8 +27,8 @@ class MqttPropertiesTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
+                    ValidationAutoConfiguration::class.java,
+                ),
             )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
@@ -42,8 +42,8 @@ class MqttPropertiesTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
+                    ValidationAutoConfiguration::class.java,
+                ),
             )
             .withPropertyValues(
                 "mqtt.host=localhost",
@@ -54,7 +54,7 @@ class MqttPropertiesTest {
                 "mqtt.ssl=true",
                 "mqtt.clean=false",
                 "mqtt.group=group",
-                "mqtt.version=5"
+                "mqtt.version=5",
             )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
@@ -69,7 +69,7 @@ class MqttPropertiesTest {
                     ssl = true,
                     clean = false,
                     group = "group",
-                    version = 5
+                    version = 5,
                 )
             }
     }
@@ -80,8 +80,8 @@ class MqttPropertiesTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
+                    ValidationAutoConfiguration::class.java,
+                ),
             )
             .withPropertyValues("mqtt.host=")
             .withUserConfiguration(TestConfiguration::class.java)
@@ -103,8 +103,8 @@ class MqttPropertiesTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
+                    ValidationAutoConfiguration::class.java,
+                ),
             )
             .withPropertyValues("mqtt.port=65536")
             .withUserConfiguration(TestConfiguration::class.java)
@@ -126,8 +126,8 @@ class MqttPropertiesTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java
-                )
+                    ValidationAutoConfiguration::class.java,
+                ),
             )
             .withPropertyValues("mqtt.version=2")
             .withUserConfiguration(TestConfiguration::class.java)

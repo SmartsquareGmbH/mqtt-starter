@@ -17,7 +17,7 @@ import java.lang.reflect.Method
 abstract class MqttRouter(
     private val collector: AnnotationCollector,
     private val adapter: MqttMessageAdapter,
-    private val config: MqttProperties
+    private val config: MqttProperties,
 ) : InitializingBean {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -54,7 +54,7 @@ abstract class MqttRouter(
         } catch (e: JsonMappingException) {
             logger.error(
                 "Error while delivering mqtt message on topic [$topic]: Failed to map payload to target class",
-                e
+                e,
             )
         } catch (e: JacksonException) {
             logger.error("Error while delivering mqtt message on topic [$topic]: Failed to parse payload", e)
@@ -70,7 +70,7 @@ class Mqtt3Router(
     collector: AnnotationCollector,
     adapter: MqttMessageAdapter,
     config: MqttProperties,
-    client: Mqtt3Client
+    client: Mqtt3Client,
 ) : MqttRouter(collector, adapter, config) {
 
     private val asyncClient = client.toAsync()
@@ -92,7 +92,7 @@ class Mqtt5Router(
     collector: AnnotationCollector,
     adapter: MqttMessageAdapter,
     config: MqttProperties,
-    client: Mqtt5Client
+    client: Mqtt5Client,
 ) : MqttRouter(collector, adapter, config) {
 
     private val asyncClient = client.toAsync()
