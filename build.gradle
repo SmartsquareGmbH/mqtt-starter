@@ -110,7 +110,7 @@ dokkaHtml {
 
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(new URL("https://github.com/SmartsquareGmbH/mqtt-starter/blob/master/src/main/kotlin"))
+                remoteUrl.set(new URL("https://github.com/SmartsquareGmbH/mqtt-starter/blob/main/src/main/kotlin"))
                 remoteLineSuffix.set("#L")
             }
 
