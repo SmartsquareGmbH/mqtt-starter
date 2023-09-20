@@ -1,1 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=de.smartsquare.starter.mqtt.MqttAutoConfiguration
