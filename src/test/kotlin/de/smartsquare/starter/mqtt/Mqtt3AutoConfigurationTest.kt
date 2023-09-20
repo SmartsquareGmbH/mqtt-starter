@@ -23,8 +23,8 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS
         MqttAutoConfiguration::class,
         IntSubscriber::class,
         StringSubscriber::class,
-        ObjectSubscriber::class
-    ]
+        ObjectSubscriber::class,
+    ],
 )
 class Mqtt3AutoConfigurationTest {
 
@@ -50,7 +50,7 @@ class Mqtt3AutoConfigurationTest {
                 Mqtt3Publish.builder()
                     .topic("int")
                     .payload("2".toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {
@@ -65,7 +65,7 @@ class Mqtt3AutoConfigurationTest {
                 Mqtt3Publish.builder()
                     .topic("string")
                     .payload("test".toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {
@@ -87,7 +87,7 @@ class Mqtt3AutoConfigurationTest {
                 Mqtt3Publish.builder()
                     .topic("object")
                     .payload(json.toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {
@@ -109,7 +109,7 @@ class Mqtt3AutoConfigurationTest {
                 Mqtt3Publish.builder()
                     .topic("object")
                     .payload(errorJson.toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         // language=json
@@ -124,7 +124,7 @@ class Mqtt3AutoConfigurationTest {
                 Mqtt3Publish.builder()
                     .topic("object")
                     .payload(json.toByteArray())
-                    .qos(MqttQos.EXACTLY_ONCE).build()
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {

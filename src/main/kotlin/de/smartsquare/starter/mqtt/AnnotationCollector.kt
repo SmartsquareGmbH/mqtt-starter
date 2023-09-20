@@ -42,7 +42,7 @@ class AnnotationCollector : BeanPostProcessor {
                      - the MqttTopic
                      - any type of deserialized JSON payload
                      - or both
-                """.trimMargin()
+                """.trimMargin(),
             )
         }
 

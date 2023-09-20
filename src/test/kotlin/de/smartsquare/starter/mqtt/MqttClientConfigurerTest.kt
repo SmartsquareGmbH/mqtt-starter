@@ -17,7 +17,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS
     classes = [
         MqttAutoConfiguration::class,
         MqttClientConfigurerTest.IdentifierConfigurer::class,
-    ]
+    ],
 )
 class MqttClientConfigurerTest {
 

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeoutException
  */
 class SpringAwareMqtt3Client(
     private val delegate: Mqtt3Client,
-    private val connectOptions: Mqtt3Connect = Mqtt3Connect.builder().build()
+    private val connectOptions: Mqtt3Connect = Mqtt3Connect.builder().build(),
 ) : Mqtt3Client by delegate, InitializingBean, DisposableBean {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -42,7 +42,7 @@ class SpringAwareMqtt3Client(
         } catch (error: TimeoutException) {
             throw BrokerConnectException(
                 "Failed to connect: Broker $host:$port did not respond within 10 seconds.",
-                error
+                error,
             )
         }
     }
@@ -61,7 +61,7 @@ class SpringAwareMqtt3Client(
  */
 class SpringAwareMqtt5Client(
     private val delegate: Mqtt5Client,
-    private val connectOptions: Mqtt5Connect = Mqtt5Connect.builder().build()
+    private val connectOptions: Mqtt5Connect = Mqtt5Connect.builder().build(),
 ) : Mqtt5Client by delegate, InitializingBean, DisposableBean {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -84,7 +84,7 @@ class SpringAwareMqtt5Client(
         } catch (error: TimeoutException) {
             throw BrokerConnectException(
                 "Failed to connect: Broker $host:$port did not respond within 10 seconds.",
-                error
+                error,
             )
         }
     }

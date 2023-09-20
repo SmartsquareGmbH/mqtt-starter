@@ -9,11 +9,11 @@ import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck
 class BrokerConnectException(message: String, cause: Throwable? = null) : RuntimeException(message, cause) {
     constructor(acknowledgement: Mqtt3ConnAck, cause: Throwable? = null) : this(
         "Unable to connect to broker. Return Code: ${acknowledgement.returnCode.code}",
-        cause
+        cause,
     )
 
     constructor(acknowledgement: Mqtt5ConnAck, cause: Throwable? = null) : this(
         "Unable to connect to broker. Return code: ${acknowledgement.reasonCode.code}",
-        cause
+        cause,
     )
 }

@@ -1,22 +1,22 @@
 buildscript {
     ext {
-        javaVersion = JavaVersion.VERSION_1_8
-        gradleVersion = "7.4.2"
+        javaVersion = JavaVersion.VERSION_17
+        gradleVersion = "8.3"
 
-        junitVersion = "5.8.2"
-        kotlinVersion = "1.6.21"
-        detektVersion = "1.20.0"
-        ktlintVersion = "10.2.1"
-        jacksonVersion = "2.13.2"
-        springBootVersion = "2.6.7"
+        junitVersion = "5.10.0"
+        kotlinVersion = "1.9.10"
+        detektVersion = "1.23.1"
+        ktlintVersion = "11.5.1"
+        jacksonVersion = "2.15.2"
+        springBootVersion = "3.1.3"
         awaitilityVersion = "4.2.0"
-        hivemqClientVersion = "1.3.0"
-        testcontainersVersion = "1.17.1"
-        kluentVersion = "1.68"
-        dokkaVersion = "1.6.21"
-        dependencyManagementVersion = "1.0.11.RELEASE"
-        gradleNexusVersion = "1.1.0"
-        gradleVersionsPluginVersion = "0.39.0"
+        hivemqClientVersion = "1.3.2"
+        testcontainersVersion = "1.19.0"
+        kluentVersion = "1.73"
+        dokkaVersion = "1.8.20"
+        dependencyManagementVersion = "1.1.3"
+        gradleNexusVersion = "1.3.0"
+        gradleVersionsPluginVersion = "0.47.0"
     }
 
     repositories {
