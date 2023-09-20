@@ -141,6 +141,10 @@ tasks.withType(Javadoc).all {
     it.dependsOn dokkaHtml
 }
 
+afterEvaluate {
+    dokkaHtml.dependsOn kaptKotlin
+}
+
 detekt {
     config = files("${project.rootDir}/detekt.yml")
 
