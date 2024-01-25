@@ -26,7 +26,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.1.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
     implementation("org.springframework.boot:spring-boot")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
@@ -38,7 +38,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
-    kapt(platform("org.springframework.boot:spring-boot-dependencies:3.1.3"))
+    kapt(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
     kapt("org.springframework.boot:spring-boot-configuration-processor")
     compileOnly("org.springframework.boot:spring-boot-configuration-processor")
 
