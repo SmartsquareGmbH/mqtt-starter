@@ -9,6 +9,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -88,7 +89,11 @@ class MqttAutoConfiguration {
             .addConnectedListener { logger.info("Connected to broker.") }
             .addDisconnectedListener {
                 if (it.reconnector.isReconnect) {
-                    logger.warn("Disconnected from broker, reconnecting...")
+                    if (logger.isDebugEnabled) {
+                        logger.warn("Disconnected from broker, reconnecting...", it.cause)
+                    } else {
+                        logger.warn("Disconnected from broker, reconnecting...")
+                    }
                 } else {
                     logger.info("Disconnected from broker.")
                 }
@@ -105,15 +110,25 @@ class MqttAutoConfiguration {
         return MqttMessageAdapter(jacksonObjectMapper().findAndRegisterModules())
     }
 
+    /**
+     * Returns a default mqtt message error handler.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun mqttMessageErrorHandler(): MqttMessageErrorHandler {
+        return MqttMessageErrorHandler()
+    }
+
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
     fun mqtt3Router(
         messageAdapter: MqttMessageAdapter,
         collector: AnnotationCollector,
+        messageErrorHandler: MqttMessageErrorHandler,
         config: MqttProperties,
         client: Mqtt3Client,
     ): Mqtt3Router {
-        return Mqtt3Router(collector, messageAdapter, config, client)
+        return Mqtt3Router(collector, messageAdapter, messageErrorHandler, config, client)
     }
 
     @Bean
@@ -121,10 +136,11 @@ class MqttAutoConfiguration {
     fun mqtt5Router(
         messageAdapter: MqttMessageAdapter,
         collector: AnnotationCollector,
+        messageErrorHandler: MqttMessageErrorHandler,
         config: MqttProperties,
         client: Mqtt5Client,
     ): Mqtt5Router {
-        return Mqtt5Router(collector, messageAdapter, config, client)
+        return Mqtt5Router(collector, messageAdapter, messageErrorHandler, config, client)
     }
 
     @Bean

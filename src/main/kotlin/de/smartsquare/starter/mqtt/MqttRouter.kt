@@ -17,6 +17,7 @@ import java.lang.reflect.Method
 abstract class MqttRouter(
     private val collector: AnnotationCollector,
     private val adapter: MqttMessageAdapter,
+    private val messageErrorHandler: MqttMessageErrorHandler,
     private val config: MqttProperties,
 ) : InitializingBean {
 
@@ -50,14 +51,27 @@ abstract class MqttRouter(
 
             subscriber.invoke(bean, *parameters)
         } catch (e: InvocationTargetException) {
-            logger.error("Error while delivering mqtt message on topic [$topic]", e.cause)
+            messageErrorHandler.handle(
+                MqttMessageException(topic, payload, "Error while delivering mqtt message on topic [$topic]", e),
+            )
         } catch (e: JsonMappingException) {
-            logger.error(
-                "Error while delivering mqtt message on topic [$topic]: Failed to map payload to target class",
-                e,
+            messageErrorHandler.handle(
+                MqttMessageException(
+                    topic,
+                    payload,
+                    "Error while delivering mqtt message on topic [$topic]: Failed to map payload to target class",
+                    e,
+                ),
             )
         } catch (e: JacksonException) {
-            logger.error("Error while delivering mqtt message on topic [$topic]: Failed to parse payload", e)
+            messageErrorHandler.handle(
+                MqttMessageException(
+                    topic,
+                    payload,
+                    "Error while delivering mqtt message on topic [$topic]: Failed to parse payload",
+                    e,
+                ),
+            )
         }
     }
 }
@@ -69,9 +83,10 @@ abstract class MqttRouter(
 class Mqtt3Router(
     collector: AnnotationCollector,
     adapter: MqttMessageAdapter,
+    messageErrorHandler: MqttMessageErrorHandler,
     config: MqttProperties,
     client: Mqtt3Client,
-) : MqttRouter(collector, adapter, config) {
+) : MqttRouter(collector, adapter, messageErrorHandler, config) {
 
     private val asyncClient = client.toAsync()
 
@@ -91,9 +106,10 @@ class Mqtt3Router(
 class Mqtt5Router(
     collector: AnnotationCollector,
     adapter: MqttMessageAdapter,
+    messageErrorHandler: MqttMessageErrorHandler,
     config: MqttProperties,
     client: Mqtt5Client,
-) : MqttRouter(collector, adapter, config) {
+) : MqttRouter(collector, adapter, messageErrorHandler, config) {
 
     private val asyncClient = client.toAsync()
 
