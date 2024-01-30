@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext
 import kotlin.reflect.KClass
 
 /**
- * Annotation to mark properties or fields to be validated as an mqtt version.
+ * Annotation to mark properties or fields to be validated as a mqtt version.
  */
 @Constraint(validatedBy = [MqttVersionValidator::class])
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.FIELD)
