@@ -12,11 +12,11 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS
 
 @DirtiesContext(classMode = BEFORE_CLASS)
-@SpringBootTest(classes = [MqttAnnotationCollectorIntegrationTests.PostProcessorConfiguration::class])
-class MqttAnnotationCollectorIntegrationTests {
+@SpringBootTest(classes = [MqttSubscriberCollectorIntegrationTests.PostProcessorConfiguration::class])
+class MqttSubscriberCollectorIntegrationTests {
 
     @Autowired
-    private lateinit var annotationCollector: MqttAnnotationCollector
+    private lateinit var annotationCollector: MqttSubscriberCollector
 
     @Test
     fun `find subscriber bean`() {
@@ -27,7 +27,7 @@ class MqttAnnotationCollectorIntegrationTests {
     class PostProcessorConfiguration {
 
         @Bean
-        fun annotationCollector() = MqttAnnotationCollector()
+        fun annotationCollector() = MqttSubscriberCollector(MqttProperties())
 
         @Bean
         fun subscriber() = Subscriber()

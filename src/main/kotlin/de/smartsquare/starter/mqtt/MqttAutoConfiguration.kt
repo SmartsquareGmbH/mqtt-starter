@@ -110,12 +110,19 @@ class MqttAutoConfiguration {
     fun mqttExecutor(): Executor = MqttExecutor()
 
     @Bean
-    fun annotationCollector() = MqttAnnotationCollector()
+    fun mqttSubscriberCollector(config: MqttProperties) = MqttSubscriberCollector(config)
 
     @Bean
-    fun messageAdapter(): MqttMessageAdapter {
+    fun mqttMessageAdapter(): MqttMessageAdapter {
         return MqttMessageAdapter(jacksonObjectMapper().findAndRegisterModules())
     }
+
+    @Bean
+    fun mqttHandler(
+        collector: MqttSubscriberCollector,
+        adapter: MqttMessageAdapter,
+        messageErrorHandler: MqttMessageErrorHandler,
+    ): MqttHandler = MqttHandler(collector, adapter, messageErrorHandler)
 
     /**
      * Returns a default mqtt message error handler.
@@ -128,38 +135,24 @@ class MqttAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
-    fun mqtt3Connector(config: MqttProperties, client: Mqtt3Client): Mqtt3Connector {
-        return Mqtt3Connector(client, config)
-    }
-
-    @Bean
-    @ConditionalOnProperty("mqtt.version", havingValue = "5")
-    fun mqtt5Connector(config: MqttProperties, client: Mqtt5Client): Mqtt5Connector {
-        return Mqtt5Connector(client, config)
-    }
-
-    @Bean
-    @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
-    fun mqtt3Router(
-        messageAdapter: MqttMessageAdapter,
-        collector: MqttAnnotationCollector,
-        messageErrorHandler: MqttMessageErrorHandler,
-        config: MqttProperties,
+    fun mqtt3Connector(
         client: Mqtt3Client,
-    ): Mqtt3Router {
-        return Mqtt3Router(collector, messageAdapter, messageErrorHandler, config, client)
+        collector: MqttSubscriberCollector,
+        handler: MqttHandler,
+        config: MqttProperties,
+    ): Mqtt3Connector {
+        return Mqtt3Connector(client, collector, handler, config)
     }
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
-    fun mqtt5Router(
-        messageAdapter: MqttMessageAdapter,
-        collector: MqttAnnotationCollector,
-        messageErrorHandler: MqttMessageErrorHandler,
-        config: MqttProperties,
+    fun mqtt5Connector(
         client: Mqtt5Client,
-    ): Mqtt5Router {
-        return Mqtt5Router(collector, messageAdapter, messageErrorHandler, config, client)
+        collector: MqttSubscriberCollector,
+        handler: MqttHandler,
+        config: MqttProperties,
+    ): Mqtt5Connector {
+        return Mqtt5Connector(client, collector, handler, config)
     }
 
     @Bean

@@ -3,11 +3,19 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.MqttClientState
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3Connect
+import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscription
+import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAck
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
+import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck
+import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5Subscription
+import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck
 import org.slf4j.LoggerFactory
 import org.springframework.context.SmartLifecycle
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 abstract class MqttConnector : SmartLifecycle {
 
@@ -28,6 +36,8 @@ abstract class MqttConnector : SmartLifecycle {
 
 class Mqtt3Connector(
     client: Mqtt3Client,
+    private val collector: MqttSubscriberCollector,
+    private val handler: MqttHandler,
     private val config: MqttProperties,
 ) : MqttConnector() {
 
@@ -36,6 +46,35 @@ class Mqtt3Connector(
     private val client = client.toAsync()
 
     override fun start() {
+        try {
+            CompletableFuture.allOf(subscribe(), connect()).get(config.connectTimeout, TimeUnit.MILLISECONDS)
+        } catch (error: TimeoutException) {
+            throw MqttBrokerConnectException("Timeout while connecting to broker", error)
+        }
+    }
+
+    private fun subscribe(): CompletableFuture<Mqtt3SubAck> {
+        val subscriptions = collector.subscribers.map {
+            Mqtt3Subscription.builder()
+                .topicFilter(it.topic)
+                .qos(it.qos)
+                .build()
+        }
+
+        if (subscriptions.isEmpty()) {
+            return CompletableFuture.completedFuture(null)
+        }
+
+        return client.subscribeWith()
+            .addSubscriptions(subscriptions)
+            .callback { handler.handle(it.topic, it.payloadAsBytes) }
+            .send()
+            .exceptionallyCompose {
+                CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
+            }
+    }
+
+    private fun connect(): CompletableFuture<Mqtt3ConnAck> {
         val host = client.config.serverHost
         val port = client.config.serverPort
         val username = client.config.simpleAuth.orElseGet { null }?.username?.toString()
@@ -46,11 +85,12 @@ class Mqtt3Connector(
 
         logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 3...")
 
-        try {
-            client.connect(connectOptions).get(config.connectTimeout, TimeUnit.MILLISECONDS)
-        } catch (error: Exception) {
-            throw MqttBrokerConnectException("Failed to connect to $host:$port", error)
-        }
+        return client.connect(connectOptions)
+            .exceptionallyCompose {
+                CompletableFuture.failedFuture(
+                    MqttBrokerConnectException("Failed to connect to broker $host:$port", it),
+                )
+            }
     }
 
     override fun stop(callback: Runnable) {
@@ -62,6 +102,8 @@ class Mqtt3Connector(
 
 class Mqtt5Connector(
     client: Mqtt5Client,
+    private val collector: MqttSubscriberCollector,
+    private val handler: MqttHandler,
     private val config: MqttProperties,
 ) : MqttConnector() {
 
@@ -70,6 +112,35 @@ class Mqtt5Connector(
     private val client = client.toAsync()
 
     override fun start() {
+        try {
+            CompletableFuture.allOf(subscribe(), connect()).get(config.connectTimeout, TimeUnit.MILLISECONDS)
+        } catch (error: TimeoutException) {
+            throw MqttBrokerConnectException("Timeout while connecting to broker", error)
+        }
+    }
+
+    private fun subscribe(): CompletableFuture<Mqtt5SubAck> {
+        val subscriptions = collector.subscribers.map {
+            Mqtt5Subscription.builder()
+                .topicFilter(it.topic)
+                .qos(it.qos)
+                .build()
+        }
+
+        if (subscriptions.isEmpty()) {
+            return CompletableFuture.completedFuture(null)
+        }
+
+        return client.subscribeWith()
+            .addSubscriptions(subscriptions)
+            .callback { handler.handle(it.topic, it.payloadAsBytes) }
+            .send()
+            .exceptionallyCompose {
+                CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
+            }
+    }
+
+    private fun connect(): CompletableFuture<Mqtt5ConnAck> {
         val host = client.config.serverHost
         val port = client.config.serverPort
         val username = client.config.simpleAuth.flatMap { it.username }.orElseGet { null }?.toString()
@@ -78,13 +149,14 @@ class Mqtt5Connector(
             .cleanStart(config.clean)
             .build()
 
-        logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 5...")
+        logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 3...")
 
-        try {
-            client.connect(connectOptions).get(config.connectTimeout, TimeUnit.MILLISECONDS)
-        } catch (error: Exception) {
-            throw MqttBrokerConnectException("Failed to connect to $host:$port", error)
-        }
+        return client.connect(connectOptions)
+            .exceptionallyCompose {
+                CompletableFuture.failedFuture(
+                    MqttBrokerConnectException("Failed to connect to broker $host:$port", it),
+                )
+            }
     }
 
     override fun stop(callback: Runnable) {
