@@ -15,16 +15,12 @@ class EmqxExtension : BeforeAllCallback {
         private val logger = LoggerFactory.getLogger(this::class.java)
         private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
 
-        private val emqxImageName = DockerImageName.parse("emqx/emqx:4.4.3")
-
-        private val emqx = KGenericContainer(emqxImageName)
-            .withEnv("EMQX_LOADED_PLUGINS", "emqx_auth_mnesia")
-            .withEnv("EMQX_AUTH__USER__1__USERNAME", "admin")
-            .withEnv("EMQX_AUTH__USER__1__PASSWORD", "public")
-            .withEnv("EMQX_ALLOW_ANONYMOUS", "false")
-            .withEnv("WAIT_FOR_ERLANG", "60")
-            .withExposedPorts(1883, 8081, 18083)
-            .waitingFor(Wait.forLogMessage(".*is running now!.*", 1))
+        private val emqx = KGenericContainer(DockerImageName.parse("emqx/emqx:5.4.1"))
+            .withExposedPorts(1883, 18083)
+            .withEnv("EMQX_NODE__COOKIE", "Y8PKwtA3HLks1EEX")
+            .withEnv("EMQX_MQTT__STRICT_MODE", "true")
+            .withEnv("EMQX_ALLOW_ANONYMOUS", "true")
+            .waitingFor(Wait.forHttp("/status").forPort(18083))
             .withLogConsumer(logConsumer.withPrefix("emqx"))
     }
 
