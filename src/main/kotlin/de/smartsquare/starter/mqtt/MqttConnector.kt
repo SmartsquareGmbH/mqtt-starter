@@ -17,6 +17,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
+/**
+ * Base class for connectors implementing common logic.
+ */
 abstract class MqttConnector : SmartLifecycle {
 
     companion object {
@@ -34,6 +37,9 @@ abstract class MqttConnector : SmartLifecycle {
     abstract override fun stop(callback: Runnable)
 }
 
+/**
+ * Class responsible for connecting a client (mqtt 3) and subscribing to collected topics.
+ */
 class Mqtt3Connector(
     client: Mqtt3Client,
     private val collector: MqttSubscriberCollector,
@@ -100,6 +106,9 @@ class Mqtt3Connector(
     override fun isRunning() = client.state != MqttClientState.DISCONNECTED
 }
 
+/**
+ * Class responsible for connecting a client (mqtt 5) and subscribing to collected topics.
+ */
 class Mqtt5Connector(
     client: Mqtt5Client,
     private val collector: MqttSubscriberCollector,

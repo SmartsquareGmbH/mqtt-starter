@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Class for consuming and forwarding messages to the correct subscriber.
+ */
 class MqttHandler(
     private val collector: MqttSubscriberCollector,
     private val adapter: MqttMessageAdapter,
@@ -18,6 +21,10 @@ class MqttHandler(
 
     private val subscriberCache = ConcurrentHashMap<MqttTopic, ResolvedMqttSubscriber>(collector.subscribers.size)
 
+    /**
+     * Handles a single message. The [topic] is used to determine the correct subscriber which is then invoked with
+     * parameters produced by the [MqttMessageAdapter].
+     */
     fun handle(topic: MqttTopic, payload: ByteArray) {
         if (logger.isTraceEnabled) {
             logger.trace("Received mqtt message on topic [$topic] with payload ${payload.toString(Charsets.UTF_8)}")

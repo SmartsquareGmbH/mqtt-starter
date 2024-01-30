@@ -1,3 +1,7 @@
+comments:
+  UndocumentedPublicClass:
+    active: true
+
 exceptions:
   TooGenericExceptionCaught:
     active: false

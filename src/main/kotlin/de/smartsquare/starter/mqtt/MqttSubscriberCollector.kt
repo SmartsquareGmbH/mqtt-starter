@@ -76,5 +76,8 @@ class MqttSubscriberCollector(private val config: MqttProperties) : BeanPostProc
         return topicParamCount > 1 || payloadParamCount > 1
     }
 
+    /**
+     * Data class representing a subscriber method annotated with [MqttSubscribe].
+     */
     data class ResolvedMqttSubscriber(val bean: Any, val method: Method, val topic: MqttTopicFilter, val qos: MqttQos)
 }
