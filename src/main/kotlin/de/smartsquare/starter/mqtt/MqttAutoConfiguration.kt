@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Lazy
 import java.util.concurrent.Executor
 
 /**
@@ -111,16 +112,16 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
     fun mqttExecutor(): Executor = MqttGracefulExecutor()
 
-    @Bean("mqttScheduler")
+    @Bean
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
     fun gracefulMqttScheduler(mqttExecutor: Executor): Scheduler = Schedulers.from(mqttExecutor)
 
-    @Bean("mqttScheduler")
+    @Bean
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "immediate")
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
-    fun mqttSubscriberCollector(config: MqttProperties) = MqttSubscriberCollector(config)
+    fun mqttSubscriberCollector(@Lazy config: MqttProperties) = MqttSubscriberCollector(config)
 
     @Bean
     fun mqttMessageAdapter(): MqttMessageAdapter {
