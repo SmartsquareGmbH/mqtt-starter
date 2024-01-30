@@ -1,3 +1,7 @@
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+
 performance:
   SpreadOperator:
     active: false

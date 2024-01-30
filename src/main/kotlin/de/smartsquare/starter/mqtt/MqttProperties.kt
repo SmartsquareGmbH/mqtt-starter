@@ -61,4 +61,9 @@ data class MqttProperties(
      */
     @get:MqttVersion
     val version: Int = 3,
+
+    /**
+     * The timeout for connection to the broker in milliseconds.
+     */
+    val connectTimeout: Long = 10_000,
 )

@@ -6,8 +6,8 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.InitializingBean
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -15,15 +15,16 @@ import java.lang.reflect.Method
  * Abstract base class for all routers that handles the common implementation.
  */
 abstract class MqttRouter(
-    private val collector: AnnotationCollector,
+    private val collector: MqttAnnotationCollector,
     private val adapter: MqttMessageAdapter,
     private val messageErrorHandler: MqttMessageErrorHandler,
     private val config: MqttProperties,
-) : InitializingBean {
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun afterPropertiesSet() {
+    @PostConstruct
+    fun start() {
         for ((bean, subscribers) in collector.subscribers) {
             for ((subscriberMethod, subscriberAnnotation) in subscribers) {
                 val subscribeTopic = if (subscriberAnnotation.shared && config.group != null) {
@@ -81,7 +82,7 @@ abstract class MqttRouter(
  * annotated with [MqttSubscribe]).
  */
 class Mqtt3Router(
-    collector: AnnotationCollector,
+    collector: MqttAnnotationCollector,
     adapter: MqttMessageAdapter,
     messageErrorHandler: MqttMessageErrorHandler,
     config: MqttProperties,
@@ -104,7 +105,7 @@ class Mqtt3Router(
  * annotated with [MqttSubscribe]).
  */
 class Mqtt5Router(
-    collector: AnnotationCollector,
+    collector: MqttAnnotationCollector,
     adapter: MqttMessageAdapter,
     messageErrorHandler: MqttMessageErrorHandler,
     config: MqttProperties,

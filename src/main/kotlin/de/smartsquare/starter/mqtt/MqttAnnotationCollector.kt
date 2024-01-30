@@ -11,7 +11,7 @@ import java.lang.reflect.Method
 /**
  * Helper class to find all beans with methods annotated with [MqttSubscribe].
  */
-class AnnotationCollector : BeanPostProcessor {
+class MqttAnnotationCollector : BeanPostProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

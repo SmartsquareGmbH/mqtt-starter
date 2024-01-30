@@ -57,6 +57,7 @@ class MqttMessageErrorHandlerTest {
     @Component
     class IntSubscriber {
 
+        @Suppress("UnusedParameter")
         @MqttSubscribe(topic = "int", qos = MqttQos.EXACTLY_ONCE)
         fun onMessage(payload: Int) = Unit
     }

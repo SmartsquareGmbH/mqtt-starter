@@ -4,9 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttClientBuilder
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
-import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3Connect
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
-import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
+import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -14,11 +13,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.concurrent.Executor
 
 /**
- * Main entry point for the spring auto configuration. Exposes all necessary beans for connection,
+ * Main entry point for the spring autoconfiguration. Exposes all necessary beans for connection,
  * subscription and publishing to configured mqtt broker.
  */
+@Suppress("TooManyFunctions")
 @Configuration
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
@@ -32,8 +33,12 @@ class MqttAutoConfiguration {
      */
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
-    fun mqtt3Client(config: MqttProperties, configurers: List<Mqtt3ClientConfigurer>): Mqtt3Client {
-        val clientBuilder = configureCommon(config)
+    fun mqtt3Client(
+        config: MqttProperties,
+        mqttExecutor: Executor,
+        configurers: List<Mqtt3ClientConfigurer>,
+    ): Mqtt3Client {
+        val clientBuilder = configureCommon(config, mqttExecutor)
             .useMqttVersion3()
             .apply {
                 config.username?.let { username ->
@@ -47,11 +52,7 @@ class MqttAutoConfiguration {
             }
             .apply { configurers.forEach { configurer -> configurer.configure(this) } }
 
-        val connectOptions = Mqtt3Connect.builder()
-            .cleanSession(config.clean)
-            .build()
-
-        return SpringAwareMqtt3Client(clientBuilder.build(), connectOptions)
+        return clientBuilder.build()
     }
 
     /**
@@ -59,8 +60,12 @@ class MqttAutoConfiguration {
      */
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
-    fun mqtt5Client(config: MqttProperties, configurers: List<Mqtt5ClientConfigurer>): Mqtt5Client {
-        val clientBuilder = configureCommon(config)
+    fun mqtt5Client(
+        config: MqttProperties,
+        mqttExecutor: Executor,
+        configurers: List<Mqtt5ClientConfigurer>,
+    ): Mqtt5Client {
+        val clientBuilder = configureCommon(config, mqttExecutor)
             .useMqttVersion5()
             .apply {
                 config.username?.let { username ->
@@ -74,18 +79,17 @@ class MqttAutoConfiguration {
             }
             .apply { configurers.forEach { configurer -> configurer.configure(this) } }
 
-        val connectOptions = Mqtt5Connect.builder()
-            .cleanStart(config.clean)
-            .build()
-
-        return SpringAwareMqtt5Client(clientBuilder.build(), connectOptions)
+        return clientBuilder.build()
     }
 
-    private fun configureCommon(config: MqttProperties): MqttClientBuilder {
+    private fun configureCommon(config: MqttProperties, executor: Executor): MqttClientBuilder {
         return MqttClient.builder()
             .serverHost(config.host)
             .serverPort(config.port)
             .automaticReconnectWithDefaultConfig()
+            .executorConfig()
+            .applicationScheduler(Schedulers.from(executor))
+            .applyExecutorConfig()
             .addConnectedListener { logger.info("Connected to broker.") }
             .addDisconnectedListener {
                 if (it.reconnector.isReconnect) {
@@ -103,7 +107,10 @@ class MqttAutoConfiguration {
     }
 
     @Bean
-    fun annotationCollector() = AnnotationCollector()
+    fun mqttExecutor(): Executor = MqttExecutor()
+
+    @Bean
+    fun annotationCollector() = MqttAnnotationCollector()
 
     @Bean
     fun messageAdapter(): MqttMessageAdapter {
@@ -121,9 +128,21 @@ class MqttAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
+    fun mqtt3Connector(config: MqttProperties, client: Mqtt3Client): Mqtt3Connector {
+        return Mqtt3Connector(client, config)
+    }
+
+    @Bean
+    @ConditionalOnProperty("mqtt.version", havingValue = "5")
+    fun mqtt5Connector(config: MqttProperties, client: Mqtt5Client): Mqtt5Connector {
+        return Mqtt5Connector(client, config)
+    }
+
+    @Bean
+    @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
     fun mqtt3Router(
         messageAdapter: MqttMessageAdapter,
-        collector: AnnotationCollector,
+        collector: MqttAnnotationCollector,
         messageErrorHandler: MqttMessageErrorHandler,
         config: MqttProperties,
         client: Mqtt3Client,
@@ -135,7 +154,7 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
     fun mqtt5Router(
         messageAdapter: MqttMessageAdapter,
-        collector: AnnotationCollector,
+        collector: MqttAnnotationCollector,
         messageErrorHandler: MqttMessageErrorHandler,
         config: MqttProperties,
         client: Mqtt5Client,

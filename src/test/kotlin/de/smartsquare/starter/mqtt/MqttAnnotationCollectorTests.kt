@@ -8,9 +8,9 @@ import org.amshove.kluent.shouldStartWith
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 
-class AnnotationCollectorTests {
+class MqttAnnotationCollectorTests {
 
-    private val annotationCollector = AnnotationCollector()
+    private val annotationCollector = MqttAnnotationCollector()
 
     @Test
     fun `passes if only payload is defined`() {
