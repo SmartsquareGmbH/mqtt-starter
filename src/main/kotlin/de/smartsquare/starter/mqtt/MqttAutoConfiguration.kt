@@ -5,6 +5,7 @@ import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttClientBuilder
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -35,10 +36,10 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
     fun mqtt3Client(
         config: MqttProperties,
-        mqttExecutor: Executor,
+        mqttScheduler: Scheduler,
         configurers: List<Mqtt3ClientConfigurer>,
     ): Mqtt3Client {
-        val clientBuilder = configureCommon(config, mqttExecutor)
+        val clientBuilder = configureCommon(config, mqttScheduler)
             .useMqttVersion3()
             .apply {
                 config.username?.let { username ->
@@ -62,10 +63,10 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
     fun mqtt5Client(
         config: MqttProperties,
-        mqttExecutor: Executor,
+        mqttScheduler: Scheduler,
         configurers: List<Mqtt5ClientConfigurer>,
     ): Mqtt5Client {
-        val clientBuilder = configureCommon(config, mqttExecutor)
+        val clientBuilder = configureCommon(config, mqttScheduler)
             .useMqttVersion5()
             .apply {
                 config.username?.let { username ->
@@ -82,13 +83,13 @@ class MqttAutoConfiguration {
         return clientBuilder.build()
     }
 
-    private fun configureCommon(config: MqttProperties, executor: Executor): MqttClientBuilder {
+    private fun configureCommon(config: MqttProperties, scheduler: Scheduler): MqttClientBuilder {
         return MqttClient.builder()
             .serverHost(config.host)
             .serverPort(config.port)
             .automaticReconnectWithDefaultConfig()
             .executorConfig()
-            .applicationScheduler(Schedulers.from(executor))
+            .applicationScheduler(scheduler)
             .applyExecutorConfig()
             .addConnectedListener { logger.info("Connected to broker.") }
             .addDisconnectedListener {
@@ -107,7 +108,16 @@ class MqttAutoConfiguration {
     }
 
     @Bean
-    fun mqttExecutor(): Executor = MqttExecutor()
+    @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
+    fun mqttExecutor(): Executor = MqttGracefulExecutor()
+
+    @Bean("mqttScheduler")
+    @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
+    fun gracefulMqttScheduler(mqttExecutor: Executor): Scheduler = Schedulers.from(mqttExecutor)
+
+    @Bean("mqttScheduler")
+    @ConditionalOnProperty("mqtt.shutdown", havingValue = "immediate")
+    fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
     fun mqttSubscriberCollector(config: MqttProperties) = MqttSubscriberCollector(config)

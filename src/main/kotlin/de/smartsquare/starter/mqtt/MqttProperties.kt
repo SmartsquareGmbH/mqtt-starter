@@ -66,4 +66,26 @@ data class MqttProperties(
      * The timeout for connection to the broker in milliseconds.
      */
     val connectTimeout: Long = 10_000,
-)
+
+    /**
+     * The shutdown configuration for the mqtt processor.
+     */
+    val shutdown: MqttShutdown = MqttShutdown.GRACEFUL,
+) {
+
+    /**
+     * Configuration for shutting a mqtt processor.
+     */
+    enum class MqttShutdown {
+
+        /**
+         * The mqtt processor should support graceful shutdown, allowing active tasks time to complete.
+         */
+        GRACEFUL,
+
+        /**
+         * The mqtt processor should shut down immediately.
+         */
+        IMMEDIATE,
+    }
+}
