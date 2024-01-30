@@ -1,0 +1,107 @@
+{
+  "groups": [
+    {
+      "name": "mqtt",
+      "type": "de.smartsquare.starter.mqtt.MqttProperties",
+      "sourceType": "de.smartsquare.starter.mqtt.MqttProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "mqtt.enabled",
+      "type": "java.lang.Boolean",
+      "description": "If mqtt integration is enabled.",
+      "defaultValue": true
+    },
+    {
+      "name": "mqtt.host",
+      "type": "java.lang.String",
+      "description": "The host the mqtt broker is available under.",
+      "defaultValue": "localhost"
+    },
+    {
+      "name": "mqtt.port",
+      "type": "java.lang.Integer",
+      "description": "The port the mqtt broker is available under.",
+      "defaultValue": 1883
+    },
+    {
+      "name": "mqtt.clientId",
+      "type": "java.lang.String",
+      "description": "The client id this component should connect with."
+    },
+    {
+      "name": "mqtt.username",
+      "type": "java.lang.String",
+      "description": "The username this component should connect with."
+    },
+    {
+      "name": "mqtt.password",
+      "type": "java.lang.String",
+      "description": "The password this component should connect with."
+    },
+    {
+      "name": "mqtt.ssl",
+      "type": "java.lang.Boolean",
+      "description": "If ssl should be used for the connection to the mqtt broker.",
+      "defaultValue": false
+    },
+    {
+      "name": "mqtt.clean",
+      "type": "java.lang.Boolean",
+      "description": "If the client should connect with a clean session.",
+      "defaultValue": false
+    },
+    {
+      "name": "mqtt.group",
+      "type": "java.lang.String",
+      "description": "The optional group subscriptions should be prefixed with."
+    },
+    {
+      "name": "mqtt.version",
+      "type": "java.lang.Integer",
+      "description": "The mqtt protocol version to use.",
+      "defaultValue": 3
+    },
+    {
+      "name": "mqtt.connectTimeout",
+      "type": "java.lang.Long",
+      "description": "The timeout for connection to the broker in milliseconds.",
+      "defaultValue": 10000
+    },
+    {
+      "name": "mqtt.shutdown",
+      "type": "de.smartsquare.starter.mqtt.MqttProperties.MqttShutdown",
+      "description": "The shutdown configuration for the mqtt processor.",
+      "defaultValue": "graceful"
+    }
+  ],
+  "hints": [
+    {
+      "name": "mqtt.version",
+      "values": [
+        {
+          "value": 3,
+          "description": "Use version 3.1.1."
+        },
+        {
+          "value": 5,
+          "description": "Use version 5.0."
+        }
+      ]
+    },
+    {
+      "name": "mqtt.shutdown",
+      "values": [
+        {
+          "value": "graceful",
+          "description": "The mqtt processor should support graceful shutdown, allowing active tasks time to complete."
+        },
+        {
+          "value": "immediate",
+          "description": "The mqtt processor should shut down immediately."
+        }
+      ]
+    }
+  ]
+}

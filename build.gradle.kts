@@ -6,7 +6,6 @@ plugins {
     id("signing")
     id("maven-publish")
     kotlin("jvm") version "1.9.22"
-    kotlin("kapt") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.22"
     id("org.jetbrains.dokka") version "1.9.10"
     id("io.gitlab.arturbosch.detekt") version "1.23.4"
@@ -38,24 +37,11 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
-    kapt(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
-    kapt("org.springframework.boot:spring-boot-configuration-processor")
-    compileOnly("org.springframework.boot:spring-boot-configuration-processor")
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.amshove.kluent:kluent:1.73")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.awaitility:awaitility-kotlin")
     testImplementation("org.testcontainers:junit-jupiter")
-}
-
-kapt {
-    arguments {
-        arg(
-            "org.springframework.boot.configurationprocessor.additionalMetadataLocations",
-            "$projectDir/src/main/resources",
-        )
-    }
 }
 
 java {
