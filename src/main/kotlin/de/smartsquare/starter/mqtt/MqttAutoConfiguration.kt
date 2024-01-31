@@ -8,13 +8,13 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Lazy
+import org.springframework.context.annotation.Import
 import java.util.concurrent.Executor
 
 /**
@@ -22,7 +22,8 @@ import java.util.concurrent.Executor
  * subscription and publishing to configured mqtt broker.
  */
 @Suppress("TooManyFunctions")
-@Configuration
+@AutoConfiguration
+@Import(MqttSubscriberCollector::class)
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(MqttProperties::class)
@@ -119,9 +120,6 @@ class MqttAutoConfiguration {
     @Bean
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "immediate")
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
-
-    @Bean
-    fun mqttSubscriberCollector(@Lazy config: MqttProperties) = MqttSubscriberCollector(config)
 
     @Bean
     fun mqttMessageAdapter(): MqttMessageAdapter {

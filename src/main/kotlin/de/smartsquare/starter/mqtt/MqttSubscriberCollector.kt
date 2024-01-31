@@ -5,13 +5,14 @@ import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.datatypes.MqttTopicFilter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
+import org.springframework.context.annotation.Lazy
 import org.springframework.core.annotation.AnnotationUtils
 import java.lang.reflect.Method
 
 /**
  * Helper class to find all beans with methods annotated with [MqttSubscribe].
  */
-class MqttSubscriberCollector(private val config: MqttProperties) : BeanPostProcessor {
+class MqttSubscriberCollector(@Lazy private val config: MqttProperties) : BeanPostProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
