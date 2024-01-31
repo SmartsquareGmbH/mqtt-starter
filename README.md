@@ -20,8 +20,7 @@ dependencies {
 
 ### Application Properties
 
-The main configuration mechanism is via properties. All arguments are optional (the default being an anonymous broker on
-localhost:1883 with mqtt version 3).
+The main configuration mechanism is via properties. `mqtt.host` and `mqtt.port` are required.
 
 ```properties
 # The host to connect to.
@@ -70,13 +69,14 @@ The `MqttSubscribe` annotation is scanned on application start and receives mess
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
 import com.hivemq.client.mqtt.datatypes.MqttTopic
+import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import de.smartsquare.starter.mqtt.MqttSubscribe
 import org.springframework.stereotype.Component
 
 @Component
 class TestConsumer {
 
-    // ✅ Topic and payload
+    // Topic and payload
     @MqttSubscribe(topic = "/home/+/temperature", qos = AT_LEAST_ONCE)
     fun subscribe(payload: TemperaturePayload, topic: MqttTopic) {
         println("Temperature is ${payload.value} °C in room ${topic.levels[1]}]")
@@ -84,28 +84,28 @@ class TestConsumer {
 
     class TemperaturePayload(val value: Int)
 
-    // ✅ Only topic
+    // Only topic
     @MqttSubscribe(topic = "/home/+/light/on", qos = AT_LEAST_ONCE)
     fun subscribe(topic: MqttTopic) {
         println("Light turned on in room ${topic.levels[1]}]")
     }
 
-    // ✅ Only numeric payload
+    // Only numeric payload
     @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
     fun subscribe(ping: Int) {
         println("Ping of iot system is $ping")
     }
 
-    // ✅ No parameters, for whatever reason
+    // Raw message
+    @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
+    fun subscribe(message: Mqtt3Publish) {
+        println("Raw payload: ${message.payloadAsBytes.decodeToString()}")
+    }
+
+    // No parameters
     @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
     fun subscribe() {
         println("Something happened")
-    }
-
-    // ❌ Conflicting payload declaration
-    @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
-    fun subscribe(ping: Int, temperaturePayload: TemperaturePayload) {
-        // throws de.smartsquare.starter.mqtt.MqttConfigurationException
     }
 }
 ```
