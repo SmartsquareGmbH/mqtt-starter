@@ -1,5 +1,6 @@
 package de.smartsquare.starter.mqtt
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttClientBuilder
@@ -9,9 +10,11 @@ import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -23,6 +26,7 @@ import java.util.concurrent.Executor
  */
 @Suppress("TooManyFunctions")
 @AutoConfiguration
+@AutoConfigureAfter(JacksonAutoConfiguration::class)
 @Import(MqttSubscriberCollector::class)
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
@@ -122,9 +126,14 @@ class MqttAutoConfiguration {
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
-    fun mqttMessageAdapter(): MqttMessageAdapter {
-        return MqttMessageAdapter(jacksonObjectMapper().findAndRegisterModules())
-    }
+    fun mqttMessageAdapter(objectMapper: ObjectMapper) = MqttMessageAdapter(objectMapper)
+
+    /**
+     * Configures a basic [ObjectMapper] if none is available already.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun fallbackObjectMapper(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
     fun mqttHandler(
