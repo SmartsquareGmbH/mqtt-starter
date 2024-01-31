@@ -5,7 +5,6 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
-import java.util.*
 
 class DefaultMqttMessageAdapterTest {
 
