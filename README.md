@@ -153,3 +153,12 @@ class TestService(private val mqttClient: Mqtt3Client) {
     }
 }
 ```
+
+### Upgrade Guide
+
+#### 0.15.0 -> 0.16.0
+
+- `mqtt.host` and `mqtt.port` now must be set explicitly. The default value of localhost:1883 has been removed.
+- Graceful shutdown is now supported and by default enabled. That has the side effect that messages are delivered on a
+  different thread pool. The application may also take more time to shut down. Graceful shutdown can be turned off
+  with `mqtt.shutdown=immediate`.
