@@ -1,5 +1,4 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,7 +6,8 @@ plugins {
     id("maven-publish")
     kotlin("jvm") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.22"
-    id("org.jetbrains.dokka") version "1.9.10"
+    id("dev.adamko.dokkatoo-html") version "2.0.0"
+    id("dev.adamko.dokkatoo-javadoc") version "2.0.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.4"
     id("org.jmailen.kotlinter") version "4.2.0"
     id("com.adarshr.test-logger") version "4.0.0"
@@ -67,14 +67,29 @@ detekt {
 }
 
 tasks.named<Jar>("javadocJar") {
-    from(tasks.named("dokkaJavadoc"))
+    from(tasks.named("dokkatooGeneratePublicationJavadoc"))
 }
 
-tasks.withType<DokkaTask>().configureEach {
-    dokkaSourceSets.configureEach {
-        externalDocumentationLink("https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/latest/")
-        externalDocumentationLink("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/latest/")
+dokkatoo {
+    val jacksonVersion = resolveVersion("com.fasterxml.jackson.core:jackson-core")
+    val mqttClientVersion = resolveVersion("com.hivemq:hivemq-mqtt-client")
+
+    dokkatooSourceSets.configureEach {
+        externalDocumentationLinks.create("jackson") {
+            url("https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/$jacksonVersion/")
+        }
+
+        externalDocumentationLinks.create("hivemq-mqtt-client") {
+            url("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/$mqttClientVersion/")
+        }
     }
+}
+
+fun resolveVersion(dependency: String): String {
+    return project.configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts
+        .find { it.moduleVersion.id.module.toString() == dependency }
+        ?.moduleVersion?.id?.version
+        ?: "latest"
 }
 
 tasks.withType<Test>().configureEach {
