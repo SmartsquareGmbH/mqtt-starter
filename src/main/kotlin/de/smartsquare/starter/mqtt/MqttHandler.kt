@@ -22,12 +22,14 @@ class MqttHandler(
     private val subscriberCache = ConcurrentHashMap<MqttTopic, ResolvedMqttSubscriber>(collector.subscribers.size)
 
     /**
-     * Handles a single message. The [topic] is used to determine the correct subscriber which is then invoked with
-     * parameters produced by the [MqttMessageAdapter].
+     * Handles a single [message]. The topic of the message is used to determine the correct subscriber which is then
+     * invoked with parameters produced by the [MqttMessageAdapter].
      */
-    fun handle(topic: MqttTopic, payload: ByteArray) {
+    fun handle(message: MqttPublishContainer) {
+        val topic = message.topic
+
         if (logger.isTraceEnabled) {
-            logger.trace("Received mqtt message on topic [$topic] with payload ${payload.toString(Charsets.UTF_8)}")
+            logger.trace("Received mqtt message on topic [$topic] with payload ${message.payload}")
         }
 
         val subscriber = subscriberCache
@@ -35,18 +37,25 @@ class MqttHandler(
             ?: error("No subscriber found for topic $topic")
 
         try {
-            val parameters = subscriber.method.parameterTypes.map { adapter.adapt(topic, payload, it) }.toTypedArray()
+            val parameters = subscriber.method.parameterTypes
+                .map { adapter.adapt(message, it) }
+                .toTypedArray()
 
             subscriber.method.invoke(subscriber.bean, *parameters)
         } catch (e: InvocationTargetException) {
             messageErrorHandler.handle(
-                MqttMessageException(topic, payload, "Error while handling mqtt message on topic [$topic]", e),
+                MqttMessageException(
+                    topic,
+                    message.payload,
+                    "Error while handling mqtt message on topic [$topic]",
+                    e,
+                ),
             )
         } catch (e: JsonMappingException) {
             messageErrorHandler.handle(
                 MqttMessageException(
                     topic,
-                    payload,
+                    message.payload,
                     "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class",
                     e,
                 ),
@@ -55,7 +64,7 @@ class MqttHandler(
             messageErrorHandler.handle(
                 MqttMessageException(
                     topic,
-                    payload,
+                    message.payload,
                     "Error while handling mqtt message on topic [$topic]: Failed to parse payload",
                     e,
                 ),

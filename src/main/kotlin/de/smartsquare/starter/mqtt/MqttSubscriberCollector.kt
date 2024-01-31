@@ -1,7 +1,6 @@
 package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttQos
-import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.datatypes.MqttTopicFilter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
@@ -39,23 +38,6 @@ class MqttSubscriberCollector(@Lazy private val config: MqttProperties) : BeanPo
             }
             .sortedBy { it.method.name }
 
-        val erroneousSubscriberDefinitions = collectedSubscribers.filter { it.method.isInvalidSignature() }
-
-        if (erroneousSubscriberDefinitions.isNotEmpty()) {
-            val joinedSubscribers = erroneousSubscriberDefinitions.joinToString(separator = ", ") {
-                "$beanName#${it.method.name}"
-            }
-
-            throw MqttConfigurationException(
-                """Following subscribers are invalid [$joinedSubscribers].
-                   Functions annotated with 'MqttSubscriber' can only have the following parameters:
-                     - the MqttTopic
-                     - any type of deserialized JSON payload
-                     - or both
-                """.trimMargin(),
-            )
-        }
-
         if (logger.isDebugEnabled) {
             for (subscriber in collectedSubscribers.reversed()) {
                 logger.debug("Found subscriber ${subscriber.method.name} of $beanName.")
@@ -65,16 +47,6 @@ class MqttSubscriberCollector(@Lazy private val config: MqttProperties) : BeanPo
         _subscribers.addAll(collectedSubscribers)
 
         return bean
-    }
-
-    /**
-     * Returns true if the method has defined more than one parameter besides the topic.
-     */
-    private fun Method.isInvalidSignature(): Boolean {
-        val topicParamCount = this.parameterTypes.count { it.isAssignableFrom(MqttTopic::class.java) }
-        val payloadParamCount = this.parameterTypes.count { !it.isAssignableFrom(MqttTopic::class.java) }
-
-        return topicParamCount > 1 || payloadParamCount > 1
     }
 
     /**

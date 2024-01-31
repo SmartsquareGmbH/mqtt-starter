@@ -4,7 +4,6 @@ import com.hivemq.client.mqtt.datatypes.MqttQos
 
 /**
  * Marker annotation for methods that should receive messages from the mqtt broker.
- * Methods have to follow the rules defined in [MqttSubscriberCollector].
  */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)

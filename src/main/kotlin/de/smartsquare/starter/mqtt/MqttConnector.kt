@@ -60,7 +60,7 @@ class Mqtt3Connector(
             client.subscribeWith()
                 .topicFilter(subscriber.topic)
                 .qos(subscriber.qos)
-                .callback { handler.handle(it.topic, it.payloadAsBytes) }
+                .callback { handler.handle(Mqtt3PublishContainer(it)) }
                 .send()
                 .exceptionallyCompose {
                     CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
@@ -123,7 +123,7 @@ class Mqtt5Connector(
             client.subscribeWith()
                 .topicFilter(subscriber.topic)
                 .qos(subscriber.qos)
-                .callback { handler.handle(it.topic, it.payloadAsBytes) }
+                .callback { handler.handle(Mqtt5PublishContainer(it)) }
                 .send()
                 .exceptionallyCompose {
                     CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))

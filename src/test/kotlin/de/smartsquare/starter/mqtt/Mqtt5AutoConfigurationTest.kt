@@ -3,6 +3,9 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
+import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.ErrorSubscriber
+import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.IntSubscriber
+import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.PublishSubscriber
 import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
@@ -16,8 +19,9 @@ import org.springframework.test.context.TestPropertySource
 @SpringBootTest(
     classes = [
         MqttAutoConfiguration::class,
-        Mqtt5AutoConfigurationTest.IntSubscriber::class,
-        Mqtt5AutoConfigurationTest.ErrorSubscriber::class,
+        IntSubscriber::class,
+        PublishSubscriber::class,
+        ErrorSubscriber::class,
     ],
 )
 @TestPropertySource(properties = ["mqtt.version=5"])
@@ -31,6 +35,9 @@ class Mqtt5AutoConfigurationTest {
 
     @Autowired
     private lateinit var intSubscriber: IntSubscriber
+
+    @Autowired
+    private lateinit var publishSubscriber: PublishSubscriber
 
     @Autowired
     private lateinit var errorSubscriber: ErrorSubscriber
@@ -47,6 +54,20 @@ class Mqtt5AutoConfigurationTest {
 
         await untilAssertedKluent {
             intSubscriber.receivedPayload shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `receives publish message`() {
+        val publish = Mqtt5Publish.builder()
+            .topic("string")
+            .payload("test".toByteArray())
+            .qos(MqttQos.EXACTLY_ONCE).build()
+
+        client.toBlocking().publish(publish)
+
+        await untilAssertedKluent {
+            publishSubscriber.receivedPayload shouldBeEqualTo publish
         }
     }
 
@@ -90,6 +111,18 @@ class Mqtt5AutoConfigurationTest {
 
         @MqttSubscribe(topic = "int", qos = MqttQos.EXACTLY_ONCE)
         fun onMessage(payload: Int) {
+            _receivedPayload = payload
+        }
+    }
+
+    @Component
+    class PublishSubscriber {
+
+        val receivedPayload get() = _receivedPayload
+        private var _receivedPayload: Mqtt5Publish? = null
+
+        @MqttSubscribe(topic = "string", qos = MqttQos.EXACTLY_ONCE)
+        fun onMessage(payload: Mqtt5Publish) {
             _receivedPayload = payload
         }
     }

@@ -126,7 +126,7 @@ class MqttAutoConfiguration {
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
-    fun mqttMessageAdapter(objectMapper: ObjectMapper) = MqttMessageAdapter(objectMapper)
+    fun mqttMessageAdapter(objectMapper: ObjectMapper): MqttMessageAdapter = DefaultMqttMessageAdapter(objectMapper)
 
     /**
      * Configures a basic [ObjectMapper] if none is available already.
