@@ -3,6 +3,7 @@ package de.smartsquare.starter.mqtt
 import org.amshove.kluent.AnyException
 import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldStartWith
 import org.amshove.kluent.shouldThrow
@@ -22,13 +23,17 @@ class MqttPropertiesTest {
     private class TestConfiguration
 
     @Test
-    fun `allows empty configuration`() {
+    fun `allows minimal configuration`() {
         ApplicationContextRunner()
             .withConfiguration(
                 AutoConfigurations.of(
                     ConfigurationPropertiesAutoConfiguration::class.java,
                     ValidationAutoConfiguration::class.java,
                 ),
+            )
+            .withPropertyValues(
+                "mqtt.host=localhost",
+                "mqtt.port=10000",
             )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
@@ -83,7 +88,10 @@ class MqttPropertiesTest {
                     ValidationAutoConfiguration::class.java,
                 ),
             )
-            .withPropertyValues("mqtt.host=")
+            .withPropertyValues(
+                "mqtt.host=",
+                "mqtt.port=10000",
+            )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
                 val error = invoking {
@@ -106,7 +114,10 @@ class MqttPropertiesTest {
                     ValidationAutoConfiguration::class.java,
                 ),
             )
-            .withPropertyValues("mqtt.port=65536")
+            .withPropertyValues(
+                "mqtt.host=localhost",
+                "mqtt.port=65536",
+            )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
                 val error = invoking {
@@ -129,7 +140,11 @@ class MqttPropertiesTest {
                     ValidationAutoConfiguration::class.java,
                 ),
             )
-            .withPropertyValues("mqtt.version=2")
+            .withPropertyValues(
+                "mqtt.host=localhost",
+                "mqtt.port=10000",
+                "mqtt.version=2",
+            )
             .withUserConfiguration(TestConfiguration::class.java)
             .run { context: AssertableApplicationContext ->
                 val error = invoking {
@@ -141,6 +156,32 @@ class MqttPropertiesTest {
 
                 rootError.validationErrors.allErrors.size shouldBeEqualTo 1
                 rootError.validationErrors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
+            }
+    }
+
+    @Test
+    fun `requires host and port`() {
+        ApplicationContextRunner()
+            .withConfiguration(
+                AutoConfigurations.of(
+                    ConfigurationPropertiesAutoConfiguration::class.java,
+                    ValidationAutoConfiguration::class.java,
+                ),
+            )
+            .withUserConfiguration(TestConfiguration::class.java)
+            .run { context: AssertableApplicationContext ->
+                val error = invoking {
+                    context.getBean(MqttProperties::class.java)
+                } shouldThrow IllegalStateException::class
+
+                val rootError = NestedExceptionUtils.getRootCause(error.exception)
+                rootError as BindValidationException
+
+                rootError.validationErrors.allErrors.size shouldBeEqualTo 2
+
+                val messages = rootError.validationErrors.allErrors.joinToString { it.toString() }
+                messages shouldContain "host"
+                messages shouldContain "port"
             }
     }
 }

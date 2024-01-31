@@ -17,14 +17,14 @@ data class MqttProperties(
      * The host the mqtt broker is available under.
      */
     @get:NotEmpty
-    val host: String = "localhost",
+    val host: String = "",
 
     /**
      * The port the mqtt broker is available under.
      */
-    @field:Min(0)
+    @field:Min(1)
     @field:Max(65535)
-    val port: Int = 1883,
+    val port: Int = 0,
 
     /**
      * The client id this component should connect with.
