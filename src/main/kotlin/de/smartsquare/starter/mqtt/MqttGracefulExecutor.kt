@@ -2,6 +2,7 @@ package de.smartsquare.starter.mqtt
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.SmartLifecycle
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
@@ -15,8 +16,10 @@ class MqttGracefulExecutor : Executor, SmartLifecycle {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val delegate =
-        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()) as ThreadPoolExecutor
+    private val delegate = Executors.newFixedThreadPool(
+        Runtime.getRuntime().availableProcessors(),
+        CustomizableThreadFactory("mqtt-executor-"),
+    ) as ThreadPoolExecutor
 
     override fun execute(task: Runnable) {
         delegate.execute(task)
