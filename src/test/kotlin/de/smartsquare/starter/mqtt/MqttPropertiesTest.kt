@@ -1,187 +1,77 @@
 package de.smartsquare.starter.mqtt
 
-import org.amshove.kluent.AnyException
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldNotThrow
+import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldStartWith
-import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
-import org.springframework.boot.autoconfigure.AutoConfigurations
-import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.context.properties.bind.validation.BindValidationException
-import org.springframework.boot.test.context.assertj.AssertableApplicationContext
-import org.springframework.boot.test.context.runner.ApplicationContextRunner
-import org.springframework.core.NestedExceptionUtils
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 
+@SpringBootTest(classes = [ValidationAutoConfiguration::class])
 class MqttPropertiesTest {
 
-    @EnableConfigurationProperties(MqttProperties::class)
-    private class TestConfiguration
+    @Autowired
+    private lateinit var validator: LocalValidatorFactoryBean
 
     @Test
     fun `allows minimal configuration`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withPropertyValues(
-                "mqtt.host=localhost",
-                "mqtt.port=10000",
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                invoking { context.getBean(MqttProperties::class.java) } shouldNotThrow AnyException
-            }
+        val errors = validator.validateObject(MqttProperties(host = "localhost", port = 10000))
+
+        errors.allErrors.shouldBeEmpty()
     }
 
     @Test
     fun `allows valid configuration`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withPropertyValues(
-                "mqtt.host=localhost",
-                "mqtt.port=10000",
-                "mqtt.client-id=clientId",
-                "mqtt.username=user",
-                "mqtt.password=pass",
-                "mqtt.ssl=true",
-                "mqtt.clean=false",
-                "mqtt.group=group",
-                "mqtt.version=5",
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                val bean = context.getBean(MqttProperties::class.java)
+        val errors = validator.validateObject(
+            MqttProperties(
+                host = "localhost",
+                port = 10000,
+                clientId = "clientId",
+                username = "user",
+                password = "pass",
+                ssl = true,
+                clean = false,
+                group = "group",
+                version = 5,
+            ),
+        )
 
-                bean shouldBeEqualTo MqttProperties(
-                    host = "localhost",
-                    port = 10000,
-                    clientId = "clientId",
-                    username = "user",
-                    password = "pass",
-                    ssl = true,
-                    clean = false,
-                    group = "group",
-                    version = 5,
-                )
-            }
+        errors.allErrors.shouldBeEmpty()
     }
 
     @Test
     fun `validates non empty fields`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withPropertyValues(
-                "mqtt.host=",
-                "mqtt.port=10000",
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                val error = invoking {
-                    context.getBean(MqttProperties::class.java)
-                } shouldThrow IllegalStateException::class
+        val errors = validator.validateObject(MqttProperties(host = "", port = 10000))
 
-                val rootError = NestedExceptionUtils.getRootCause(error.exception)
-                rootError as BindValidationException
-
-                rootError.validationErrors.allErrors.size shouldBeEqualTo 1
-            }
+        errors.allErrors.shouldHaveSize(1)
     }
 
     @Test
     fun `validates port range`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withPropertyValues(
-                "mqtt.host=localhost",
-                "mqtt.port=65536",
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                val error = invoking {
-                    context.getBean(MqttProperties::class.java)
-                } shouldThrow IllegalStateException::class
+        val errors = validator.validateObject(MqttProperties(host = "localhost", port = 65536))
 
-                val rootError = NestedExceptionUtils.getRootCause(error.exception)
-                rootError as BindValidationException
-
-                rootError.validationErrors.allErrors.size shouldBeEqualTo 1
-            }
+        errors.allErrors.shouldHaveSize(1)
     }
 
     @Test
     fun `validates mqtt version`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withPropertyValues(
-                "mqtt.host=localhost",
-                "mqtt.port=10000",
-                "mqtt.version=2",
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                val error = invoking {
-                    context.getBean(MqttProperties::class.java)
-                } shouldThrow IllegalStateException::class
+        val errors = validator.validateObject(MqttProperties(host = "localhost", port = 10000, version = 2))
 
-                val rootError = NestedExceptionUtils.getRootCause(error.exception)
-                rootError as BindValidationException
-
-                rootError.validationErrors.allErrors.size shouldBeEqualTo 1
-                rootError.validationErrors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
-            }
+        errors.allErrors.shouldHaveSize(1)
+        errors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
     }
 
     @Test
     fun `requires host and port`() {
-        ApplicationContextRunner()
-            .withConfiguration(
-                AutoConfigurations.of(
-                    ConfigurationPropertiesAutoConfiguration::class.java,
-                    ValidationAutoConfiguration::class.java,
-                ),
-            )
-            .withUserConfiguration(TestConfiguration::class.java)
-            .run { context: AssertableApplicationContext ->
-                val error = invoking {
-                    context.getBean(MqttProperties::class.java)
-                } shouldThrow IllegalStateException::class
+        val errors = validator.validateObject(MqttProperties())
 
-                val rootError = NestedExceptionUtils.getRootCause(error.exception)
-                rootError as BindValidationException
+        errors.allErrors.shouldHaveSize(2)
 
-                rootError.validationErrors.allErrors.size shouldBeEqualTo 2
-
-                val messages = rootError.validationErrors.allErrors.joinToString { it.toString() }
-                messages shouldContain "host"
-                messages shouldContain "port"
-            }
+        val messages = errors.allErrors.joinToString { it.toString() }
+        messages shouldContain "host"
+        messages shouldContain "port"
     }
 }

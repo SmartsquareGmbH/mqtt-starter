@@ -10,8 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.TestPropertySource
 
 @ExtendWith(EmqxExtension::class)
 @SpringBootTest(
@@ -21,16 +20,8 @@ import org.springframework.test.context.DynamicPropertySource
         Mqtt5AutoConfigurationTest.ErrorSubscriber::class,
     ],
 )
+@TestPropertySource(properties = ["mqtt.version=5"])
 class Mqtt5AutoConfigurationTest {
-
-    companion object {
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun mqttVersion(registry: DynamicPropertyRegistry) {
-            registry.add("mqtt.version") { "5" }
-        }
-    }
 
     @Autowired
     private lateinit var client: Mqtt5Client
