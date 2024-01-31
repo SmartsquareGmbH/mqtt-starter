@@ -120,6 +120,11 @@ publishing {
                         name = "Dennis Dierkes"
                         email = "dierkes@smartsquare.de"
                     }
+                    developer {
+                        id = "rubengees"
+                        name = "Ruben Gees"
+                        email = "gees@smartsquare.de"
+                    }
                 }
                 scm {
                     connection = "scm:git:https://github.com/SmartsquareGmbH/mqtt-starter.git"
