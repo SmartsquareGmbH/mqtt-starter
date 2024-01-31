@@ -59,25 +59,19 @@ class Mqtt3Connector(
         }
     }
 
-    private fun subscribe(): CompletableFuture<Mqtt3SubAck> {
-        val subscriptions = collector.subscribers.map {
-            Mqtt3Subscription.builder()
-                .topicFilter(it.topic)
-                .qos(it.qos)
-                .build()
+    private fun subscribe(): CompletableFuture<*> {
+        val subscriptions = collector.subscribers.map { subscriber ->
+            client.subscribeWith()
+                .topicFilter(subscriber.topic)
+                .qos(subscriber.qos)
+                .callback { handler.handle(it.topic, it.payloadAsBytes) }
+                .send()
+                .exceptionallyCompose {
+                    CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
+                }
         }
 
-        if (subscriptions.isEmpty()) {
-            return CompletableFuture.completedFuture(null)
-        }
-
-        return client.subscribeWith()
-            .addSubscriptions(subscriptions)
-            .callback { handler.handle(it.topic, it.payloadAsBytes) }
-            .send()
-            .exceptionallyCompose {
-                CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
-            }
+        return CompletableFuture.allOf(*subscriptions.toTypedArray())
     }
 
     private fun connect(): CompletableFuture<Mqtt3ConnAck> {
@@ -128,25 +122,19 @@ class Mqtt5Connector(
         }
     }
 
-    private fun subscribe(): CompletableFuture<Mqtt5SubAck> {
-        val subscriptions = collector.subscribers.map {
-            Mqtt5Subscription.builder()
-                .topicFilter(it.topic)
-                .qos(it.qos)
-                .build()
+    private fun subscribe(): CompletableFuture<*> {
+        val subscriptions = collector.subscribers.map { subscriber ->
+            client.subscribeWith()
+                .topicFilter(subscriber.topic)
+                .qos(subscriber.qos)
+                .callback { handler.handle(it.topic, it.payloadAsBytes) }
+                .send()
+                .exceptionallyCompose {
+                    CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
+                }
         }
 
-        if (subscriptions.isEmpty()) {
-            return CompletableFuture.completedFuture(null)
-        }
-
-        return client.subscribeWith()
-            .addSubscriptions(subscriptions)
-            .callback { handler.handle(it.topic, it.payloadAsBytes) }
-            .send()
-            .exceptionallyCompose {
-                CompletableFuture.failedFuture(MqttBrokerConnectException("Failed to subscribe", it))
-            }
+        return CompletableFuture.allOf(*subscriptions.toTypedArray())
     }
 
     private fun connect(): CompletableFuture<Mqtt5ConnAck> {
