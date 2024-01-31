@@ -4,13 +4,9 @@ import com.hivemq.client.mqtt.MqttClientState
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.connect.Mqtt3Connect
 import com.hivemq.client.mqtt.mqtt3.message.connect.connack.Mqtt3ConnAck
-import com.hivemq.client.mqtt.mqtt3.message.subscribe.Mqtt3Subscription
-import com.hivemq.client.mqtt.mqtt3.message.subscribe.suback.Mqtt3SubAck
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck
-import com.hivemq.client.mqtt.mqtt5.message.subscribe.Mqtt5Subscription
-import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck
 import org.slf4j.LoggerFactory
 import org.springframework.context.SmartLifecycle
 import java.util.concurrent.CompletableFuture
