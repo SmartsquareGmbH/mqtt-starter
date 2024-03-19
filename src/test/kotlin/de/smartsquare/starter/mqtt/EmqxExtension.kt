@@ -15,7 +15,7 @@ class EmqxExtension : BeforeAllCallback {
         private val logger = LoggerFactory.getLogger(this::class.java)
         private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
 
-        private val emqx = KGenericContainer(DockerImageName.parse("emqx/emqx:5.4.1"))
+        private val emqx = KGenericContainer(DockerImageName.parse("emqx/emqx:5.5.1"))
             .withExposedPorts(1883, 18083)
             .withEnv("EMQX_NODE__COOKIE", "Y8PKwtA3HLks1EEX")
             .withEnv("EMQX_MQTT__STRICT_MODE", "true")

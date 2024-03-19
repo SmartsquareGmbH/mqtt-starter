@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("signing")
     id("maven-publish")
-    kotlin("jvm") version "1.9.22"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.22"
-    id("dev.adamko.dokkatoo-html") version "2.0.0"
-    id("dev.adamko.dokkatoo-javadoc") version "2.0.0"
-    id("io.gitlab.arturbosch.detekt") version "1.23.4"
-    id("org.jmailen.kotlinter") version "4.2.0"
+    kotlin("jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
+    id("dev.adamko.dokkatoo-html") version "2.2.0"
+    id("dev.adamko.dokkatoo-javadoc") version "2.2.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.5"
+    id("org.jmailen.kotlinter") version "4.3.0"
     id("com.adarshr.test-logger") version "4.0.0"
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -26,7 +26,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.2"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.3"))
     implementation("org.springframework.boot:spring-boot")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
@@ -182,5 +182,5 @@ signing {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "8.5"
+    gradleVersion = "8.6"
 }
