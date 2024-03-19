@@ -142,7 +142,7 @@ class Mqtt5Connector(
             .cleanStart(config.clean)
             .build()
 
-        logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 3...")
+        logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 5...")
 
         return client.connect(connectOptions)
             .exceptionallyCompose {
