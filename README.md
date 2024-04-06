@@ -29,6 +29,8 @@ mqtt.host=test.mosquitto.org
 mqtt.port=1883
 # The clientId to use when connecting (random by default).
 mqtt.client-id=test
+# The session expiry interval in seconds, 4_294_967_295 means no expiry (4_294_967_295 by default).
+mqtt.session-expiry=4294967295
 # The username to use when connecting.
 mqtt.username=admin
 # The password to use when connecting.
