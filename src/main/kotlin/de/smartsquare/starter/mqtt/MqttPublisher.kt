@@ -6,6 +6,7 @@ import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -47,6 +48,22 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
                 .topic(topic)
                 .qos(qos)
                 .payload(adapter.adapt(payload))
+                .build(),
+        )
+    }
+
+    /**
+     * Publishes the given [payload] on [topic] with quality of service level [qos] expiring with [expiry]. Expiry is
+     * rounded to full seconds.
+     * Returns a [CompletableFuture] that is completed once the broker has accepted the message.
+     */
+    fun publish(topic: String, qos: MqttQos, payload: Any, expiry: Duration): CompletableFuture<Mqtt5PublishResult> {
+        return asyncClient.publish(
+            Mqtt5Publish.builder()
+                .topic(topic)
+                .qos(qos)
+                .payload(adapter.adapt(payload))
+                .messageExpiryInterval(expiry.toSeconds())
                 .build(),
         )
     }

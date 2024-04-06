@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
 import org.springframework.test.context.TestPropertySource
+import java.time.Duration
 
 @ExtendWith(EmqxExtension::class)
 @SpringBootTest(
@@ -97,6 +98,15 @@ class Mqtt5AutoConfigurationTest {
     @Test
     fun `publishes message`() {
         publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
+
+        await untilAssertedKluent {
+            intSubscriber.receivedPayload shouldBeEqualTo 1
+        }
+    }
+
+    @Test
+    fun `publishes message with expiry`() {
+        publisher.publish("int", MqttQos.EXACTLY_ONCE, 1, Duration.ofSeconds(30))
 
         await untilAssertedKluent {
             intSubscriber.receivedPayload shouldBeEqualTo 1
