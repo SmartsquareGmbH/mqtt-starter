@@ -1,6 +1,7 @@
 # :honeybee: HiveMQ Spring Boot Starter
 
-Use an automatically configured mqtt 3 or 5 client in your Spring Boot project.
+Use an automatically configured mqtt 3 or 5 client in your Spring Boot project. This starter supports GraalVM native
+image and provides a simple annotation-based message consumer.
 
 ## Getting Started
 

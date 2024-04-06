@@ -1,10 +1,12 @@
 package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttQos
+import org.springframework.aot.hint.annotation.Reflective
 
 /**
  * Marker annotation for methods that should receive messages from the mqtt broker.
  */
+@Reflective
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class MqttSubscribe(
