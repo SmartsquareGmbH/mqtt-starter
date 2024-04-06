@@ -1,5 +1,6 @@
 package de.smartsquare.starter.mqtt
 
+import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
@@ -71,6 +72,15 @@ data class MqttProperties(
      * The shutdown configuration for the mqtt processor.
      */
     val shutdown: MqttShutdown = MqttShutdown.GRACEFUL,
+
+    /**
+     * The session expiry interval in seconds.
+     * An expiry of 4_294_967_295 means the session will never expire.
+     * This is also the max value and the default.
+     */
+    @get:Min(0)
+    @get:Max(Mqtt5Connect.NO_SESSION_EXPIRY)
+    val sessionExpiry: Long = Mqtt5Connect.NO_SESSION_EXPIRY,
 ) {
 
     /**

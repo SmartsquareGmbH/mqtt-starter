@@ -74,6 +74,12 @@
       "type": "de.smartsquare.starter.mqtt.MqttProperties.MqttShutdown",
       "description": "The shutdown configuration for the mqtt processor.",
       "defaultValue": "graceful"
+    },
+    {
+      "name": "mqtt.sessionExpiry",
+      "type": "java.lang.Long",
+      "description": "The session expiry configuration for the mqtt processor in seconds.",
+      "defaultValue": 4294967295
     }
   ],
   "hints": [
