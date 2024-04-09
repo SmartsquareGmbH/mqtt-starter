@@ -78,7 +78,7 @@
     {
       "name": "mqtt.sessionExpiry",
       "type": "java.lang.Long",
-      "description": "The session expiry configuration for the mqtt processor in seconds. Using 0 expires the session immediately after disconnect. Using the max value of 4294967295 marks the session as never expiring. Has to be in [0..4294967295].",
+      "description": "The session expiry configuration for the mqtt processor in seconds. Using 0 expires the session immediately after disconnect. Using the max value of 4294967295 marks the session as never expiring. Has to be in [0..4294967295]. This setting is only going into effect for MQTT 5.",
       "defaultValue": 0
     }
   ],

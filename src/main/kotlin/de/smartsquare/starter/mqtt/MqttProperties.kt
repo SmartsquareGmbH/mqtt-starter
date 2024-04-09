@@ -78,6 +78,7 @@ data class MqttProperties(
      * An expiry of 4_294_967_295 means the session will never expire.
      * This is also the max value and the default.
      * Setting the value to 0 means the session will expire immediately after disconnect.
+     * This setting is only going into effect for MQTT 5.
      */
     @get:Min(0)
     @get:Max(Mqtt5Connect.NO_SESSION_EXPIRY)
