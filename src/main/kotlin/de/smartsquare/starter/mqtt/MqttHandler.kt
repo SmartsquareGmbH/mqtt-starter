@@ -23,10 +23,12 @@ class MqttHandler(
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val subscriberCache = ConcurrentHashMap<MqttTopic, MqttSubscriber>(collector.subscribers.size)
-    private val lookup = MethodHandles.publicLookup()
+    private val subscriberCache = ConcurrentHashMap<MqttTopic, MqttSubscriberReference>(collector.subscribers.size)
 
-    private data class MqttSubscriber(val subscriber: AnnotatedMethodDelegate, val parameterTypes: List<Class<*>>)
+    private data class MqttSubscriberReference(
+        val subscriber: AnnotatedMethodDelegate,
+        val parameterTypes: List<Class<*>>,
+    )
 
     private fun interface AnnotatedMethodDelegate {
         fun invoke(vararg args: Any)
@@ -38,18 +40,36 @@ class MqttHandler(
      */
     fun handle(message: MqttPublishContainer) {
         val (topic, payload) = message
-        if (logger.isTraceEnabled) logger.trace("Received mqtt message on topic [$topic] with payload $payload")
+        if (logger.isTraceEnabled) {
+            logger.trace("Received mqtt message on topic [$topic] with payload $payload")
+        }
         val (subscriber, parameterTypes) = getSubscriber(topic)
-        val adaptedParameterResult = adaptParameters(parameterTypes, message, topic)
-
-        adaptedParameterResult
-            .mapCatching { args -> subscriber.invoke(*args) }
-            .onFailure { t ->
-                val mqttMessageException = t as? MqttMessageException
-                    ?: MqttMessageException(topic, payload, "Error while handling mqtt message on topic [$topic]", t)
-
-                messageErrorHandler.handle(mqttMessageException)
-            }
+        try {
+            subscriber.invoke(*Array(parameterTypes.size) { adapter.adapt(message, parameterTypes[it]) })
+        } catch (e: JsonMappingException) {
+            throw MqttMessageException(
+                topic,
+                message.payload,
+                "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class",
+                e,
+            )
+        } catch (e: JacksonException) {
+            throw MqttMessageException(
+                topic,
+                message.payload,
+                "Error while handling mqtt message on topic [$topic]: Failed to parse payload",
+                e,
+            )
+        } catch (e: Exception) {
+            messageErrorHandler.handle(
+                MqttMessageException(
+                    topic,
+                    payload,
+                    "Error while handling mqtt message on topic [$topic]",
+                    e,
+                ),
+            )
+        }
     }
 
     /**
@@ -60,7 +80,7 @@ class MqttHandler(
      * If the function is a suspend function, it is wrapped in a suspend call. For normal functions, a method handle is
      * created and cached.
      */
-    private fun getSubscriber(topic: MqttTopic): MqttSubscriber = subscriberCache.getOrPut(topic) {
+    private fun getSubscriber(topic: MqttTopic): MqttSubscriberReference = subscriberCache.getOrPut(topic) {
         val subscriber = collector.subscribers.find { it.topic.matches(topic) }
             ?: error("No subscriber found for topic $topic")
         val kFunction = subscriber.method.kotlinFunction
@@ -69,30 +89,10 @@ class MqttHandler(
         val delegate = if (kFunction?.isSuspend == true) {
             AnnotatedMethodDelegate { args -> runBlocking { kFunction.callSuspend(subscriber.bean, *args) } }
         } else {
-            val handle = lookup.unreflect(subscriber.method)
+            val handle = MethodHandles.publicLookup().unreflect(subscriber.method)
             AnnotatedMethodDelegate { args -> handle.invokeWithArguments(subscriber.bean, *args) }
         }
 
-        MqttSubscriber(delegate, parameterTypes)
-    }
-
-    /**
-     * Adapts the payload of the [message] to the [parameterTypes] of the subscriber.
-     * If an error occurs, the error is logged and the [MqttMessageErrorHandler] is called.
-     */
-    private fun adaptParameters(
-        parameterTypes: List<Class<*>>,
-        message: MqttPublishContainer,
-        topic: MqttTopic,
-    ): Result<Array<Any>> {
-        val (e, errorMessage) = try {
-            return Result.success(parameterTypes.map { adapter.adapt(message, it) }.toTypedArray())
-        } catch (e: JsonMappingException) {
-            e to "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class"
-        } catch (e: JacksonException) {
-            e to "Error while handling mqtt message on topic [$topic]: Failed to parse payload"
-        }
-
-        return Result.failure(MqttMessageException(topic, message.payload, errorMessage, e))
+        MqttSubscriberReference(delegate, parameterTypes)
     }
 }
