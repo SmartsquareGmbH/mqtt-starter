@@ -1,12 +1,17 @@
 package de.smartsquare.starter.mqtt
 
+import com.hivemq.client.internal.mqtt.datatypes.MqttTopicImpl
+import com.hivemq.client.internal.mqtt.datatypes.MqttUserPropertiesImpl
+import com.hivemq.client.internal.mqtt.datatypes.MqttUtf8StringImpl
+import com.hivemq.client.internal.mqtt.message.publish.MqttPublish
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult
-import java.time.Duration
+import java.nio.ByteBuffer
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -20,12 +25,14 @@ class Mqtt3Publisher(private val adapter: MqttMessageAdapter, client: Mqtt3Clien
      * Publishes the given [payload] on [topic] with quality of service level [qos].
      * Returns a [CompletableFuture] that is completed once the broker has accepted the message.
      */
-    fun publish(topic: String, qos: MqttQos, payload: Any): CompletableFuture<Mqtt3Publish> {
+    @JvmOverloads
+    fun publish(topic: String, qos: MqttQos, payload: Any, retain: Boolean = false): CompletableFuture<Mqtt3Publish> {
         return asyncClient.publish(
             Mqtt3Publish.builder()
                 .topic(topic)
                 .qos(qos)
                 .payload(adapter.adapt(payload))
+                .retain(retain)
                 .build(),
         )
     }
@@ -38,33 +45,39 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
 
     private val asyncClient = client.toAsync()
 
+    data class PublishingOptions(
+        val retain: Boolean = false,
+        val messageExpiryInterval: Long = MqttPublish.NO_MESSAGE_EXPIRY,
+        val payloadFormatIndicator: Mqtt5PayloadFormatIndicator? = null,
+        val contentType: MqttUtf8StringImpl? = null,
+        val responseTopic: MqttTopicImpl? = null,
+        val correlationData: ByteBuffer? = null,
+        val userProperties: MqttUserPropertiesImpl = MqttUserPropertiesImpl.NO_USER_PROPERTIES,
+    )
+
     /**
      * Publishes the given [payload] on [topic] with quality of service level [qos].
      * Returns a [CompletableFuture] that is completed once the broker has accepted the message.
      */
-    fun publish(topic: String, qos: MqttQos, payload: Any): CompletableFuture<Mqtt5PublishResult> {
-        return asyncClient.publish(
-            Mqtt5Publish.builder()
-                .topic(topic)
-                .qos(qos)
-                .payload(adapter.adapt(payload))
-                .build(),
-        )
-    }
+    @JvmOverloads
+    fun publish(
+        topic: String,
+        qos: MqttQos,
+        payload: Any,
+        options: PublishingOptions? = null,
+    ): CompletableFuture<Mqtt5PublishResult> {
+        val build = Mqtt5Publish.builder().topic(topic).qos(qos).payload(adapter.adapt(payload))
 
-    /**
-     * Publishes the given [payload] on [topic] with quality of service level [qos] expiring with [expiry]. Expiry is
-     * rounded to full seconds.
-     * Returns a [CompletableFuture] that is completed once the broker has accepted the message.
-     */
-    fun publish(topic: String, qos: MqttQos, payload: Any, expiry: Duration): CompletableFuture<Mqtt5PublishResult> {
-        return asyncClient.publish(
-            Mqtt5Publish.builder()
-                .topic(topic)
-                .qos(qos)
-                .payload(adapter.adapt(payload))
-                .messageExpiryInterval(expiry.toSeconds())
-                .build(),
-        )
+        if (options != null) {
+            build.retain(options.retain)
+                .messageExpiryInterval(options.messageExpiryInterval)
+                .payloadFormatIndicator(options.payloadFormatIndicator)
+                .contentType(options.contentType)
+                .responseTopic(options.responseTopic)
+                .correlationData(options.correlationData)
+                .userProperties(options.userProperties)
+        }
+
+        return asyncClient.publish(build.build())
     }
 }
