@@ -47,27 +47,26 @@ class MqttHandler(
         try {
             subscriber.invoke(*Array(parameterTypes.size) { adapter.adapt(message, parameterTypes[it]) })
         } catch (e: JsonMappingException) {
-            throw MqttMessageException(
-                topic,
-                message.payload,
-                "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class",
-                e,
-            )
-        } catch (e: JacksonException) {
-            throw MqttMessageException(
-                topic,
-                message.payload,
-                "Error while handling mqtt message on topic [$topic]: Failed to parse payload",
-                e,
-            )
-        } catch (e: Exception) {
             messageErrorHandler.handle(
                 MqttMessageException(
                     topic,
                     payload,
-                    "Error while handling mqtt message on topic [$topic]",
+                    "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class",
                     e,
                 ),
+            )
+        } catch (e: JacksonException) {
+            messageErrorHandler.handle(
+                MqttMessageException(
+                    topic,
+                    payload,
+                    "Error while handling mqtt message on topic [$topic]: Failed to parse payload",
+                    e,
+                ),
+            )
+        } catch (e: Exception) {
+            messageErrorHandler.handle(
+                MqttMessageException(topic, payload, "Error while handling mqtt message on topic [$topic]", e),
             )
         }
     }
