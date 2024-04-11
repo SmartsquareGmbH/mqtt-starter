@@ -74,10 +74,9 @@ data class MqttProperties(
     val shutdown: MqttShutdown = MqttShutdown.GRACEFUL,
 
     /**
-     * The session expiry interval in seconds.
-     * An expiry of 4_294_967_295 means the session will never expire.
-     * This is also the max value and the default.
+     * The session expiry interval in seconds. Has to be in [0, 4294967295] (0 by default).
      * Setting the value to 0 means the session will expire immediately after disconnect.
+     * Setting it to 4_294_967_295 means the session will never expire.
      * This setting is only going into effect for MQTT 5.
      */
     @get:Min(0)
