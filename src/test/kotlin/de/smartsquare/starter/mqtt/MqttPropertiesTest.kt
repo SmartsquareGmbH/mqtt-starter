@@ -1,10 +1,13 @@
 package de.smartsquare.starter.mqtt
 
+import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
 import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
@@ -36,6 +39,7 @@ class MqttPropertiesTest {
                 clean = false,
                 group = "group",
                 version = 5,
+                sessionExpiry = 1000,
             ),
         )
 
@@ -52,6 +56,14 @@ class MqttPropertiesTest {
     @Test
     fun `validates port range`() {
         val errors = validator.validateObject(MqttProperties(host = "localhost", port = 65536))
+
+        errors.allErrors.shouldHaveSize(1)
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = [-1, Mqtt5Connect.NO_SESSION_EXPIRY + 1])
+    fun `validates session expiry`(expiry: Long) {
+        val errors = validator.validateObject(MqttProperties(host = "localhost", port = 1883, sessionExpiry = expiry))
 
         errors.allErrors.shouldHaveSize(1)
     }
