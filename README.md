@@ -109,7 +109,7 @@ class TestConsumer {
         println("Something happened")
     }
 
-  // No parameters
+  // Suspending function
   @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
   suspend fun suspending() {
     println("Something happened suspending")
