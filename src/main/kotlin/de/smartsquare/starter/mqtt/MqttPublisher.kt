@@ -54,7 +54,61 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
         val responseTopic: MqttTopic? = null,
         val correlationData: ByteArray? = null,
         val userProperties: Mqtt5UserProperties = Mqtt5UserProperties.of(),
-    )
+    ) {
+        companion object {
+            /**
+             * Creates a new [Builder] for [PublishingOptions]. With the given [original] as a base.
+             */
+            @JvmStatic
+            @JvmOverloads
+            fun builder(original: PublishingOptions = PublishingOptions()) = object : Builder {
+                private var state = original
+
+                override fun retain(retain: Boolean): Builder = apply {
+                    state = state.copy(retain = retain)
+                }
+
+                override fun messageExpiryInterval(messageExpiryInterval: Long): Builder = apply {
+                    state = state.copy(messageExpiryInterval = messageExpiryInterval)
+                }
+
+                override fun payloadFormatIndicator(payloadFormatIndicator: Mqtt5PayloadFormatIndicator?): Builder =
+                    apply { state = state.copy(payloadFormatIndicator = payloadFormatIndicator) }
+
+                override fun contentType(contentType: String?): Builder = apply {
+                    state = state.copy(contentType = contentType)
+                }
+
+                override fun responseTopic(responseTopic: MqttTopic?): Builder = apply {
+                    state = state.copy(responseTopic = responseTopic)
+                }
+
+                override fun correlationData(correlationData: ByteArray?): Builder = apply {
+                    state = state.copy(correlationData = correlationData)
+                }
+
+                override fun userProperties(userProperties: Mqtt5UserProperties): Builder = apply {
+                    state = state.copy(userProperties = userProperties)
+                }
+
+                override fun build(): PublishingOptions = state
+            }
+        }
+
+        /**
+         * Fluent builder for [PublishingOptions].
+         */
+        interface Builder {
+            fun retain(retain: Boolean): Builder
+            fun messageExpiryInterval(messageExpiryInterval: Long): Builder
+            fun payloadFormatIndicator(payloadFormatIndicator: Mqtt5PayloadFormatIndicator?): Builder
+            fun contentType(contentType: String?): Builder
+            fun responseTopic(responseTopic: MqttTopic?): Builder
+            fun correlationData(correlationData: ByteArray?): Builder
+            fun userProperties(userProperties: Mqtt5UserProperties): Builder
+            fun build(): PublishingOptions
+        }
+    }
 
     /**
      * Publishes the given [payload] on [topic] with quality of service level [qos].
