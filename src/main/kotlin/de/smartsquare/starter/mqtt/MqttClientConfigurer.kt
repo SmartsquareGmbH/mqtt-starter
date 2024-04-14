@@ -7,7 +7,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder
  * Interface to enable more advanced configuration for the [Mqtt3ClientBuilder] than what is possible with the
  * properties.
  */
-interface Mqtt3ClientConfigurer {
+fun interface Mqtt3ClientConfigurer {
 
     /**
      * To be implemented by consumers. Can perform any configuration on the given [builder] in place.
@@ -20,7 +20,7 @@ interface Mqtt3ClientConfigurer {
  * Interface to enable more advanced configuration for the [Mqtt5ClientBuilder] than what is possible with the
  * properties.
  */
-interface Mqtt5ClientConfigurer {
+fun interface Mqtt5ClientConfigurer {
 
     /**
      * To be implemented by consumers. Can perform any configuration on the given [builder] in place.

@@ -66,7 +66,8 @@ class MqttTimeoutConfigurer : MqttClientConfigurer {
 
 ### Annotation based
 
-The `MqttSubscribe` annotation is scanned on application start and receives messages on the given topic.
+The `MqttSubscribe` annotation is scanned on application start and receives messages on the given topic.  
+It additionally supports kotlin suspend functions. Those functions are run inside the mqtt client thread pool.
 
 ```kotlin
 import com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE
@@ -109,6 +110,12 @@ class TestConsumer {
     fun subscribe() {
         println("Something happened")
     }
+
+  // Suspending function
+  @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
+  suspend fun suspending() {
+    println("Something happened suspending")
+  }
 }
 ```
 

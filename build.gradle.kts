@@ -26,6 +26,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.3"))
     implementation("org.springframework.boot:spring-boot")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
