@@ -1,17 +1,15 @@
 package de.smartsquare.starter.mqtt
 
-import com.hivemq.client.internal.mqtt.datatypes.MqttTopicImpl
-import com.hivemq.client.internal.mqtt.datatypes.MqttUserPropertiesImpl
-import com.hivemq.client.internal.mqtt.datatypes.MqttUtf8StringImpl
 import com.hivemq.client.internal.mqtt.message.publish.MqttPublish
 import com.hivemq.client.mqtt.datatypes.MqttQos
+import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
+import com.hivemq.client.mqtt.mqtt5.datatypes.Mqtt5UserProperties
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult
-import java.nio.ByteBuffer
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -45,14 +43,17 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
 
     private val asyncClient = client.toAsync()
 
+    /**
+     * Options for publishing a message.
+     */
     data class PublishingOptions(
         val retain: Boolean = false,
         val messageExpiryInterval: Long = MqttPublish.NO_MESSAGE_EXPIRY,
         val payloadFormatIndicator: Mqtt5PayloadFormatIndicator? = null,
-        val contentType: MqttUtf8StringImpl? = null,
-        val responseTopic: MqttTopicImpl? = null,
-        val correlationData: ByteBuffer? = null,
-        val userProperties: MqttUserPropertiesImpl = MqttUserPropertiesImpl.NO_USER_PROPERTIES,
+        val contentType: String? = null,
+        val responseTopic: MqttTopic? = null,
+        val correlationData: ByteArray? = null,
+        val userProperties: Mqtt5UserProperties = Mqtt5UserProperties.of(),
     )
 
     /**
