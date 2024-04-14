@@ -58,6 +58,7 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
         companion object {
             /**
              * Creates a new [Builder] for [PublishingOptions]. With the given [original] as a base.
+             * If no base is given, the default values from [PublishingOptions] are used.
              */
             @JvmStatic
             @JvmOverloads
@@ -96,7 +97,7 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
         }
 
         /**
-         * Fluent builder for [PublishingOptions].
+         * Fluent builder for [PublishingOptions]. It is initialized with the default values from [PublishingOptions].
          */
         interface Builder {
             fun retain(retain: Boolean): Builder
