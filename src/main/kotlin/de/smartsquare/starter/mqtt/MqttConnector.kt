@@ -140,6 +140,7 @@ class Mqtt5Connector(
 
         val connectOptions = Mqtt5Connect.builder()
             .cleanStart(config.clean)
+            .sessionExpiryInterval(config.sessionExpiry)
             .build()
 
         logger.info("Connecting to ${if (username != null) "$username@" else ""}$host:$port using mqtt 5...")
@@ -153,7 +154,10 @@ class Mqtt5Connector(
     }
 
     override fun stop(callback: Runnable) {
-        client.disconnect().thenRun(callback)
+        client.disconnectWith()
+            .sessionExpiryInterval(config.sessionExpiry)
+            .send()
+            .thenRun(callback)
     }
 
     override fun isRunning() = client.state != MqttClientState.DISCONNECTED

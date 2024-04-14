@@ -10,6 +10,7 @@ import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.MultipleSubscriber
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.ObjectSubscriber
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.PublishSubscriber
 import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.StringSubscriber
+import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.SuspendSubscriber
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component
         StringSubscriber::class,
         ObjectSubscriber::class,
         PublishSubscriber::class,
+        SuspendSubscriber::class,
         EmptySubscriber::class,
         MultipleSubscriber::class,
     ],
@@ -51,6 +53,9 @@ class Mqtt3AutoConfigurationTest {
 
     @Autowired
     private lateinit var publishSubscriber: PublishSubscriber
+
+    @Autowired
+    private lateinit var suspendSubscriber: SuspendSubscriber
 
     @Autowired
     private lateinit var emptySubscriber: EmptySubscriber
@@ -99,6 +104,20 @@ class Mqtt3AutoConfigurationTest {
 
         await untilAssertedKluent {
             publishSubscriber.receivedPayload shouldBeEqualTo publish
+        }
+    }
+
+    @Test
+    fun `receives publish message from suspend function`() {
+        val publish = Mqtt3Publish.builder()
+            .topic("suspend")
+            .payload("test".toByteArray())
+            .qos(MqttQos.EXACTLY_ONCE).build()
+
+        client.toBlocking().publish(publish)
+
+        await untilAssertedKluent {
+            suspendSubscriber.receivedPayload shouldBeEqualTo publish
         }
     }
 
@@ -233,6 +252,18 @@ class Mqtt3AutoConfigurationTest {
 
         @MqttSubscribe(topic = "publish", qos = MqttQos.EXACTLY_ONCE)
         fun onMessage(payload: Mqtt3Publish) {
+            _receivedPayload = payload
+        }
+    }
+
+    @Component
+    class SuspendSubscriber {
+
+        val receivedPayload get() = _receivedPayload
+        private var _receivedPayload: Mqtt3Publish? = null
+
+        @MqttSubscribe(topic = "suspend", qos = MqttQos.EXACTLY_ONCE)
+        suspend fun onMessage(payload: Mqtt3Publish) {
             _receivedPayload = payload
         }
     }

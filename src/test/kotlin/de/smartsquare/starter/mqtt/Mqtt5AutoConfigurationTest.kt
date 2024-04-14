@@ -6,6 +6,7 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.ErrorSubscriber
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.IntSubscriber
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.PublishSubscriber
+import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.SuspendSubscriber
 import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
@@ -21,6 +22,7 @@ import org.springframework.test.context.TestPropertySource
         MqttAutoConfiguration::class,
         IntSubscriber::class,
         PublishSubscriber::class,
+        SuspendSubscriber::class,
         ErrorSubscriber::class,
     ],
 )
@@ -38,6 +40,9 @@ class Mqtt5AutoConfigurationTest {
 
     @Autowired
     private lateinit var publishSubscriber: PublishSubscriber
+
+    @Autowired
+    private lateinit var suspendSubscriber: SuspendSubscriber
 
     @Autowired
     private lateinit var errorSubscriber: ErrorSubscriber
@@ -68,6 +73,20 @@ class Mqtt5AutoConfigurationTest {
 
         await untilAssertedKluent {
             publishSubscriber.receivedPayload shouldBeEqualTo publish
+        }
+    }
+
+    @Test
+    fun `receives publish message from suspend function`() {
+        val publish = Mqtt5Publish.builder()
+            .topic("suspend")
+            .payload("test".toByteArray())
+            .qos(MqttQos.EXACTLY_ONCE).build()
+
+        client.toBlocking().publish(publish)
+
+        await untilAssertedKluent {
+            suspendSubscriber.receivedPayload shouldBeEqualTo publish
         }
     }
 
@@ -123,6 +142,18 @@ class Mqtt5AutoConfigurationTest {
 
         @MqttSubscribe(topic = "string", qos = MqttQos.EXACTLY_ONCE)
         fun onMessage(payload: Mqtt5Publish) {
+            _receivedPayload = payload
+        }
+    }
+
+    @Component
+    class SuspendSubscriber {
+
+        val receivedPayload get() = _receivedPayload
+        private var _receivedPayload: Mqtt5Publish? = null
+
+        @MqttSubscribe(topic = "suspend", qos = MqttQos.EXACTLY_ONCE)
+        suspend fun onMessage(payload: Mqtt5Publish) {
             _receivedPayload = payload
         }
     }

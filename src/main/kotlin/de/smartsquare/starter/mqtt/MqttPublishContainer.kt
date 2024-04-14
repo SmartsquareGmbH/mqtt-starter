@@ -9,8 +9,16 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
  */
 sealed interface MqttPublishContainer {
     val topic: MqttTopic
+
     val payload: ByteArray
+
     val value: Any
+
+    @JvmSynthetic
+    operator fun component1(): MqttTopic = topic
+
+    @JvmSynthetic
+    operator fun component2(): ByteArray = payload
 }
 
 /**
