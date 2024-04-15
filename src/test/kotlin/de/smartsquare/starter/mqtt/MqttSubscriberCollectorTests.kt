@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class MqttSubscriberCollectorTests {
 
-    private val annotationCollector = MqttSubscriberCollector(MqttProperties(group = "group"))
+    private val annotationCollector = MqttSubscriberCollector(TestObjectProvider(MqttProperties(group = "group")))
 
     @Test
     fun `processes bean`() {

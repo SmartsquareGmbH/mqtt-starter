@@ -3,17 +3,25 @@ package de.smartsquare.starter.mqtt
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.datatypes.MqttTopicFilter
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.BeanPostProcessor
-import org.springframework.context.annotation.Lazy
 import org.springframework.core.annotation.AnnotationUtils
 import java.lang.reflect.Method
 
 /**
  * Helper class to find all beans with methods annotated with [MqttSubscribe].
  */
-class MqttSubscriberCollector(@Lazy private val config: MqttProperties) : BeanPostProcessor {
+class MqttSubscriberCollector(configProvider: ObjectProvider<MqttProperties>) : BeanPostProcessor {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    /**
+     *  It's really important to use lazy initialization here, because the bean value inside this provider is not
+     *  available during construction time and only requested lazy up on the first found subscriber.
+     *  At this point, the bean is already available and can be used.
+     *  We cache the result here to avoid multiple expensive lookups from the underlying bean factory.
+     */
+    private val config: MqttProperties by lazy { configProvider.`object` }
 
     /**
      * MultiMap of beans to its methods annotated with [MqttSubscribe] and the annotation itself.

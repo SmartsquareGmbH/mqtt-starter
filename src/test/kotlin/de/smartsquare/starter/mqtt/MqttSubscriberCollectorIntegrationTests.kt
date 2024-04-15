@@ -24,7 +24,7 @@ class MqttSubscriberCollectorIntegrationTests {
     class PostProcessorConfiguration {
 
         @Bean
-        fun annotationCollector() = MqttSubscriberCollector(MqttProperties())
+        fun annotationCollector() = MqttSubscriberCollector(TestObjectProvider(MqttProperties()))
 
         @Bean
         fun subscriber() = Subscriber()
