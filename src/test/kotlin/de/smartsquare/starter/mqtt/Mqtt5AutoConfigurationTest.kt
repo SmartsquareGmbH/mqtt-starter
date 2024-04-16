@@ -7,6 +7,7 @@ import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.ErrorSubscriber
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.IntSubscriber
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.PublishSubscriber
 import de.smartsquare.starter.mqtt.Mqtt5AutoConfigurationTest.SuspendSubscriber
+import de.smartsquare.starter.mqtt.Mqtt5Publisher.PublishingOptions
 import org.amshove.kluent.shouldBeEqualTo
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
@@ -119,6 +120,15 @@ class Mqtt5AutoConfigurationTest {
 
         await untilAssertedKluent {
             intSubscriber.receivedPayload shouldBeEqualTo 1
+        }
+    }
+
+    @Test
+    fun `publishes message with expiry`() {
+        publisher.publish("string", MqttQos.EXACTLY_ONCE, "1", PublishingOptions(messageExpiryInterval = 10))
+
+        await untilAssertedKluent {
+            publishSubscriber.receivedPayload?.messageExpiryInterval?.asLong shouldBeEqualTo 10
         }
     }
 
