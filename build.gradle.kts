@@ -61,6 +61,7 @@ kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
         allWarningsAsErrors = true
+        javaParameters = true
     }
 }
 

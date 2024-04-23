@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 object TestMqttSubscriberCollector {
-    operator fun invoke(bean: Any): MqttSubscriberCollector = MqttSubscriberCollector(MqttProperties()).apply {
+    operator fun invoke(bean: Any) = MqttSubscriberCollector(TestObjectProvider(MqttProperties())).apply {
         postProcessAfterInitialization(bean, "testBean")
     }
 }
@@ -21,7 +21,7 @@ class MqttHandlerTest {
     private val messageErrorHandler = MqttMessageErrorHandler()
 
     @Test
-    fun `invoke correct method for multiple subsciber methods`() {
+    fun `invoke correct method for multiple subscriber methods`() {
         val subscriber = object {
             var invoked = false
 

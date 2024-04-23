@@ -163,6 +163,10 @@ class TestService(private val mqttClient: Mqtt3Client) {
 }
 ```
 
+### GraalVM
+
+This starter supports GraalVM out of the box. There is nothing special to do.
+
 ### Upgrade Guide
 
 #### 0.15.0 -> 0.16.0
