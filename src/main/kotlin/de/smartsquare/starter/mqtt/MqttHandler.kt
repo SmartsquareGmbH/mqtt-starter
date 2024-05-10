@@ -40,10 +40,11 @@ class MqttHandler(
      */
     fun handle(message: MqttPublishContainer) {
         val (topic, payload) = message
-        if (logger.isTraceEnabled) {
-            logger.trace("Received mqtt message on topic [$topic] with payload $payload")
-        }
+
+        logger.trace("Received mqtt message on topic [{}] with payload {}", topic, payload)
+
         val (subscriber, parameterTypes) = getSubscriber(topic)
+
         try {
             subscriber.invoke(*Array(parameterTypes.size) { adapter.adapt(message, parameterTypes[it]) })
         } catch (e: JsonMappingException) {
