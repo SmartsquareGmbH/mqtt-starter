@@ -62,6 +62,12 @@ class MqttTimeoutConfigurer : MqttClientConfigurer {
 }
 ```
 
+### Health Indicator
+
+The starter provides a health indicator that checks the connection to the mqtt broker. If the broker is not connected,
+the health indicator will return `DOWN`. The health indicator is enabled by default if actuator is on the classpath.  
+It can be disabled by setting `management.health.mqtt.enabled=false`.
+
 ## Usage
 
 ### Annotation based

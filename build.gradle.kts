@@ -30,6 +30,7 @@ dependencies {
 
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.3"))
     implementation("org.springframework.boot:spring-boot")
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation")
