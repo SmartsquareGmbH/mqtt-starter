@@ -71,7 +71,7 @@ class MqttHealthAutoConfigurationTest {
 
     @Test
     fun `should be unhealthy on connect`() {
-        // mock MqttConnector to prevent connection errors on startup for intentional wrong port
+        // Replace MqttConnector to prevent connection on startup for broker to stay in "DISCONNECTED" state
         class MqttTestConnectorConfiguration : MqttConnector() {
             override fun stop(callback: Runnable) = callback.run()
             override fun start() = Unit
@@ -79,7 +79,7 @@ class MqttHealthAutoConfigurationTest {
         }
 
         // wrong port here to simulate connection error
-        runner.withPropertyValues("mqtt.version=5", "mqtt.port=8888")
+        runner.withPropertyValues("mqtt.version=5")
             .withBean(MqttTestConnectorConfiguration::class.java)
             .run { context ->
                 val indicator = context.getBean<MqttHealthIndicator>()
