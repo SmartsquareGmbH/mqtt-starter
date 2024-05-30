@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.getBean
-import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.HealthEndpoint
+import org.springframework.boot.actuate.health.Status
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import java.net.URLClassLoader
@@ -26,8 +26,8 @@ class MqttHealthAutoConfigurationTest {
         runner.withPropertyValues("mqtt.enabled=false")
             .run { context ->
                 invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
-                        NoSuchBeanDefinitionException::class withMessage
-                        "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                    NoSuchBeanDefinitionException::class withMessage
+                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
             }
     }
 
@@ -36,8 +36,8 @@ class MqttHealthAutoConfigurationTest {
         runner.withPropertyValues("management.health.mqtt.enabled=false")
             .run { context ->
                 invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
-                        NoSuchBeanDefinitionException::class withMessage
-                        "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                    NoSuchBeanDefinitionException::class withMessage
+                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
             }
     }
 
@@ -55,17 +55,36 @@ class MqttHealthAutoConfigurationTest {
 
         runner.withClassLoader(loader).run { context ->
             invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
-                    NoSuchBeanDefinitionException::class withMessage
-                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                NoSuchBeanDefinitionException::class withMessage
+                "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
         }
     }
 
     @Test
-    fun `should have health contributor`() {
+    fun `should be healthy on connect`() {
         runner.withPropertyValues("mqtt.version=5").run { context ->
             val indicator = context.getBean<MqttHealthIndicator>()
 
-            indicator.health().`should be equal to`(Health.up().build())
+            indicator.health().status.`should be equal to`(Status.UP)
         }
+    }
+
+    @Test
+    fun `should be unhealthy on connect`() {
+        // mock MqttConnector to prevent connection errors on startup for intentional wrong port
+        class MqttTestConnectorConfiguration : MqttConnector() {
+            override fun stop(callback: Runnable) = callback.run()
+            override fun start() = Unit
+            override fun isRunning(): Boolean = false
+        }
+
+        // wrong port here to simulate connection error
+        runner.withPropertyValues("mqtt.version=5", "mqtt.port=8888")
+            .withBean(MqttTestConnectorConfiguration::class.java)
+            .run { context ->
+                val indicator = context.getBean<MqttHealthIndicator>()
+
+                indicator.health().status.`should be equal to`(Status.DOWN)
+            }
     }
 }

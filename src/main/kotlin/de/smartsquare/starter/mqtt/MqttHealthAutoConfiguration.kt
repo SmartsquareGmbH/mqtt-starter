@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Bean
 
+/**
+ * Autoconfiguration for the mqtt health indicator.
+ */
 @ConditionalOnBean(MqttClient::class)
 @ConditionalOnClass(HealthEndpoint::class)
 @ConditionalOnEnabledHealthIndicator("mqtt")
