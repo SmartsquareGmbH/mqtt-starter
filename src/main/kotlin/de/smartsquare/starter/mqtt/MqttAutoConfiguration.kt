@@ -9,6 +9,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor
 @Import(MqttSubscriberCollector::class)
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
+@RegisterReflectionForBinding(MqttProperties::class)
 @EnableConfigurationProperties(MqttProperties::class)
 class MqttAutoConfiguration {
 
@@ -126,6 +128,7 @@ class MqttAutoConfiguration {
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
+    @ConditionalOnMissingBean
     fun mqttMessageAdapter(objectMapper: ObjectMapper): MqttMessageAdapter = DefaultMqttMessageAdapter(objectMapper)
 
     /**

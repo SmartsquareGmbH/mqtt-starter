@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation "de.smartsquare:mqtt-starter:0.16.0"
+    implementation "de.smartsquare:mqtt-starter:0.17.0"
 }
 ```
 
@@ -117,11 +117,11 @@ class TestConsumer {
         println("Something happened")
     }
 
-  // Suspending function
-  @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
-  suspend fun suspending() {
-    println("Something happened suspending")
-  }
+    // Suspending function
+    @MqttSubscribe(topic = "/home/ping", qos = AT_LEAST_ONCE)
+    suspend fun suspending() {
+        println("Something happened suspending")
+    }
 }
 ```
 
@@ -168,6 +168,10 @@ class TestService(private val mqttClient: Mqtt3Client) {
     }
 }
 ```
+
+### GraalVM
+
+This starter supports GraalVM out of the box. There is nothing special to do.
 
 ### Upgrade Guide
 

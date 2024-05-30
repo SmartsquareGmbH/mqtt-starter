@@ -23,8 +23,8 @@ data class MqttProperties(
     /**
      * The port the mqtt broker is available under.
      */
-    @field:Min(1)
-    @field:Max(65535)
+    @get:Min(1)
+    @get:Max(65535)
     val port: Int = 0,
 
     /**
