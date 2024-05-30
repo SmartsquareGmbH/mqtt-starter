@@ -78,7 +78,6 @@ class MqttHealthAutoConfigurationTest {
             override fun isRunning(): Boolean = false
         }
 
-        // wrong port here to simulate connection error
         runner.withPropertyValues("mqtt.version=5")
             .withBean(MqttTestConnectorConfiguration::class.java)
             .run { context ->
