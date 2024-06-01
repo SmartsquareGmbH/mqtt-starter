@@ -79,7 +79,8 @@ class MqttHealthAutoConfigurationTest {
         }
 
         runner.withPropertyValues("mqtt.version=5")
-            .withBean(MqttTestConnectorConfiguration::class.java)
+            .withBean("mqtt5Connector", MqttTestConnectorConfiguration::class.java)
+            .withAllowBeanDefinitionOverriding(true)
             .run { context ->
                 val indicator = context.getBean<MqttHealthIndicator>()
 
