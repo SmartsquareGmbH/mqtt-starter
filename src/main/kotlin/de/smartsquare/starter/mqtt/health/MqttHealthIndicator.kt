@@ -1,4 +1,4 @@
-package de.smartsquare.starter.mqtt
+package de.smartsquare.starter.mqtt.health
 
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.MqttClientState.CONNECTED

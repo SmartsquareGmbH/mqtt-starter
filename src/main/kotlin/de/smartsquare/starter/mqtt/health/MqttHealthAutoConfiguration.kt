@@ -1,6 +1,7 @@
-package de.smartsquare.starter.mqtt
+package de.smartsquare.starter.mqtt.health
 
 import com.hivemq.client.mqtt.MqttClient
+import de.smartsquare.starter.mqtt.MqttAutoConfiguration
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator
 import org.springframework.boot.actuate.health.HealthEndpoint
 import org.springframework.boot.autoconfigure.AutoConfiguration

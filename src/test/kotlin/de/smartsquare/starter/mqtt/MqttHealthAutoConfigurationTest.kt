@@ -1,5 +1,7 @@
 package de.smartsquare.starter.mqtt
 
+import de.smartsquare.starter.mqtt.health.MqttHealthAutoConfiguration
+import de.smartsquare.starter.mqtt.health.MqttHealthIndicator
 import org.amshove.kluent.invoking
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldThrow
@@ -27,7 +29,7 @@ class MqttHealthAutoConfigurationTest {
             .run { context ->
                 invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
                     NoSuchBeanDefinitionException::class withMessage
-                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.health.MqttHealthIndicator' available"
             }
     }
 
@@ -37,7 +39,7 @@ class MqttHealthAutoConfigurationTest {
             .run { context ->
                 invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
                     NoSuchBeanDefinitionException::class withMessage
-                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                    "No qualifying bean of type 'de.smartsquare.starter.mqtt.health.MqttHealthIndicator' available"
             }
     }
 
@@ -56,7 +58,7 @@ class MqttHealthAutoConfigurationTest {
         runner.withClassLoader(loader).run { context ->
             invoking { context.getBean<MqttHealthIndicator>() } shouldThrow
                 NoSuchBeanDefinitionException::class withMessage
-                "No qualifying bean of type 'de.smartsquare.starter.mqtt.MqttHealthIndicator' available"
+                "No qualifying bean of type 'de.smartsquare.starter.mqtt.health.MqttHealthIndicator' available"
         }
     }
 

@@ -1,2 +1,2 @@
 de.smartsquare.starter.mqtt.MqttAutoConfiguration
-de.smartsquare.starter.mqtt.MqttHealthAutoConfiguration
+de.smartsquare.starter.mqtt.health.MqttHealthAutoConfiguration
