@@ -155,24 +155,26 @@ class MqttAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
     fun mqtt3Connector(
         client: Mqtt3Client,
         collector: MqttSubscriberCollector,
         handler: MqttHandler,
         config: MqttProperties,
-    ): Mqtt3Connector {
+    ): MqttConnector {
         return Mqtt3Connector(client, collector, handler, config)
     }
 
     @Bean
+    @ConditionalOnMissingBean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
     fun mqtt5Connector(
         client: Mqtt5Client,
         collector: MqttSubscriberCollector,
         handler: MqttHandler,
         config: MqttProperties,
-    ): Mqtt5Connector {
+    ): MqttConnector {
         return Mqtt5Connector(client, collector, handler, config)
     }
 
