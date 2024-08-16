@@ -117,12 +117,16 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
 
         if (options != null) {
             build.retain(options.retain)
-                .messageExpiryInterval(options.messageExpiryInterval)
                 .payloadFormatIndicator(options.payloadFormatIndicator)
                 .contentType(options.contentType)
                 .responseTopic(options.responseTopic)
                 .correlationData(options.correlationData)
                 .userProperties(options.userProperties)
+            if (options.messageExpiryInterval == MqttPublish.NO_MESSAGE_EXPIRY) {
+                build.noMessageExpiry()
+            } else {
+                build.messageExpiryInterval(options.messageExpiryInterval)
+            }
         }
 
         return asyncClient.publish(build.build())
