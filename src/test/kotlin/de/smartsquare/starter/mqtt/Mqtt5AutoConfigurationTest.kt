@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.stereotype.Component
 import org.springframework.test.context.TestPropertySource
+import kotlin.jvm.optionals.getOrNull
 
 @ExtendWith(EmqxExtension::class)
 @SpringBootTest(
@@ -129,6 +130,15 @@ class Mqtt5AutoConfigurationTest {
 
         await untilAssertedKluent {
             publishSubscriber.receivedPayload?.messageExpiryInterval?.asLong shouldBeEqualTo 10
+        }
+    }
+
+    @Test
+    fun `publishes message with contentType`() {
+        publisher.publish("string", MqttQos.EXACTLY_ONCE, "1", PublishingOptions(contentType = "text/plain"))
+
+        await untilAssertedKluent {
+            publishSubscriber.receivedPayload?.contentType?.getOrNull()?.toString() shouldBeEqualTo "text/plain"
         }
     }
 
