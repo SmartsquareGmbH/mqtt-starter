@@ -12,7 +12,9 @@ import java.util.concurrent.ThreadPoolExecutor
  *
  * This delegates to a [ThreadPoolExecutor] with the number of processors as max threads.
  */
-class MqttGracefulExecutor : Executor, SmartLifecycle {
+class MqttGracefulExecutor :
+    Executor,
+    SmartLifecycle {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -40,11 +42,7 @@ class MqttGracefulExecutor : Executor, SmartLifecycle {
         }
     }
 
-    override fun isRunning(): Boolean {
-        return !delegate.isShutdown
-    }
+    override fun isRunning() = !delegate.isShutdown
 
-    override fun getPhase(): Int {
-        return MqttConnector.SMART_LIFECYCLE_PHASE - 512
-    }
+    override fun getPhase() = MqttConnector.SMART_LIFECYCLE_PHASE - 512
 }

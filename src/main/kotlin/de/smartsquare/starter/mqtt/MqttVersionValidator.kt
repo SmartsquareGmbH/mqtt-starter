@@ -22,7 +22,5 @@ annotation class MqttVersion(
  */
 class MqttVersionValidator : ConstraintValidator<MqttVersion, Int> {
 
-    override fun isValid(value: Int?, context: ConstraintValidatorContext): Boolean {
-        return value == null || value == 3 || value == 5
-    }
+    override fun isValid(value: Int?, context: ConstraintValidatorContext) = value == null || value == 3 || value == 5
 }

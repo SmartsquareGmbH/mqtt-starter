@@ -22,13 +22,9 @@ abstract class MqttConnector : SmartLifecycle {
         const val SMART_LIFECYCLE_PHASE = SmartLifecycle.DEFAULT_PHASE - 1024
     }
 
-    override fun stop() {
-        throw UnsupportedOperationException("Stop must not be invoked directly")
-    }
+    override fun stop() = throw UnsupportedOperationException("Stop must not be invoked directly")
 
-    override fun getPhase(): Int {
-        return SMART_LIFECYCLE_PHASE
-    }
+    override fun getPhase() = SMART_LIFECYCLE_PHASE
 
     abstract override fun stop(callback: Runnable)
 }

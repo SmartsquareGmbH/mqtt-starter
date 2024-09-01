@@ -5,12 +5,12 @@ import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "1.9.23"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
-    id("dev.adamko.dokkatoo-html") version "2.2.0"
-    id("dev.adamko.dokkatoo-javadoc") version "2.2.0"
-    id("io.gitlab.arturbosch.detekt") version "1.23.5"
-    id("org.jmailen.kotlinter") version "4.3.0"
+    kotlin("jvm") version "2.0.20"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.0.20"
+    id("dev.adamko.dokkatoo-html") version "2.3.1"
+    id("dev.adamko.dokkatoo-javadoc") version "2.3.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("org.jmailen.kotlinter") version "4.4.1"
     id("com.adarshr.test-logger") version "4.0.0"
     id("com.vanniktech.maven.publish") version "0.29.0"
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -29,7 +29,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.3"))
     implementation("org.springframework.boot:spring-boot")
     compileOnly("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
@@ -160,5 +160,5 @@ mavenPublishing {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "8.6"
+    gradleVersion = "8.10"
 }

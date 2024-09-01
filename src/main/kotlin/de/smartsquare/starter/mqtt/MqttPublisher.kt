@@ -24,16 +24,14 @@ class Mqtt3Publisher(private val adapter: MqttMessageAdapter, client: Mqtt3Clien
      * Returns a [CompletableFuture] that is completed once the broker has accepted the message.
      */
     @JvmOverloads
-    fun publish(topic: String, qos: MqttQos, payload: Any, retain: Boolean = false): CompletableFuture<Mqtt3Publish> {
-        return asyncClient.publish(
-            Mqtt3Publish.builder()
-                .topic(topic)
-                .qos(qos)
-                .payload(adapter.adapt(payload))
-                .retain(retain)
-                .build(),
-        )
-    }
+    fun publish(topic: String, qos: MqttQos, payload: Any, retain: Boolean = false) = asyncClient.publish(
+        Mqtt3Publish.builder()
+            .topic(topic)
+            .qos(qos)
+            .payload(adapter.adapt(payload))
+            .retain(retain)
+            .build(),
+    )
 }
 
 /**
@@ -113,22 +111,23 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
         payload: Any,
         options: PublishingOptions? = null,
     ): CompletableFuture<Mqtt5PublishResult> {
-        val build = Mqtt5Publish.builder().topic(topic).qos(qos).payload(adapter.adapt(payload))
+        val builder = Mqtt5Publish.builder().topic(topic).qos(qos).payload(adapter.adapt(payload))
 
         if (options != null) {
-            build.retain(options.retain)
+            builder.retain(options.retain)
                 .payloadFormatIndicator(options.payloadFormatIndicator)
                 .contentType(options.contentType)
                 .responseTopic(options.responseTopic)
                 .correlationData(options.correlationData)
                 .userProperties(options.userProperties)
+
             if (options.messageExpiryInterval == MqttPublish.NO_MESSAGE_EXPIRY) {
-                build.noMessageExpiry()
+                builder.noMessageExpiry()
             } else {
-                build.messageExpiryInterval(options.messageExpiryInterval)
+                builder.messageExpiryInterval(options.messageExpiryInterval)
             }
         }
 
-        return asyncClient.publish(build.build())
+        return asyncClient.publish(builder.build())
     }
 }

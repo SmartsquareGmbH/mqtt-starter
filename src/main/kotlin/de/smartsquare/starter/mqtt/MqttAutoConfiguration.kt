@@ -3,7 +3,6 @@ package de.smartsquare.starter.mqtt
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.MqttClient
-import com.hivemq.client.mqtt.MqttClientBuilder
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import io.reactivex.Scheduler
@@ -46,23 +45,20 @@ class MqttAutoConfiguration {
         config: MqttProperties,
         mqttScheduler: Scheduler,
         configurers: List<Mqtt3ClientConfigurer>,
-    ): Mqtt3Client {
-        val clientBuilder = configureCommon(config, mqttScheduler)
-            .useMqttVersion3()
-            .apply {
-                config.username?.let { username ->
-                    config.password?.let { password ->
-                        simpleAuth()
-                            .username(username)
-                            .password(password.toByteArray())
-                            .applySimpleAuth()
-                    }
+    ) = configureCommon(config, mqttScheduler)
+        .useMqttVersion3()
+        .apply {
+            config.username?.let { username ->
+                config.password?.let { password ->
+                    simpleAuth()
+                        .username(username)
+                        .password(password.toByteArray())
+                        .applySimpleAuth()
                 }
             }
-            .apply { configurers.forEach { configurer -> configurer.configure(this) } }
-
-        return clientBuilder.build()
-    }
+        }
+        .apply { configurers.forEach { configurer -> configurer.configure(this) } }
+        .build()
 
     /**
      * Returns a configured and ready to use mqtt 5 client.
@@ -73,47 +69,42 @@ class MqttAutoConfiguration {
         config: MqttProperties,
         mqttScheduler: Scheduler,
         configurers: List<Mqtt5ClientConfigurer>,
-    ): Mqtt5Client {
-        val clientBuilder = configureCommon(config, mqttScheduler)
-            .useMqttVersion5()
-            .apply {
-                config.username?.let { username ->
-                    config.password?.let { password ->
-                        simpleAuth()
-                            .username(username)
-                            .password(password.toByteArray())
-                            .applySimpleAuth()
-                    }
+    ) = configureCommon(config, mqttScheduler)
+        .useMqttVersion5()
+        .apply {
+            config.username?.let { username ->
+                config.password?.let { password ->
+                    simpleAuth()
+                        .username(username)
+                        .password(password.toByteArray())
+                        .applySimpleAuth()
                 }
             }
-            .apply { configurers.forEach { configurer -> configurer.configure(this) } }
+        }
+        .apply { configurers.forEach { configurer -> configurer.configure(this) } }
+        .build()
 
-        return clientBuilder.build()
-    }
-
-    private fun configureCommon(config: MqttProperties, scheduler: Scheduler): MqttClientBuilder {
-        return MqttClient.builder()
-            .serverHost(config.host)
-            .serverPort(config.port)
-            .automaticReconnectWithDefaultConfig()
-            .executorConfig()
-            .applicationScheduler(scheduler)
-            .applyExecutorConfig()
-            .addConnectedListener { logger.info("Connected to broker.") }
-            .addDisconnectedListener {
-                if (it.reconnector.isReconnect) {
-                    if (logger.isDebugEnabled) {
-                        logger.warn("Disconnected from broker, reconnecting...", it.cause)
-                    } else {
-                        logger.warn("Disconnected from broker, reconnecting...")
-                    }
+    private fun configureCommon(config: MqttProperties, scheduler: Scheduler) = MqttClient.builder()
+        .serverHost(config.host)
+        .serverPort(config.port)
+        .automaticReconnectWithDefaultConfig()
+        .executorConfig()
+        .applicationScheduler(scheduler)
+        .applyExecutorConfig()
+        .addConnectedListener { logger.info("Connected to broker.") }
+        .addDisconnectedListener {
+            if (it.reconnector.isReconnect) {
+                if (logger.isDebugEnabled) {
+                    logger.warn("Disconnected from broker, reconnecting...", it.cause)
                 } else {
-                    logger.info("Disconnected from broker.")
+                    logger.warn("Disconnected from broker, reconnecting...")
                 }
+            } else {
+                logger.info("Disconnected from broker.")
             }
-            .apply { if (config.ssl) sslWithDefaultConfig() }
-            .apply { config.clientId?.also { clientId -> identifier(clientId) } }
-    }
+        }
+        .apply { if (config.ssl) sslWithDefaultConfig() }
+        .apply { config.clientId?.also { clientId -> identifier(clientId) } }
 
     @Bean
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
@@ -136,23 +127,21 @@ class MqttAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun fallbackObjectMapper(): ObjectMapper = jacksonObjectMapper().findAndRegisterModules()
+    fun fallbackObjectMapper() = jacksonObjectMapper().findAndRegisterModules()
 
     @Bean
     fun mqttHandler(
         collector: MqttSubscriberCollector,
         adapter: MqttMessageAdapter,
         messageErrorHandler: MqttMessageErrorHandler,
-    ): MqttHandler = MqttHandler(collector, adapter, messageErrorHandler)
+    ) = MqttHandler(collector, adapter, messageErrorHandler)
 
     /**
      * Returns a default mqtt message error handler.
      */
     @Bean
     @ConditionalOnMissingBean
-    fun mqttMessageErrorHandler(): MqttMessageErrorHandler {
-        return MqttMessageErrorHandler()
-    }
+    fun mqttMessageErrorHandler() = MqttMessageErrorHandler()
 
     @Bean
     @ConditionalOnMissingBean
@@ -162,9 +151,7 @@ class MqttAutoConfiguration {
         collector: MqttSubscriberCollector,
         handler: MqttHandler,
         config: MqttProperties,
-    ): MqttConnector {
-        return Mqtt3Connector(client, collector, handler, config)
-    }
+    ): MqttConnector = Mqtt3Connector(client, collector, handler, config)
 
     @Bean
     @ConditionalOnMissingBean
@@ -174,19 +161,13 @@ class MqttAutoConfiguration {
         collector: MqttSubscriberCollector,
         handler: MqttHandler,
         config: MqttProperties,
-    ): MqttConnector {
-        return Mqtt5Connector(client, collector, handler, config)
-    }
+    ): MqttConnector = Mqtt5Connector(client, collector, handler, config)
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
-    fun mqtt3Publisher(messageAdapter: MqttMessageAdapter, client: Mqtt3Client): Mqtt3Publisher {
-        return Mqtt3Publisher(messageAdapter, client)
-    }
+    fun mqtt3Publisher(messageAdapter: MqttMessageAdapter, client: Mqtt3Client) = Mqtt3Publisher(messageAdapter, client)
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
-    fun mqtt5Publisher(messageAdapter: MqttMessageAdapter, client: Mqtt5Client): Mqtt5Publisher {
-        return Mqtt5Publisher(messageAdapter, client)
-    }
+    fun mqtt5Publisher(messageAdapter: MqttMessageAdapter, client: Mqtt5Client) = Mqtt5Publisher(messageAdapter, client)
 }

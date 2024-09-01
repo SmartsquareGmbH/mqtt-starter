@@ -27,14 +27,12 @@ open class DefaultMqttMessageAdapter(private val objectMapper: ObjectMapper) : M
     /**
      * Converts the given [message] into the expected [targetType].
      */
-    override fun adapt(message: MqttPublishContainer, targetType: Class<*>): Any {
-        return when {
-            targetType.isAssignableFrom(MqttTopic::class.java) -> message.topic
-            targetType.isAssignableFrom(ByteArray::class.java) -> message.payload
-            targetType.isAssignableFrom(String::class.java) -> message.payload.decodeToString()
-            targetType.isAssignableFrom(message.value.javaClass) -> message.value
-            else -> objectMapper.readValue(message.payload, targetType)
-        }
+    override fun adapt(message: MqttPublishContainer, targetType: Class<*>) = when {
+        targetType.isAssignableFrom(MqttTopic::class.java) -> message.topic
+        targetType.isAssignableFrom(ByteArray::class.java) -> message.payload
+        targetType.isAssignableFrom(String::class.java) -> message.payload.decodeToString()
+        targetType.isAssignableFrom(message.value.javaClass) -> message.value
+        else -> objectMapper.readValue(message.payload, targetType)
     }
 
     /**
@@ -42,11 +40,9 @@ open class DefaultMqttMessageAdapter(private val objectMapper: ObjectMapper) : M
      *
      * Strings and primitives are converted directly, other types are serialized to json.
      */
-    override fun adapt(payload: Any): ByteArray {
-        return when (payload) {
-            is ByteArray -> payload
-            is String -> payload.encodeToByteArray()
-            else -> objectMapper.writeValueAsString(payload).encodeToByteArray()
-        }
+    override fun adapt(payload: Any) = when (payload) {
+        is ByteArray -> payload
+        is String -> payload.encodeToByteArray()
+        else -> objectMapper.writeValueAsString(payload).encodeToByteArray()
     }
 }
