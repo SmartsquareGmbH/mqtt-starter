@@ -1,9 +1,10 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("signing")
-    id("maven-publish")
     kotlin("jvm") version "1.9.23"
     id("org.jetbrains.kotlin.plugin.spring") version "1.9.23"
     id("dev.adamko.dokkatoo-html") version "2.2.0"
@@ -11,7 +12,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
     id("org.jmailen.kotlinter") version "4.3.0"
     id("com.adarshr.test-logger") version "4.0.0"
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("com.vanniktech.maven.publish") version "0.29.0"
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
@@ -54,9 +55,6 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-
-    withJavadocJar()
-    withSourcesJar()
 }
 
 kotlin {
@@ -71,10 +69,6 @@ detekt {
     config.setFrom("${project.rootDir}/detekt.yml")
 
     buildUponDefaultConfig = true
-}
-
-tasks.named<Jar>("javadocJar") {
-    from(tasks.named("dokkatooGeneratePublicationJavadoc"))
 }
 
 dokkatoo {
@@ -118,71 +112,50 @@ fun isNonStable(version: String): Boolean {
     return !isStable
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            artifactId = "mqtt-starter"
+mavenPublishing {
+    configure(KotlinJvm(JavadocJar.Dokka("dokkatooGeneratePublicationJavadoc")))
 
-            from(components["java"])
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
 
-            pom {
-                name = "Mqtt-Starter"
-                description = "Spring Boot Starter wrapping the hivemq mqtt client."
-                url = "https://github.com/SmartsquareGmbH/mqtt-starter"
+    pom {
+        name = "Mqtt-Starter"
+        description = "Spring Boot Starter wrapping the hivemq mqtt client."
+        url = "https://github.com/SmartsquareGmbH/mqtt-starter"
+        inceptionYear = "2021"
 
-                licenses {
-                    license {
-                        name = "MIT License"
-                        url = "https://opensource.org/licenses/MIT"
-                    }
-                }
-                developers {
-                    developer {
-                        id = "deen13"
-                        name = "Dennis Dierkes"
-                        email = "dierkes@smartsquare.de"
-                    }
-                    developer {
-                        id = "rubengees"
-                        name = "Ruben Gees"
-                        email = "gees@smartsquare.de"
-                    }
-                }
-                scm {
-                    connection = "scm:git:https://github.com/SmartsquareGmbH/mqtt-starter.git"
-                    developerConnection = "scm:git:ssh://github.com/SmartsquareGmbH/mqtt-starter.git"
-                    url = "https://github.com/SmartsquareGmbH/mqtt-starter"
-                }
-                organization {
-                    name = "Smartsquare GmbH"
-                    url = "https://github.com/SmartsquareGmbH"
-                }
-                issueManagement {
-                    system = "GitHub"
-                    url = "https://github.com/SmartsquareGmbH/mqtt-starter/issues"
-                }
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://opensource.org/license/mit"
+                distribution = "https://opensource.org/license/mit"
             }
         }
-    }
-}
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username = project.findProperty("gpr.ossrhUser")?.toString() ?: System.getenv("OSSRHUSER")
-            password = project.findProperty("gpr.ossrhPassword")?.toString() ?: System.getenv("OSSRHPASSWORD")
+        developers {
+            developer {
+                id = "deen13"
+                name = "Dennis Dierkes"
+                email = "dierkes@smartsquare.de"
+            }
+            developer {
+                id = "rubengees"
+                name = "Ruben Gees"
+                email = "gees@smartsquare.de"
+            }
         }
-    }
-}
-
-signing {
-    if (!version.toString().endsWith("SNAPSHOT")) {
-        val signingKey = findProperty("signingKey")?.toString() ?: System.getenv("GPG_PRIVATE_KEY")
-        val signingPassword = findProperty("signingPassword")?.toString() ?: System.getenv("GPG_PASSPHRASE")
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications)
+        scm {
+            url = "https://github.com/SmartsquareGmbH/mqtt-starter"
+            connection = "scm:git:https://github.com/SmartsquareGmbH/mqtt-starter.git"
+            developerConnection = "scm:git:ssh://github.com/SmartsquareGmbH/mqtt-starter.git"
+        }
+        organization {
+            name = "Smartsquare GmbH"
+            url = "https://github.com/SmartsquareGmbH"
+        }
+        issueManagement {
+            system = "GitHub"
+            url = "https://github.com/SmartsquareGmbH/mqtt-starter/issues"
+        }
     }
 }
 
