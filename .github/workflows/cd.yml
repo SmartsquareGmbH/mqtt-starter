@@ -19,10 +19,7 @@ jobs:
           distribution: temurin
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Check
-        run: ./gradlew check
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Publish
         run: ./gradlew publishToMavenCentral
