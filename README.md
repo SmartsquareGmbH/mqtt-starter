@@ -4,17 +4,39 @@ Use an automatically configured mqtt 3 or 5 client in your Spring Boot project.
 
 ## Getting Started
 
-### Gradle Configuration
+### Gradle
 
 ```groovy
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation "de.smartsquare:mqtt-starter:0.17.0"
+    implementation "de.smartsquare:mqtt-starter:0.20.0"
 }
 ```
+
+#### Kotlin DSL
+
+```kotlin
+dependencies {
+    implementation("de.smartsquare:mqtt-starter:0.20.0")
+}
+```
+
+### Maven
+
+```xml
+
+<dependency>
+    <groupId>de.smartsquare</groupId>
+    <artifactId>mqtt-starter</artifactId>
+    <version>0.20.0</version>
+</dependency>
+```
+
+### Compatibility Matrix
+
+| Starter Version | Spring Boot Version |
+|-----------------|---------------------|
+| 0.17.0          | 2.x                 |
+| 0.20.0          | 3.x                 |
 
 ## Configuration
 
@@ -46,27 +68,6 @@ mqtt.version=3
 # Disable or enable the mqtt client. Note that no beans are available to be injected if disabled.
 mqtt.enabled=true
 ```
-
-### Advanced
-
-It is possible to additionally configure the client programmatically by implementing either the `Mqtt3ClientConfigurer`
-or `Mqtt5ClientConfigurer` interface and exposing it as a bean.
-
-```kotlin
-@Component
-class MqttTimeoutConfigurer : MqttClientConfigurer {
-
-    override fun configure(builder: Mqtt3ClientBuilder) {
-        builder.transportConfig().mqttConnectTimeout(10, TimeUnit.SECONDS)
-    }
-}
-```
-
-### Health Indicator
-
-The starter provides a health indicator that checks the connection to the mqtt broker. If the broker is not connected,
-the health indicator will return `DOWN`. The health indicator is enabled by default if actuator is on the classpath.  
-It can be disabled by setting `management.health.mqtt.enabled=false`.
 
 ## Usage
 
@@ -169,13 +170,74 @@ class TestService(private val mqttClient: Mqtt3Client) {
 }
 ```
 
+## Advanced
+
+It is possible to additionally configure the client programmatically by implementing either the `Mqtt3ClientConfigurer`
+or `Mqtt5ClientConfigurer` interface and exposing it as a bean.
+
+```kotlin
+@Component
+class MqttTimeoutConfigurer : MqttClientConfigurer {
+
+    override fun configure(builder: Mqtt3ClientBuilder) {
+        builder.transportConfig().mqttConnectTimeout(10, TimeUnit.SECONDS)
+    }
+}
+```
+
+### Object Mapping
+
+The starter supports optional object mapping for converting MQTT message payloads to custom objects.
+
+#### Automatic Detection
+
+- **Jackson**: If `com.fasterxml.jackson.databind.ObjectMapper` is available, it will be used automatically.
+- **Gson**: If `com.google.gson.Gson` is available, it will be used automatically.
+
+Jackson takes precedence if both are present on the classpath.
+
+#### Custom Object Mapper
+
+You can provide your own custom object mapper by implementing the `MqttMessageAdapter` interface and exposing it as a
+bean:
+
+```kotlin
+import de.smartsquare.starter.mqtt.mapper.MqttObjectMapper
+
+class CustomMqttObjectMapper : MqttObjectMapper {
+    override fun fromBytes(bytes: ByteArray, targetType: Class<*>): Any {
+        // Your custom deserialization logic
+    }
+
+    override fun toBytes(value: Any): String {
+        // Your custom serialization logic
+    }
+}
+```
+
+If you provide a custom `MqttMessageAdapter` bean, it will override the automatic detection and be used instead.
+
+### Health Indicator
+
+The starter provides a health indicator that checks the connection to the mqtt broker. If the broker is not connected,
+the health indicator will return `DOWN`. The health indicator is enabled by default if actuator is on the classpath.  
+It can be disabled by setting `management.health.mqtt.enabled=false`.
+
 ### GraalVM
 
 This starter supports GraalVM out of the box. There is nothing special to do.
 
-### Upgrade Guide
+## Upgrade Guide
 
-#### 0.15.0 -> 0.16.0
+### 0.16.0 -> 0.20.0
+
+- Spring Boot 3 and Kotlin 2.3.10 are now required.
+- Jackson is now an optional dependency and no `ObjectMapper` is provided by default. If an `ObjectMapper` bean is
+  found (usually the case if you have the `spring-boot-starter-json` dependency), it will be automatically used for
+  object mapping. Gson is now also supported as well as the ability to provide a custom `MqttMessageAdapter` bean.
+- There is no direct dependency on Spring Boot libraries anymore to avoid version conflicts.
+
+### 0.15.0 -> 0.16.0
 
 - `mqtt.host` and `mqtt.port` now must be set explicitly. The default value of localhost:1883 has been removed.
 - Graceful shutdown is now supported and by default enabled. That has the side effect that messages are delivered on a

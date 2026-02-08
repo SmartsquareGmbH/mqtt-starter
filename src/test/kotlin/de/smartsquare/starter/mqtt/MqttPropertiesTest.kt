@@ -4,6 +4,7 @@ import com.hivemq.client.mqtt.mqtt5.message.connect.Mqtt5Connect
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeNull
 import org.amshove.kluent.shouldStartWith
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -73,7 +74,11 @@ class MqttPropertiesTest {
         val errors = validator.validateObject(MqttProperties(host = "localhost", port = 10000, version = 2))
 
         errors.allErrors.shouldHaveSize(1)
-        errors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
+
+        val defaultMessage = errors.allErrors[0].defaultMessage
+
+        defaultMessage.shouldNotBeNull()
+        defaultMessage shouldStartWith "Invalid mqtt version"
     }
 
     @Test

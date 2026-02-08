@@ -1,13 +1,5 @@
-comments:
-  UndocumentedPublicClass:
-    active: true
-
 exceptions:
   TooGenericExceptionCaught:
-    active: false
-
-performance:
-  SpreadOperator:
     active: false
 
 style:

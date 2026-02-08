@@ -1,23 +1,18 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.module.kotlin.jsonMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
+import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-object TestMqttSubscriberCollector {
-    operator fun invoke(bean: Any) = MqttSubscriberCollector(TestObjectProvider(MqttProperties())).apply {
-        postProcessAfterInitialization(bean, "testBean")
-    }
-}
-
 @Suppress("RedundantSuspendModifier")
 class MqttHandlerTest {
 
-    private val mapper = jsonMapper { findAndAddModules() }
-    private val adapter = DefaultMqttMessageAdapter(mapper)
+    private val mapper = jacksonObjectMapper()
+    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(mapper))
     private val messageErrorHandler = MqttMessageErrorHandler()
 
     @Test
@@ -209,6 +204,12 @@ class MqttHandlerTest {
             handler.handle(Mqtt5PublishContainer(publish))
 
             subscriber.invoked shouldBeEqualTo obj
+        }
+    }
+
+    object TestMqttSubscriberCollector {
+        operator fun invoke(bean: Any) = MqttSubscriberCollector(TestObjectProvider(MqttProperties())).apply {
+            postProcessAfterInitialization(bean, "testBean")
         }
     }
 }

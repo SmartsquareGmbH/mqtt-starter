@@ -3,7 +3,6 @@ package de.smartsquare.starter.mqtt
 import com.fasterxml.jackson.core.JacksonException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.hivemq.client.mqtt.datatypes.MqttTopic
-import de.smartsquare.starter.mqtt.MqttHandler.AnnotatedMethodDelegate
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import java.lang.invoke.MethodHandles
@@ -47,27 +46,9 @@ class MqttHandler(
 
         try {
             subscriber.invoke(*Array(parameterTypes.size) { adapter.adapt(message, parameterTypes[it]) })
-        } catch (e: JsonMappingException) {
+        } catch (error: Exception) {
             messageErrorHandler.handle(
-                MqttMessageException(
-                    topic,
-                    payload,
-                    "Error while handling mqtt message on topic [$topic]: Failed to map payload to target class",
-                    e,
-                ),
-            )
-        } catch (e: JacksonException) {
-            messageErrorHandler.handle(
-                MqttMessageException(
-                    topic,
-                    payload,
-                    "Error while handling mqtt message on topic [$topic]: Failed to parse payload",
-                    e,
-                ),
-            )
-        } catch (e: Exception) {
-            messageErrorHandler.handle(
-                MqttMessageException(topic, payload, "Error while handling mqtt message on topic [$topic]", e),
+                MqttMessageException(topic, payload, "Error while handling mqtt message on topic [$topic]", error),
             )
         }
     }

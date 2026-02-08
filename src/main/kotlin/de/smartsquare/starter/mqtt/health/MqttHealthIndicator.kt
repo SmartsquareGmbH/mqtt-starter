@@ -15,6 +15,7 @@ import org.springframework.boot.actuate.health.HealthIndicator
 class MqttHealthIndicator(private val client: MqttClient) : HealthIndicator {
     override fun health(): Health = when (val state = client.state) {
         CONNECTED -> Health.up().build()
+
         DISCONNECTED, CONNECTING, DISCONNECTED_RECONNECT, CONNECTING_RECONNECT ->
             Health.down().withDetail("state", state).build()
     }

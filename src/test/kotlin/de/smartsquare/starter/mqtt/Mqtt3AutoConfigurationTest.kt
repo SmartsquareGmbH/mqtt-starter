@@ -1,16 +1,8 @@
 package de.smartsquare.starter.mqtt
 
 import com.hivemq.client.mqtt.datatypes.MqttQos
-import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt3.message.publish.Mqtt3Publish
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.EmptySubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.IntSubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.MultipleSubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.ObjectSubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.PublishSubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.StringSubscriber
-import de.smartsquare.starter.mqtt.Mqtt3AutoConfigurationTest.SuspendSubscriber
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeTrue
 import org.amshove.kluent.shouldNotBeNull
@@ -18,23 +10,19 @@ import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.getBean
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.stereotype.Component
+import org.springframework.context.ApplicationContext
+import java.math.BigDecimal
+import java.math.BigInteger
 
 @ExtendWith(EmqxExtension::class)
-@SpringBootTest(
-    classes = [
-        MqttAutoConfiguration::class,
-        IntSubscriber::class,
-        StringSubscriber::class,
-        ObjectSubscriber::class,
-        PublishSubscriber::class,
-        SuspendSubscriber::class,
-        EmptySubscriber::class,
-        MultipleSubscriber::class,
-    ],
-)
+@SpringBootTest(classes = [JacksonAutoConfiguration::class, MqttAutoConfiguration::class, MqttSubscriberConfig::class])
 class Mqtt3AutoConfigurationTest {
+
+    @Autowired
+    private lateinit var context: ApplicationContext
 
     @Autowired
     private lateinit var client: Mqtt3Client
@@ -42,39 +30,20 @@ class Mqtt3AutoConfigurationTest {
     @Autowired
     private lateinit var publisher: Mqtt3Publisher
 
-    @Autowired
-    private lateinit var intSubscriber: IntSubscriber
-
-    @Autowired
-    private lateinit var stringSubscriber: StringSubscriber
-
-    @Autowired
-    private lateinit var objectSubscriber: ObjectSubscriber
-
-    @Autowired
-    private lateinit var publishSubscriber: PublishSubscriber
-
-    @Autowired
-    private lateinit var suspendSubscriber: SuspendSubscriber
-
-    @Autowired
-    private lateinit var emptySubscriber: EmptySubscriber
-
-    @Autowired
-    private lateinit var multipleSubscriber: MultipleSubscriber
-
     @Test
-    fun `receives int message`() {
+    fun `receives byte array message`() {
+        val bytes = byteArrayOf(1, 2, 3, 4, 5)
+
         client.toBlocking()
             .publish(
                 Mqtt3Publish.builder()
-                    .topic("int")
-                    .payload("2".toByteArray())
+                    .topic("bytearray")
+                    .payload(bytes)
                     .qos(MqttQos.EXACTLY_ONCE).build(),
             )
 
         await untilAssertedKluent {
-            intSubscriber.receivedPayload shouldBeEqualTo 2
+            (context.getBean<ByteArraySubscriber>().receivedPayload contentEquals bytes).shouldBeTrue()
         }
     }
 
@@ -89,35 +58,127 @@ class Mqtt3AutoConfigurationTest {
             )
 
         await untilAssertedKluent {
-            stringSubscriber.receivedPayload shouldBeEqualTo "test"
+            context.getBean<StringSubscriber>().receivedPayload shouldBeEqualTo "test"
+        }
+    }
+
+    @Test
+    fun `receives int message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("int")
+                    .payload("2".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<IntSubscriber>().receivedPayload shouldBeEqualTo 2
+        }
+    }
+
+    @Test
+    fun `receives long message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("long")
+                    .payload("123456789".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<LongSubscriber>().receivedPayload shouldBeEqualTo 123456789L
+        }
+    }
+
+    @Test
+    fun `receives float message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("float")
+                    .payload("3.14".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<FloatSubscriber>().receivedPayload shouldBeEqualTo 3.14f
+        }
+    }
+
+    @Test
+    fun `receives double message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("double")
+                    .payload("3.14159".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<DoubleSubscriber>().receivedPayload shouldBeEqualTo 3.14159
+        }
+    }
+
+    @Test
+    fun `receives big integer message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("biginteger")
+                    .payload("123456789012345678901234567890".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<BigIntegerSubscriber>().receivedPayload shouldBeEqualTo
+                BigInteger("123456789012345678901234567890")
+        }
+    }
+
+    @Test
+    fun `receives big decimal message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("bigdecimal")
+                    .payload("123.456789012345".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<BigDecimalSubscriber>().receivedPayload shouldBeEqualTo BigDecimal("123.456789012345")
+        }
+    }
+
+    @Test
+    fun `receives boolean message`() {
+        client.toBlocking()
+            .publish(
+                Mqtt3Publish.builder()
+                    .topic("boolean")
+                    .payload("true".toByteArray())
+                    .qos(MqttQos.EXACTLY_ONCE).build(),
+            )
+
+        await untilAssertedKluent {
+            context.getBean<BooleanSubscriber>().receivedPayload shouldBeEqualTo true
         }
     }
 
     @Test
     fun `receives publish message`() {
         val publish = Mqtt3Publish.builder()
-            .topic("publish")
+            .topic("publish3")
             .payload("test".toByteArray())
             .qos(MqttQos.EXACTLY_ONCE).build()
 
         client.toBlocking().publish(publish)
 
         await untilAssertedKluent {
-            publishSubscriber.receivedPayload shouldBeEqualTo publish
-        }
-    }
-
-    @Test
-    fun `receives publish message from suspend function`() {
-        val publish = Mqtt3Publish.builder()
-            .topic("suspend")
-            .payload("test".toByteArray())
-            .qos(MqttQos.EXACTLY_ONCE).build()
-
-        client.toBlocking().publish(publish)
-
-        await untilAssertedKluent {
-            suspendSubscriber.receivedPayload shouldBeEqualTo publish
+            context.getBean<Publish3Subscriber>().receivedPayload shouldBeEqualTo publish
         }
     }
 
@@ -139,7 +200,7 @@ class Mqtt3AutoConfigurationTest {
             )
 
         await untilAssertedKluent {
-            objectSubscriber.receivedPayload?.value shouldBeEqualTo 3
+            context.getBean<ObjectSubscriber>().receivedPayload?.value shouldBeEqualTo 3
         }
     }
 
@@ -152,7 +213,21 @@ class Mqtt3AutoConfigurationTest {
         client.toBlocking().publish(publish)
 
         await untilAssertedKluent {
-            emptySubscriber.receivedPayload.shouldBeTrue()
+            context.getBean<EmptySubscriber>().receivedPayload.shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `receives publish message from suspend function`() {
+        val publish = Mqtt3Publish.builder()
+            .topic("suspend")
+            .payload("1".toByteArray())
+            .qos(MqttQos.EXACTLY_ONCE).build()
+
+        client.toBlocking().publish(publish)
+
+        await untilAssertedKluent {
+            context.getBean<SuspendSubscriber>().receivedPayload shouldBeEqualTo 1
         }
     }
 
@@ -166,11 +241,11 @@ class Mqtt3AutoConfigurationTest {
         client.toBlocking().publish(publish)
 
         await untilAssertedKluent {
-            multipleSubscriber.receivedPayload.shouldNotBeNull()
-            multipleSubscriber.receivedPayload!!.topic.toString() shouldBeEqualTo "multiple"
-            multipleSubscriber.receivedPayload!!.publish shouldBeEqualTo publish
-            multipleSubscriber.receivedPayload!!.payloadString shouldBeEqualTo "12"
-            multipleSubscriber.receivedPayload!!.payloadLong shouldBeEqualTo 12
+            val payload = context.getBean<MultipleSubscriber>().receivedPayload.shouldNotBeNull()
+            payload.topic.toString() shouldBeEqualTo "multiple"
+            payload.publish shouldBeEqualTo publish
+            payload.payloadString shouldBeEqualTo "12"
+            payload.payloadLong shouldBeEqualTo 12
         }
     }
 
@@ -207,107 +282,105 @@ class Mqtt3AutoConfigurationTest {
             )
 
         await untilAssertedKluent {
-            objectSubscriber.receivedPayload?.value shouldBeEqualTo 3
+            context.getBean<ObjectSubscriber>().receivedPayload?.value shouldBeEqualTo 3
         }
     }
 
     @Test
-    fun `publishes message`() {
+    fun `publishes byte array message`() {
+        val bytes = byteArrayOf(10, 20, 30, 40, 50)
+
+        publisher.publish("bytearray", MqttQos.EXACTLY_ONCE, bytes)
+
+        await untilAssertedKluent {
+            (context.getBean<ByteArraySubscriber>().receivedPayload contentEquals bytes).shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `publishes string message`() {
+        publisher.publish("string", MqttQos.EXACTLY_ONCE, "hello world")
+
+        await untilAssertedKluent {
+            context.getBean<StringSubscriber>().receivedPayload shouldBeEqualTo "hello world"
+        }
+    }
+
+    @Test
+    fun `publishes int message`() {
         publisher.publish("int", MqttQos.EXACTLY_ONCE, 1)
 
         await untilAssertedKluent {
-            intSubscriber.receivedPayload shouldBeEqualTo 1
+            context.getBean<IntSubscriber>().receivedPayload shouldBeEqualTo 1
         }
     }
 
-    @Component
-    class IntSubscriber {
+    @Test
+    fun `publishes long message`() {
+        publisher.publish("long", MqttQos.EXACTLY_ONCE, 987654321L)
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: Int? = null
-
-        @MqttSubscribe(topic = "int", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(payload: Int) {
-            _receivedPayload = payload
+        await untilAssertedKluent {
+            context.getBean<LongSubscriber>().receivedPayload shouldBeEqualTo 987654321L
         }
     }
 
-    @Component
-    class StringSubscriber {
+    @Test
+    fun `publishes float message`() {
+        publisher.publish("float", MqttQos.EXACTLY_ONCE, 2.71f)
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: String? = null
-
-        @MqttSubscribe(topic = "string", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(payload: String) {
-            _receivedPayload = payload
+        await untilAssertedKluent {
+            context.getBean<FloatSubscriber>().receivedPayload shouldBeEqualTo 2.71f
         }
     }
 
-    @Component
-    class PublishSubscriber {
+    @Test
+    fun `publishes double message`() {
+        publisher.publish("double", MqttQos.EXACTLY_ONCE, 2.71828)
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: Mqtt3Publish? = null
-
-        @MqttSubscribe(topic = "publish", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(payload: Mqtt3Publish) {
-            _receivedPayload = payload
+        await untilAssertedKluent {
+            context.getBean<DoubleSubscriber>().receivedPayload shouldBeEqualTo 2.71828
         }
     }
 
-    @Component
-    class SuspendSubscriber {
+    @Test
+    fun `publishes big integer message`() {
+        val bigInt = BigInteger("999999999999999999999999999999")
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: Mqtt3Publish? = null
+        publisher.publish("biginteger", MqttQos.EXACTLY_ONCE, bigInt)
 
-        @MqttSubscribe(topic = "suspend", qos = MqttQos.EXACTLY_ONCE)
-        suspend fun onMessage(payload: Mqtt3Publish) {
-            _receivedPayload = payload
+        await untilAssertedKluent {
+            context.getBean<BigIntegerSubscriber>().receivedPayload shouldBeEqualTo bigInt
         }
     }
 
-    @Component
-    class ObjectSubscriber {
+    @Test
+    fun `publishes big decimal message`() {
+        val bigDec = BigDecimal("999.999999999999")
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: TemperatureMessage? = null
+        publisher.publish("bigdecimal", MqttQos.EXACTLY_ONCE, bigDec)
 
-        @MqttSubscribe(topic = "object", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(payload: TemperatureMessage) {
-            _receivedPayload = payload
+        await untilAssertedKluent {
+            context.getBean<BigDecimalSubscriber>().receivedPayload shouldBeEqualTo bigDec
         }
     }
 
-    @Component
-    class EmptySubscriber {
+    @Test
+    fun `publishes boolean message`() {
+        publisher.publish("boolean", MqttQos.EXACTLY_ONCE, false)
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: Boolean = false
-
-        @MqttSubscribe(topic = "empty", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage() {
-            _receivedPayload = true
+        await untilAssertedKluent {
+            context.getBean<BooleanSubscriber>().receivedPayload shouldBeEqualTo false
         }
     }
 
-    @Component
-    class MultipleSubscriber {
+    @Test
+    fun `publishes object message`() {
+        val obj = TemperatureMessage(42)
 
-        val receivedPayload get() = _receivedPayload
-        private var _receivedPayload: MultiplePayload? = null
+        publisher.publish("object", MqttQos.EXACTLY_ONCE, obj)
 
-        @MqttSubscribe(topic = "multiple", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(topic: MqttTopic, publish: Mqtt3Publish, payloadString: String, payloadLong: Long) {
-            _receivedPayload = MultiplePayload(topic, publish, payloadString, payloadLong)
+        await untilAssertedKluent {
+            context.getBean<ObjectSubscriber>().receivedPayload?.value shouldBeEqualTo 42
         }
-
-        data class MultiplePayload(
-            val topic: MqttTopic,
-            val publish: Mqtt3Publish,
-            val payloadString: String,
-            val payloadLong: Long,
-        )
     }
 }

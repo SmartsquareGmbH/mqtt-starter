@@ -16,14 +16,12 @@
     {
       "name": "mqtt.host",
       "type": "java.lang.String",
-      "description": "The host the mqtt broker is available under.",
-      "defaultValue": "localhost"
+      "description": "The host the mqtt broker is available under."
     },
     {
       "name": "mqtt.port",
       "type": "java.lang.Integer",
-      "description": "The port the mqtt broker is available under.",
-      "defaultValue": 1883
+      "description": "The port the mqtt broker is available under."
     },
     {
       "name": "mqtt.clientId",

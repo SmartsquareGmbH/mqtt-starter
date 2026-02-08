@@ -3,11 +3,10 @@ package de.smartsquare.starter.mqtt
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.slf4j.LoggerFactory
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 class EmqxExtension : BeforeAllCallback {
 
@@ -15,7 +14,7 @@ class EmqxExtension : BeforeAllCallback {
         private val logger = LoggerFactory.getLogger(this::class.java)
         private val logConsumer get() = Slf4jLogConsumer(logger).withSeparateOutputStreams()
 
-        private val emqx = KGenericContainer(DockerImageName.parse("emqx/emqx:5.5.1"))
+        private val emqx = GenericContainer(DockerImageName.parse("emqx/emqx:6.1.0"))
             .withExposedPorts(1883, 18083)
             .withEnv("EMQX_NODE__COOKIE", "Y8PKwtA3HLks1EEX")
             .withEnv("EMQX_MQTT__STRICT_MODE", "true")
@@ -24,20 +23,8 @@ class EmqxExtension : BeforeAllCallback {
             .withLogConsumer(logConsumer.withPrefix("emqx"))
     }
 
-    private val lock = ReentrantLock()
-
     override fun beforeAll(context: ExtensionContext) {
-        val store = context.root.getStore(ExtensionContext.Namespace.GLOBAL)
-
-        lock.withLock {
-            val emqxStarted = store.getOrDefault("emqx", Boolean::class.java, false)
-
-            if (!emqxStarted) {
-                emqx.start()
-
-                store.put("emqx", true)
-            }
-        }
+        emqx.start()
 
         System.setProperty("mqtt.host", emqx.host)
         System.setProperty("mqtt.port", emqx.getMappedPort(1883).toString())

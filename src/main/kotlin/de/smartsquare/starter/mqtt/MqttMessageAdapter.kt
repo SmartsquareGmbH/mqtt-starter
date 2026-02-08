@@ -1,48 +1,43 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttTopic
-
-/**
- * Class responsible for adapting from and to mqtt messages.
- */
-interface MqttMessageAdapter {
-
-    /**
-     * Converts the given [message] into the expected [targetType].
-     */
-    fun adapt(message: MqttPublishContainer, targetType: Class<*>): Any
-
-    /**
-     * Converts the given [payload] into a [ByteArray].
-     */
-    fun adapt(payload: Any): ByteArray
-}
+import de.smartsquare.starter.mqtt.mapper.MqttObjectMapper
+import java.math.BigDecimal
+import java.math.BigInteger
 
 /**
  * Adapter class with methods for converting from and to mqtt payloads.
  */
-open class DefaultMqttMessageAdapter(private val objectMapper: ObjectMapper) : MqttMessageAdapter {
+open class MqttMessageAdapter(private val mqttObjectMapper: MqttObjectMapper) {
 
     /**
      * Converts the given [message] into the expected [targetType].
      */
-    override fun adapt(message: MqttPublishContainer, targetType: Class<*>) = when {
+    open fun adapt(message: MqttPublishContainer, targetType: Class<*>) = when {
         targetType.isAssignableFrom(MqttTopic::class.java) -> message.topic
         targetType.isAssignableFrom(ByteArray::class.java) -> message.payload
         targetType.isAssignableFrom(String::class.java) -> message.payload.decodeToString()
+        targetType.isAssignableFrom(Int::class.java) -> message.payload.decodeToString().toInt()
+        targetType.isAssignableFrom(Long::class.java) -> message.payload.decodeToString().toLong()
+        targetType.isAssignableFrom(Float::class.java) -> message.payload.decodeToString().toFloat()
+        targetType.isAssignableFrom(Double::class.java) -> message.payload.decodeToString().toDouble()
+        targetType.isAssignableFrom(BigInteger::class.java) -> message.payload.decodeToString().toBigInteger()
+        targetType.isAssignableFrom(BigDecimal::class.java) -> message.payload.decodeToString().toBigDecimal()
+        targetType.isAssignableFrom(Boolean::class.java) -> message.payload.decodeToString().toBoolean()
         targetType.isAssignableFrom(message.value.javaClass) -> message.value
-        else -> objectMapper.readValue(message.payload, targetType)
+        else -> mqttObjectMapper.fromBytes(message.payload, targetType)
     }
 
     /**
      * Converts the given [payload] into a [ByteArray].
      *
-     * Strings and primitives are converted directly, other types are serialized to json.
+     * Strings and primitives are converted directly, other types are serialized to JSON.
      */
-    override fun adapt(payload: Any) = when (payload) {
+    open fun adapt(payload: Any) = when (payload) {
         is ByteArray -> payload
         is String -> payload.encodeToByteArray()
-        else -> objectMapper.writeValueAsString(payload).encodeToByteArray()
+        is Number -> payload.toString().encodeToByteArray()
+        is Boolean -> payload.toString().encodeToByteArray()
+        else -> mqttObjectMapper.toBytes(payload).encodeToByteArray()
     }
 }

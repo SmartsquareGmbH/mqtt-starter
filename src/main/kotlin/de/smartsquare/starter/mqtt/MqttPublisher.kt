@@ -77,8 +77,9 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
                 state = state.copy(messageExpiryInterval = messageExpiryInterval)
             }
 
-            fun payloadFormatIndicator(payloadFormatIndicator: Mqtt5PayloadFormatIndicator?): Builder =
-                apply { state = state.copy(payloadFormatIndicator = payloadFormatIndicator) }
+            fun payloadFormatIndicator(payloadFormatIndicator: Mqtt5PayloadFormatIndicator?): Builder = apply {
+                state = state.copy(payloadFormatIndicator = payloadFormatIndicator)
+            }
 
             fun contentType(contentType: String?): Builder = apply {
                 state = state.copy(contentType = contentType)

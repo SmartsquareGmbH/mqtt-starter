@@ -1,19 +1,18 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("org.jetbrains.kotlin.plugin.spring") version "2.0.20"
-    id("dev.adamko.dokkatoo-html") version "2.3.1"
-    id("dev.adamko.dokkatoo-javadoc") version "2.3.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jmailen.kotlinter") version "4.4.1"
-    id("com.adarshr.test-logger") version "4.0.0"
-    id("com.vanniktech.maven.publish") version "0.29.0"
-    id("com.github.ben-manes.versions") version "0.51.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.dokka.javadoc)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.test.logger)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.versions)
 }
 
 group = "de.smartsquare"
@@ -25,43 +24,53 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation(kotlin("reflect"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    compileOnly(libs.kotlinx.coroutines.core)
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.3"))
-    implementation("org.springframework.boot:spring-boot")
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
-    implementation("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    compileOnly(platform(libs.spring.boot.dependencies))
+    compileOnly(libs.spring.boot)
+    compileOnly(libs.spring.boot.starter.validation)
+    compileOnly(libs.spring.boot.starter.actuator)
 
-    api("com.hivemq:hivemq-mqtt-client:1.3.3")
+    compileOnly(libs.jackson.databind)
+    compileOnly(libs.gson)
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    api(libs.hivemq.mqtt.client)
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-actuator")
-    testImplementation("org.amshove.kluent:kluent:1.73")
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.awaitility:awaitility-kotlin")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation(libs.kotlinx.coroutines.core)
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+    testImplementation(platform(libs.spring.boot.dependencies))
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.spring.boot.starter.json)
+    testImplementation(libs.spring.boot)
+    testImplementation(libs.spring.boot.autoconfigure)
+    testImplementation(libs.spring.boot.starter.validation)
+    testImplementation(libs.spring.boot.starter.actuator)
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    testImplementation(libs.jackson.databind)
+    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.gson)
+
+    testImplementation(libs.kluent)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.awaitility.kotlin)
+    testImplementation(libs.testcontainers.junit.jupiter)
+
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 kotlin {
+    jvmToolchain(17)
+
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
         allWarningsAsErrors = true
         javaParameters = true
+    }
+
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation {
+        enabled = true
     }
 }
 
@@ -71,26 +80,15 @@ detekt {
     buildUponDefaultConfig = true
 }
 
-dokkatoo {
-    val jacksonVersion = resolveVersion("com.fasterxml.jackson.core:jackson-core")
-    val mqttClientVersion = resolveVersion("com.hivemq:hivemq-mqtt-client")
-
-    dokkatooSourceSets.configureEach {
-        externalDocumentationLinks.create("jackson") {
-            url("https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/$jacksonVersion/")
-        }
-
-        externalDocumentationLinks.create("hivemq-mqtt-client") {
-            url("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/$mqttClientVersion/")
+dokka {
+    dokkaSourceSets.configureEach {
+        externalDocumentationLinks.register("hivemq-mqtt-client") {
+            url("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/${libs.versions.hivemq.mqtt.client.get()}")
+            packageListUrl(
+                "https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/${libs.versions.hivemq.mqtt.client.get()}/element-list",
+            )
         }
     }
-}
-
-fun resolveVersion(dependency: String): String {
-    return project.configurations.getByName("runtimeClasspath").resolvedConfiguration.resolvedArtifacts
-        .find { it.moduleVersion.id.module.toString() == dependency }
-        ?.moduleVersion?.id?.version
-        ?: "latest"
 }
 
 tasks.withType<Test>().configureEach {
@@ -113,9 +111,9 @@ fun isNonStable(version: String): Boolean {
 }
 
 mavenPublishing {
-    configure(KotlinJvm(JavadocJar.Dokka("dokkatooGeneratePublicationJavadoc")))
+    configure(KotlinJvm(JavadocJar.Dokka(tasks.dokkaGeneratePublicationJavadoc.name)))
 
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     pom {
@@ -136,11 +134,15 @@ mavenPublishing {
                 id = "deen13"
                 name = "Dennis Dierkes"
                 email = "dierkes@smartsquare.de"
+                organization = "Smartsquare GmbH"
+                organizationUrl = "https://github.com/SmartsquareGmbH"
             }
             developer {
                 id = "rubengees"
                 name = "Ruben Gees"
                 email = "gees@smartsquare.de"
+                organization = "Smartsquare GmbH"
+                organizationUrl = "https://github.com/SmartsquareGmbH"
             }
         }
         scm {
@@ -160,5 +162,5 @@ mavenPublishing {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "8.10"
+    gradleVersion = libs.versions.gradle.get()
 }

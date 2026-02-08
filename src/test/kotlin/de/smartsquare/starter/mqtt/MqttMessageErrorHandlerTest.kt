@@ -1,9 +1,7 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import de.smartsquare.starter.mqtt.MqttMessageErrorHandlerTest.CustomErrorHandler
-import de.smartsquare.starter.mqtt.MqttMessageErrorHandlerTest.IntSubscriber
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
@@ -46,19 +44,11 @@ class MqttMessageErrorHandlerTest {
         override fun handle(error: MqttMessageException) {
             error.topic.toString() shouldBeEqualTo "int"
             error.payload.decodeToString() shouldBeEqualTo "error"
-            error.cause.shouldBeInstanceOf<JsonProcessingException>()
+            error.cause.shouldBeInstanceOf<NumberFormatException>()
 
             countDownLatch.countDown()
         }
 
         fun await() = countDownLatch.await(5, TimeUnit.SECONDS)
-    }
-
-    @Component
-    class IntSubscriber {
-
-        @Suppress("UnusedParameter")
-        @MqttSubscribe(topic = "int", qos = MqttQos.EXACTLY_ONCE)
-        fun onMessage(payload: Int) = Unit
     }
 }

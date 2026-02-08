@@ -46,7 +46,7 @@ class MqttHealthAutoConfigurationTest {
     @Test
     fun `test auto-configuration without actuator`() {
         // exclude HealthEndpoint class to simulate missing actuator dependency
-        val loader = object : URLClassLoader(arrayOf(), ClassLoader.getSystemClassLoader()) {
+        val loader = object : URLClassLoader(arrayOf(), getSystemClassLoader()) {
             override fun loadClass(name: String, resolve: Boolean): Class<*> {
                 if (HealthEndpoint::class.java.name == name) {
                     throw ClassNotFoundException("Class $name is excluded")

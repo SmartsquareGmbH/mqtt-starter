@@ -1,16 +1,22 @@
 package de.smartsquare.starter.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
+import de.smartsquare.starter.mqtt.mapper.ErrorMqttObjectMapper
+import de.smartsquare.starter.mqtt.mapper.GsonMqttObjectMapper
+import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
+import de.smartsquare.starter.mqtt.mapper.MqttObjectMapper
 import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -26,7 +32,7 @@ import java.util.concurrent.Executor
  */
 @Suppress("TooManyFunctions")
 @AutoConfiguration
-@AutoConfigureAfter(JacksonAutoConfiguration::class)
+@AutoConfigureAfter(JacksonAutoConfiguration::class) // Ensure other beans are present.
 @Import(MqttSubscriberCollector::class)
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
@@ -41,48 +47,42 @@ class MqttAutoConfiguration {
      */
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
-    fun mqtt3Client(
-        config: MqttProperties,
-        mqttScheduler: Scheduler,
-        configurers: List<Mqtt3ClientConfigurer>,
-    ) = configureCommon(config, mqttScheduler)
-        .useMqttVersion3()
-        .apply {
-            config.username?.let { username ->
-                config.password?.let { password ->
-                    simpleAuth()
-                        .username(username)
-                        .password(password.toByteArray())
-                        .applySimpleAuth()
+    fun mqtt3Client(config: MqttProperties, mqttScheduler: Scheduler, configurers: List<Mqtt3ClientConfigurer>) =
+        configureCommon(config, mqttScheduler)
+            .useMqttVersion3()
+            .apply {
+                config.username?.let { username ->
+                    config.password?.let { password ->
+                        simpleAuth()
+                            .username(username)
+                            .password(password.toByteArray())
+                            .applySimpleAuth()
+                    }
                 }
             }
-        }
-        .apply { configurers.forEach { configurer -> configurer.configure(this) } }
-        .build()
+            .apply { configurers.forEach { configurer -> configurer.configure(this) } }
+            .build()
 
     /**
      * Returns a configured and ready to use mqtt 5 client.
      */
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
-    fun mqtt5Client(
-        config: MqttProperties,
-        mqttScheduler: Scheduler,
-        configurers: List<Mqtt5ClientConfigurer>,
-    ) = configureCommon(config, mqttScheduler)
-        .useMqttVersion5()
-        .apply {
-            config.username?.let { username ->
-                config.password?.let { password ->
-                    simpleAuth()
-                        .username(username)
-                        .password(password.toByteArray())
-                        .applySimpleAuth()
+    fun mqtt5Client(config: MqttProperties, mqttScheduler: Scheduler, configurers: List<Mqtt5ClientConfigurer>) =
+        configureCommon(config, mqttScheduler)
+            .useMqttVersion5()
+            .apply {
+                config.username?.let { username ->
+                    config.password?.let { password ->
+                        simpleAuth()
+                            .username(username)
+                            .password(password.toByteArray())
+                            .applySimpleAuth()
+                    }
                 }
             }
-        }
-        .apply { configurers.forEach { configurer -> configurer.configure(this) } }
-        .build()
+            .apply { configurers.forEach { configurer -> configurer.configure(this) } }
+            .build()
 
     private fun configureCommon(config: MqttProperties, scheduler: Scheduler) = MqttClient.builder()
         .serverHost(config.host)
@@ -120,14 +120,23 @@ class MqttAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun mqttMessageAdapter(objectMapper: ObjectMapper): MqttMessageAdapter = DefaultMqttMessageAdapter(objectMapper)
+    @ConditionalOnBean(ObjectMapper::class)
+    fun jacksonMqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
+        JacksonMqttObjectMapper(provider.getObject())
 
-    /**
-     * Configures a basic [ObjectMapper] if none is available already.
-     */
     @Bean
     @ConditionalOnMissingBean
-    fun fallbackObjectMapper() = jacksonObjectMapper().findAndRegisterModules()
+    @ConditionalOnBean(Gson::class)
+    fun gsonMqttObjectMapper(provider: ObjectProvider<Gson>): MqttObjectMapper =
+        GsonMqttObjectMapper(provider.getObject())
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun fallbackMqttObjectMapper(): MqttObjectMapper = ErrorMqttObjectMapper()
+
+    @Bean
+    @ConditionalOnMissingBean
+    fun mqttMessageAdapter(mqttObjectMapper: MqttObjectMapper) = MqttMessageAdapter(mqttObjectMapper)
 
     @Bean
     fun mqttHandler(
@@ -136,9 +145,6 @@ class MqttAutoConfiguration {
         messageErrorHandler: MqttMessageErrorHandler,
     ) = MqttHandler(collector, adapter, messageErrorHandler)
 
-    /**
-     * Returns a default mqtt message error handler.
-     */
     @Bean
     @ConditionalOnMissingBean
     fun mqttMessageErrorHandler() = MqttMessageErrorHandler()
