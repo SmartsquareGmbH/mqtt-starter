@@ -112,17 +112,17 @@ class Mqtt5Publisher(private val adapter: MqttMessageAdapter, client: Mqtt5Clien
         payload: Any,
         options: PublishingOptions? = null,
     ): CompletableFuture<Mqtt5PublishResult> {
-        val builder = Mqtt5Publish.builder().topic(topic).qos(qos).payload(adapter.adapt(payload))
+        var builder = Mqtt5Publish.builder().topic(topic).qos(qos).payload(adapter.adapt(payload))
 
         if (options != null) {
-            builder.retain(options.retain)
+            builder = builder.retain(options.retain)
                 .payloadFormatIndicator(options.payloadFormatIndicator)
                 .contentType(options.contentType)
                 .responseTopic(options.responseTopic)
                 .correlationData(options.correlationData)
                 .userProperties(options.userProperties)
 
-            if (options.messageExpiryInterval == MqttPublish.NO_MESSAGE_EXPIRY) {
+            builder = if (options.messageExpiryInterval == MqttPublish.NO_MESSAGE_EXPIRY) {
                 builder.noMessageExpiry()
             } else {
                 builder.messageExpiryInterval(options.messageExpiryInterval)

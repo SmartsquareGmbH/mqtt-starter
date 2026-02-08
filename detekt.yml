@@ -2,6 +2,10 @@ exceptions:
   TooGenericExceptionCaught:
     active: false
 
+performance:
+  SpreadOperator:
+    active: false
+
 style:
   MagicNumber:
     active: false

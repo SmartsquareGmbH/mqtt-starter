@@ -103,8 +103,8 @@ class MqttAutoConfiguration {
                 logger.info("Disconnected from broker.")
             }
         }
-        .apply { if (config.ssl) sslWithDefaultConfig() }
-        .apply { config.clientId?.also { clientId -> identifier(clientId) } }
+        .let { if (config.ssl) it.sslWithDefaultConfig() else it }
+        .let { config.clientId?.let { clientId -> it.identifier(clientId) } ?: it }
 
     @Bean
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "graceful", matchIfMissing = true)
