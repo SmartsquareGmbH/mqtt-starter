@@ -48,7 +48,7 @@
       "name": "mqtt.clean",
       "type": "java.lang.Boolean",
       "description": "If the client should connect with a clean session.",
-      "defaultValue": false
+      "defaultValue": true
     },
     {
       "name": "mqtt.group",
