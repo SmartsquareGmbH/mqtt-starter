@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("reflect"))
 
     compileOnly(libs.kotlinx.coroutines.core)
 

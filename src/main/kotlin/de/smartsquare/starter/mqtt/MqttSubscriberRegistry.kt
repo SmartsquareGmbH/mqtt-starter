@@ -7,16 +7,12 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.beans.factory.SmartInitializingSingleton
-import org.springframework.beans.factory.getBeanNamesForType
 import org.springframework.beans.factory.getBeansOfType
+import org.springframework.core.KotlinDetector
 import org.springframework.core.annotation.AnnotationUtils
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
-import kotlin.collections.find
-import kotlin.reflect.full.callSuspend
-import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.jvmErasure
-import kotlin.reflect.jvm.kotlinFunction
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 
 /**
  * Helper class to find all beans with methods annotated with [MqttSubscribe].
@@ -56,12 +52,20 @@ class MqttSubscriberRegistry(private val beanFactory: ListableBeanFactory, priva
             MqttTopicFilter.of(annotation.topic)
         }
 
-        val kFunction = method.kotlinFunction
-        val parameterTypes = kFunction?.valueParameters?.map { it.type.jvmErasure.java }
-            ?: method.parameterTypes.toList()
+        val isSuspend = KotlinDetector.isSuspendingFunction(method)
 
-        val delegate = if (kFunction?.isSuspend == true) {
-            MqttAnnotatedMethodDelegate { args -> runBlocking { kFunction.callSuspend(bean, *args) } }
+        val parameterTypes = if (isSuspend) {
+            method.parameterTypes.dropLast(1)
+        } else {
+            method.parameterTypes.toList()
+        }
+
+        val delegate = if (isSuspend) {
+            MqttAnnotatedMethodDelegate { args ->
+                runBlocking {
+                    suspendCoroutineUninterceptedOrReturn { continuation -> method.invoke(bean, *args, continuation) }
+                }
+            }
         } else {
             val handle = MethodHandles.publicLookup().unreflect(method)
             MqttAnnotatedMethodDelegate { args -> handle.invokeWithArguments(bean, *args) }
