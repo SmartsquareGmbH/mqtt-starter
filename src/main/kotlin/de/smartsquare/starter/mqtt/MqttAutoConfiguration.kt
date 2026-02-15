@@ -13,6 +13,7 @@ import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import org.slf4j.LoggerFactory
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
+import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -23,7 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Import
+import org.springframework.core.annotation.Order
 import java.util.concurrent.Executor
 
 /**
@@ -33,7 +34,6 @@ import java.util.concurrent.Executor
 @Suppress("TooManyFunctions")
 @AutoConfiguration
 @AutoConfigureAfter(JacksonAutoConfiguration::class) // Ensure other beans are present.
-@Import(MqttSubscriberCollector::class)
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
 @RegisterReflectionForBinding(MqttProperties::class)
@@ -119,12 +119,14 @@ class MqttAutoConfiguration {
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
     @Bean
+    @Order(1)
     @ConditionalOnMissingBean
     @ConditionalOnBean(ObjectMapper::class)
     fun jacksonMqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
         JacksonMqttObjectMapper(provider.getObject())
 
     @Bean
+    @Order(2)
     @ConditionalOnMissingBean
     @ConditionalOnBean(Gson::class)
     fun gsonMqttObjectMapper(provider: ObjectProvider<Gson>): MqttObjectMapper =
@@ -136,14 +138,19 @@ class MqttAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    fun mqttSubscriberRegistry(beanFactory: ListableBeanFactory, config: MqttProperties) =
+        MqttSubscriberRegistry(beanFactory, config)
+
+    @Bean
+    @ConditionalOnMissingBean
     fun mqttMessageAdapter(mqttObjectMapper: MqttObjectMapper) = MqttMessageAdapter(mqttObjectMapper)
 
     @Bean
     fun mqttHandler(
-        collector: MqttSubscriberCollector,
+        registry: MqttSubscriberRegistry,
         adapter: MqttMessageAdapter,
         messageErrorHandler: MqttMessageErrorHandler,
-    ) = MqttHandler(collector, adapter, messageErrorHandler)
+    ) = MqttHandler(registry, adapter, messageErrorHandler)
 
     @Bean
     @ConditionalOnMissingBean
@@ -154,20 +161,20 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)
     fun mqtt3Connector(
         client: Mqtt3Client,
-        collector: MqttSubscriberCollector,
+        registry: MqttSubscriberRegistry,
         handler: MqttHandler,
         config: MqttProperties,
-    ): MqttConnector = Mqtt3Connector(client, collector, handler, config)
+    ): MqttConnector = Mqtt3Connector(client, registry, handler, config)
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty("mqtt.version", havingValue = "5")
     fun mqtt5Connector(
         client: Mqtt5Client,
-        collector: MqttSubscriberCollector,
+        registry: MqttSubscriberRegistry,
         handler: MqttHandler,
         config: MqttProperties,
-    ): MqttConnector = Mqtt5Connector(client, collector, handler, config)
+    ): MqttConnector = Mqtt5Connector(client, registry, handler, config)
 
     @Bean
     @ConditionalOnProperty("mqtt.version", havingValue = "3", matchIfMissing = true)

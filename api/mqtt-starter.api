@@ -3,7 +3,7 @@ public abstract interface class de/smartsquare/starter/mqtt/Mqtt3ClientConfigure
 }
 
 public final class de/smartsquare/starter/mqtt/Mqtt3Connector : de/smartsquare/starter/mqtt/MqttConnector {
-	public fun <init> (Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)V
+	public fun <init> (Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)V
 	public fun isRunning ()Z
 	public fun start ()V
 	public fun stop (Ljava/lang/Runnable;)V
@@ -44,7 +44,7 @@ public abstract interface class de/smartsquare/starter/mqtt/Mqtt5ClientConfigure
 }
 
 public final class de/smartsquare/starter/mqtt/Mqtt5Connector : de/smartsquare/starter/mqtt/MqttConnector {
-	public fun <init> (Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)V
+	public fun <init> (Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)V
 	public fun isRunning ()Z
 	public fun start ()V
 	public fun stop (Ljava/lang/Runnable;)V
@@ -111,15 +111,16 @@ public class de/smartsquare/starter/mqtt/MqttAutoConfiguration {
 	public fun immediateMqttScheduler ()Lio/reactivex/Scheduler;
 	public fun jacksonMqttObjectMapper (Lorg/springframework/beans/factory/ObjectProvider;)Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;
 	public fun mqtt3Client (Lde/smartsquare/starter/mqtt/MqttProperties;Lio/reactivex/Scheduler;Ljava/util/List;)Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;
-	public fun mqtt3Connector (Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttConnector;
+	public fun mqtt3Connector (Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttConnector;
 	public fun mqtt3Publisher (Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;)Lde/smartsquare/starter/mqtt/Mqtt3Publisher;
 	public fun mqtt5Client (Lde/smartsquare/starter/mqtt/MqttProperties;Lio/reactivex/Scheduler;Ljava/util/List;)Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;
-	public fun mqtt5Connector (Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttConnector;
+	public fun mqtt5Connector (Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttConnector;
 	public fun mqtt5Publisher (Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lcom/hivemq/client/mqtt/mqtt5/Mqtt5Client;)Lde/smartsquare/starter/mqtt/Mqtt5Publisher;
 	public fun mqttExecutor ()Ljava/util/concurrent/Executor;
-	public fun mqttHandler (Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lde/smartsquare/starter/mqtt/MqttMessageErrorHandler;)Lde/smartsquare/starter/mqtt/MqttHandler;
+	public fun mqttHandler (Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lde/smartsquare/starter/mqtt/MqttMessageErrorHandler;)Lde/smartsquare/starter/mqtt/MqttHandler;
 	public fun mqttMessageAdapter (Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;)Lde/smartsquare/starter/mqtt/MqttMessageAdapter;
 	public fun mqttMessageErrorHandler ()Lde/smartsquare/starter/mqtt/MqttMessageErrorHandler;
+	public fun mqttSubscriberRegistry (Lorg/springframework/beans/factory/ListableBeanFactory;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;
 }
 
 public final class de/smartsquare/starter/mqtt/MqttBrokerConnectException : java/lang/RuntimeException {
@@ -154,7 +155,7 @@ public final class de/smartsquare/starter/mqtt/MqttGracefulExecutor : java/util/
 }
 
 public final class de/smartsquare/starter/mqtt/MqttHandler {
-	public fun <init> (Lde/smartsquare/starter/mqtt/MqttSubscriberCollector;Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lde/smartsquare/starter/mqtt/MqttMessageErrorHandler;)V
+	public fun <init> (Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lde/smartsquare/starter/mqtt/MqttMessageErrorHandler;)V
 	public final fun handle (Lde/smartsquare/starter/mqtt/MqttPublishContainer;)V
 }
 
@@ -238,23 +239,28 @@ public abstract interface annotation class de/smartsquare/starter/mqtt/MqttSubsc
 	public abstract fun topic ()Ljava/lang/String;
 }
 
-public final class de/smartsquare/starter/mqtt/MqttSubscriberCollector : org/springframework/beans/factory/config/BeanPostProcessor {
-	public fun <init> (Lorg/springframework/beans/factory/ObjectProvider;)V
+public final class de/smartsquare/starter/mqtt/MqttSubscriberRegistry : org/springframework/beans/factory/SmartInitializingSingleton {
+	public fun <init> (Lorg/springframework/beans/factory/ListableBeanFactory;Lde/smartsquare/starter/mqtt/MqttProperties;)V
+	public fun afterSingletonsInstantiated ()V
+	public final fun getSubscriber (Lcom/hivemq/client/mqtt/datatypes/MqttTopic;)Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$ResolvedMqttSubscriber;
 	public final fun getSubscribers ()Ljava/util/List;
-	public fun postProcessAfterInitialization (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
 }
 
-public final class de/smartsquare/starter/mqtt/MqttSubscriberCollector$ResolvedMqttSubscriber {
-	public fun <init> (Ljava/lang/Object;Ljava/lang/reflect/Method;Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;)V
-	public final fun component1 ()Ljava/lang/Object;
-	public final fun component2 ()Ljava/lang/reflect/Method;
-	public final fun component3 ()Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;
-	public final fun component4 ()Lcom/hivemq/client/mqtt/datatypes/MqttQos;
-	public final fun copy (Ljava/lang/Object;Ljava/lang/reflect/Method;Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;)Lde/smartsquare/starter/mqtt/MqttSubscriberCollector$ResolvedMqttSubscriber;
-	public static synthetic fun copy$default (Lde/smartsquare/starter/mqtt/MqttSubscriberCollector$ResolvedMqttSubscriber;Ljava/lang/Object;Ljava/lang/reflect/Method;Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;ILjava/lang/Object;)Lde/smartsquare/starter/mqtt/MqttSubscriberCollector$ResolvedMqttSubscriber;
+public abstract interface class de/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate {
+	public abstract fun invoke ([Ljava/lang/Object;)V
+}
+
+public final class de/smartsquare/starter/mqtt/MqttSubscriberRegistry$ResolvedMqttSubscriber {
+	public fun <init> (Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate;Ljava/util/List;)V
+	public final fun component1 ()Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;
+	public final fun component2 ()Lcom/hivemq/client/mqtt/datatypes/MqttQos;
+	public final fun component3 ()Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate;Ljava/util/List;)Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$ResolvedMqttSubscriber;
+	public static synthetic fun copy$default (Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$ResolvedMqttSubscriber;Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;Lcom/hivemq/client/mqtt/datatypes/MqttQos;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate;Ljava/util/List;ILjava/lang/Object;)Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$ResolvedMqttSubscriber;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBean ()Ljava/lang/Object;
-	public final fun getMethod ()Ljava/lang/reflect/Method;
+	public final fun getDelegate ()Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry$MqttAnnotatedMethodDelegate;
+	public final fun getParameterTypes ()Ljava/util/List;
 	public final fun getQos ()Lcom/hivemq/client/mqtt/datatypes/MqttQos;
 	public final fun getTopic ()Lcom/hivemq/client/mqtt/datatypes/MqttTopicFilter;
 	public fun hashCode ()I

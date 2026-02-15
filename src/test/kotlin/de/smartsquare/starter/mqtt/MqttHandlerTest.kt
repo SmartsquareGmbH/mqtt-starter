@@ -7,6 +7,7 @@ import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.support.DefaultListableBeanFactory
 
 @Suppress("RedundantSuspendModifier")
 class MqttHandlerTest {
@@ -29,9 +30,13 @@ class MqttHandlerTest {
             fun test2() = Unit
         }
 
-        val collector = TestMqttSubscriberCollector(subscriber)
-        collector.subscribers.size shouldBeEqualTo 2
-        val handler = MqttHandler(collector, adapter, messageErrorHandler)
+        val beanFactory = DefaultListableBeanFactory()
+        beanFactory.registerSingleton("subscriber", subscriber)
+
+        val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+        val handler = MqttHandler(registry, adapter, messageErrorHandler)
+        registry.afterSingletonsInstantiated()
+        registry.subscribers.size shouldBeEqualTo 2
 
         val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
         handler.handle(Mqtt5PublishContainer(publish))
@@ -52,8 +57,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -72,8 +81,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -92,8 +105,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -112,8 +129,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val obj = TemperatureMessage(1)
             val publish = Mqtt5Publish.builder().topic("test").payload(mapper.writeValueAsBytes(obj)).build()
@@ -136,8 +157,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -156,8 +181,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -176,8 +205,12 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val publish = Mqtt5Publish.builder().topic("test").payload("1".encodeToByteArray()).build()
             handler.handle(Mqtt5PublishContainer(publish))
@@ -196,20 +229,18 @@ class MqttHandlerTest {
                 }
             }
 
-            val collector = TestMqttSubscriberCollector(subscriber)
-            val handler = MqttHandler(collector, adapter, messageErrorHandler)
+            val beanFactory = DefaultListableBeanFactory()
+            beanFactory.registerSingleton("subscriber", subscriber)
+
+            val registry = MqttSubscriberRegistry(beanFactory, MqttProperties())
+            val handler = MqttHandler(registry, adapter, messageErrorHandler)
+            registry.afterSingletonsInstantiated()
 
             val obj = TemperatureMessage(1)
             val publish = Mqtt5Publish.builder().topic("test").payload(mapper.writeValueAsBytes(obj)).build()
             handler.handle(Mqtt5PublishContainer(publish))
 
             subscriber.invoked shouldBeEqualTo obj
-        }
-    }
-
-    object TestMqttSubscriberCollector {
-        operator fun invoke(bean: Any) = MqttSubscriberCollector(TestObjectProvider(MqttProperties())).apply {
-            postProcessAfterInitialization(bean, "testBean")
         }
     }
 }

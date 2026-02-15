@@ -34,7 +34,7 @@ abstract class MqttConnector : SmartLifecycle {
  */
 class Mqtt3Connector(
     client: Mqtt3Client,
-    private val collector: MqttSubscriberCollector,
+    private val registry: MqttSubscriberRegistry,
     private val handler: MqttHandler,
     private val config: MqttProperties,
 ) : MqttConnector() {
@@ -52,7 +52,7 @@ class Mqtt3Connector(
     }
 
     private fun subscribe(): CompletableFuture<*> {
-        val subscriptions = collector.subscribers.map { subscriber ->
+        val subscriptions = registry.subscribers.map { subscriber ->
             client.subscribeWith()
                 .topicFilter(subscriber.topic)
                 .qos(subscriber.qos)
@@ -97,7 +97,7 @@ class Mqtt3Connector(
  */
 class Mqtt5Connector(
     client: Mqtt5Client,
-    private val collector: MqttSubscriberCollector,
+    private val registry: MqttSubscriberRegistry,
     private val handler: MqttHandler,
     private val config: MqttProperties,
 ) : MqttConnector() {
@@ -115,7 +115,7 @@ class Mqtt5Connector(
     }
 
     private fun subscribe(): CompletableFuture<*> {
-        val subscriptions = collector.subscribers.map { subscriber ->
+        val subscriptions = registry.subscribers.map { subscriber ->
             client.subscribeWith()
                 .topicFilter(subscriber.topic)
                 .qos(subscriber.qos)
