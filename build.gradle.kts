@@ -24,7 +24,6 @@ repositories {
 }
 
 dependencies {
-
     compileOnly(libs.kotlinx.coroutines.core)
 
     compileOnly(platform(libs.spring.boot.dependencies))
