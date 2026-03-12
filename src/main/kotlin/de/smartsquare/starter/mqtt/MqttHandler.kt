@@ -1,11 +1,11 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.core.JacksonException
-import com.fasterxml.jackson.databind.JsonMappingException
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import de.smartsquare.starter.mqtt.MqttHandler.AnnotatedMethodDelegate
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.DatabindException
 import java.lang.invoke.MethodHandles
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.full.callSuspend
@@ -47,7 +47,7 @@ class MqttHandler(
 
         try {
             subscriber.invoke(*Array(parameterTypes.size) { adapter.adapt(message, parameterTypes[it]) })
-        } catch (e: JsonMappingException) {
+        } catch (e: DatabindException) {
             messageErrorHandler.handle(
                 MqttMessageException(
                     topic,

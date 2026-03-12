@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.getBean
-import org.springframework.boot.actuate.health.HealthEndpoint
-import org.springframework.boot.actuate.health.Status
 import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint
+import org.springframework.boot.health.contributor.Status
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import java.net.URLClassLoader
 

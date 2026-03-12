@@ -1,11 +1,11 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.module.kotlin.jsonMapper
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jsonMapper
 
 object TestMqttSubscriberCollector {
     operator fun invoke(bean: Any) = MqttSubscriberCollector(TestObjectProvider(MqttProperties())).apply {

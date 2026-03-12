@@ -1,10 +1,10 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 class DefaultMqttMessageAdapterTest {
 

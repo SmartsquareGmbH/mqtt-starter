@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 
 @SpringBootTest(classes = [ValidationAutoConfiguration::class])
@@ -73,7 +73,7 @@ class MqttPropertiesTest {
         val errors = validator.validateObject(MqttProperties(host = "localhost", port = 10000, version = 2))
 
         errors.allErrors.shouldHaveSize(1)
-        errors.allErrors[0].defaultMessage shouldStartWith "Invalid mqtt version"
+        errors.allErrors[0].defaultMessage?.shouldStartWith("Invalid mqtt version")
     }
 
     @Test

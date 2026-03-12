@@ -5,12 +5,12 @@ import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "2.0.20"
-    id("org.jetbrains.kotlin.plugin.spring") version "2.0.20"
+    kotlin("jvm") version "2.3.10"
+    id("org.jetbrains.kotlin.plugin.spring") version "2.3.10"
     id("dev.adamko.dokkatoo-html") version "2.3.1"
     id("dev.adamko.dokkatoo-javadoc") version "2.3.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jmailen.kotlinter") version "4.4.1"
+    id("org.jmailen.kotlinter") version "5.4.2"
     id("com.adarshr.test-logger") version "4.0.0"
     id("com.vanniktech.maven.publish") version "0.29.0"
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -29,25 +29,24 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.3.3"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
     implementation("org.springframework.boot:spring-boot")
     compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    compileOnly("org.springframework.boot:spring-boot-jackson")
     implementation("org.springframework.boot:spring-boot-autoconfigure")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     api("com.hivemq:hivemq-mqtt-client:1.3.3")
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("tools.jackson.module:jackson-module-kotlin")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation("org.amshove.kluent:kluent:1.73")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.awaitility:awaitility-kotlin")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -72,12 +71,13 @@ detekt {
 }
 
 dokkatoo {
-    val jacksonVersion = resolveVersion("com.fasterxml.jackson.core:jackson-core")
+    val jacksonVersion = resolveVersion("tools.jackson.core:jackson-core")
     val mqttClientVersion = resolveVersion("com.hivemq:hivemq-mqtt-client")
 
     dokkatooSourceSets.configureEach {
         externalDocumentationLinks.create("jackson") {
-            url("https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/$jacksonVersion/")
+            url("https://javadoc.io/doc/tools.jackson.core/jackson-databind/$jacksonVersion/")
+            packageListUrl("https://javadoc.io/doc/tools.jackson.core/jackson-databind/$jacksonVersion/element-list")
         }
 
         externalDocumentationLinks.create("hivemq-mqtt-client") {
@@ -160,5 +160,5 @@ mavenPublishing {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "8.10"
+    gradleVersion = "8.14"
 }

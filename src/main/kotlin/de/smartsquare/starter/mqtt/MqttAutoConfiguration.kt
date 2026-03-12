@@ -1,7 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.MqttClient
 import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
@@ -14,10 +12,12 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jsonMapper
 import java.util.concurrent.Executor
 
 /**
@@ -127,7 +127,7 @@ class MqttAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun fallbackObjectMapper() = jacksonObjectMapper().findAndRegisterModules()
+    fun fallbackObjectMapper(): ObjectMapper = jsonMapper { findAndAddModules() }
 
     @Bean
     fun mqttHandler(

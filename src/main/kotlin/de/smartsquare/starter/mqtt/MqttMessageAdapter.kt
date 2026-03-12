@@ -1,7 +1,7 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttTopic
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Class responsible for adapting from and to mqtt messages.
