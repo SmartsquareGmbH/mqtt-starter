@@ -271,6 +271,9 @@ This starter supports GraalVM out of the box. There is nothing special to do.
   found (usually the case if you have the `spring-boot-starter-json` dependency), it will be automatically used for
   object mapping. Gson is now also supported as well as the ability to provide a custom `MqttMessageAdapter` bean.
 - There is no direct dependency on Spring Boot libraries anymore to avoid version conflicts.
+- Subscriber collection has been changed and is done via the `MqttSubscriberRegistry` instead of the
+  `MqttSubscriberCollector` now. These shouldn't be used directly in application code, but if you have custom
+  implementations of those interfaces, you may need to change the type.
 
 ### 0.15.0 -> 0.16.0
 
