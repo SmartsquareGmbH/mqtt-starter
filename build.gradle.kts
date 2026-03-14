@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
+import org.gradle.api.internal.lambdas.SerializableLambdas.spec
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
@@ -80,11 +81,28 @@ detekt {
 
 dokka {
     dokkaSourceSets.configureEach {
+        sourceLink { remoteUrl("https://github.com/SmartsquareGmbh/mqtt-starter/tree/main") }
+
         externalDocumentationLinks.register("hivemq-mqtt-client") {
-            url("https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/${libs.versions.hivemq.mqtt.client.get()}")
-            packageListUrl(
-                "https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/${libs.versions.hivemq.mqtt.client.get()}/element-list",
-            )
+            url(libs.versions.hivemq.mqtt.client.map { "https://javadoc.io/doc/com.hivemq/hivemq-mqtt-client/$it" })
+            packageListUrl(url.map { it.resolve("${it.path}/element-list").normalize().toString() })
+        }
+
+        externalDocumentationLinks.register("spring-boot") {
+            url("https://docs.spring.io/spring-boot/${libs.versions.spring.boot.get()}/api/java")
+            packageListUrl(url.map { it.resolve("${it.path}/element-list").normalize().toString() })
+        }
+
+        externalDocumentationLinks.register("spring-framework") {
+            val springFrameworkVersion = configurations.compileClasspath.get()
+                .resolvedConfiguration
+                .firstLevelModuleDependencies
+                .flatMap { it.allModuleArtifacts }
+                .first { it.moduleVersion.id.group == "org.springframework" && it.name == "spring-core" }
+                .moduleVersion.id.version
+
+            url("https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api")
+            packageListUrl(url.map { it.resolve("${it.path}/element-list").normalize().toString() })
         }
     }
 }
