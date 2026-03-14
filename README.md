@@ -4,7 +4,15 @@ Use an automatically configured mqtt 3 or 5 client in your Spring Boot project.
 
 ## Getting Started
 
-### Gradle
+```kotlin
+dependencies {
+    implementation("de.smartsquare:mqtt-starter:0.20.0")
+}
+```
+
+<details>
+
+<summary>Groovy</summary>
 
 ```groovy
 dependencies {
@@ -12,15 +20,11 @@ dependencies {
 }
 ```
 
-#### Kotlin DSL
+</details>
 
-```kotlin
-dependencies {
-    implementation("de.smartsquare:mqtt-starter:0.20.0")
-}
-```
+<details>
 
-### Maven
+<summary>Maven</summary>
 
 ```xml
 
@@ -30,6 +34,8 @@ dependencies {
     <version>0.20.0</version>
 </dependency>
 ```
+
+</details>
 
 ### Compatibility Matrix
 
@@ -144,6 +150,35 @@ class TestPublisher(private val mqttPublisher: Mqtt3Publisher) {
     class TemperaturePayload(val value: Int)
 }
 ```
+
+### Supported Types
+
+The following types are natively supported for received message parameters in `@MqttSubscribe` methods:
+
+| Type           | Description                                             |
+|----------------|---------------------------------------------------------|
+| `MqttTopic`    | The topic of the message                                |
+| `MqttPublish`  | The message as received by the client                   |
+| `ByteArray`    | Raw payload bytes                                       |
+| `String`       | Payload decoded as UTF-8 string                         |
+| `Int`          | Payload parsed as integer                               |
+| `Long`         | Payload parsed as long                                  |
+| `Float`        | Payload parsed as float                                 |
+| `Double`       | Payload parsed as double                                |
+| `BigInteger`   | Payload parsed as big integer                           |
+| `BigDecimal`   | Payload parsed as big decimal                           |
+| `Boolean`      | Payload parsed as boolean                               |
+| Any other type | Deserialized from JSON via the configured object mapper |
+
+The following types are natively supported as published payloads in `Mqtt3Publisher`/`Mqtt5Publisher`:
+
+| Type                                                                         | Description                                         |
+|------------------------------------------------------------------------------|-----------------------------------------------------|
+| `ByteArray`                                                                  | Used directly as payload                            |
+| `String`                                                                     | Encoded to UTF-8 bytes                              |
+| `Number` (e.g. `Int`, `Long`, `Float`, `Double`, `BigInteger`, `BigDecimal`) | Converted to string and encoded to UTF-8 bytes      |
+| `Boolean`                                                                    | Converted to string and encoded to UTF-8 bytes      |
+| Any other type                                                               | Serialized to JSON via the configured object mapper |
 
 ### Direct usage
 
