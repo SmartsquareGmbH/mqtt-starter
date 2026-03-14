@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
@@ -10,7 +11,6 @@ plugins {
     alias(libs.plugins.dokka.javadoc)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlinter)
-    alias(libs.plugins.test.logger)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.versions)
 }
@@ -107,8 +107,9 @@ dokka {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform {
-        excludeEngines("junit-vintage")
+    useJUnitPlatform()
+    testLogging {
+        events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
     }
 }
 

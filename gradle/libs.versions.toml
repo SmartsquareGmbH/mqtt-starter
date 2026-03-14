@@ -3,7 +3,6 @@ kotlin = "2.3.10"
 dokka = "2.1.0"
 detekt = "2.0.0-alpha.2"
 kotlinter = "5.4.2"
-test-logger = "4.0.0"
 maven-publish = "0.36.0"
 versions-plugin = "0.53.0"
 spring-boot = "3.5.11"
@@ -21,7 +20,6 @@ dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 dokka-javadoc = { id = "org.jetbrains.dokka-javadoc", version.ref = "dokka" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
-test-logger = { id = "com.adarshr.test-logger", version.ref = "test-logger" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versions-plugin" }
 
