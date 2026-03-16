@@ -6,7 +6,7 @@ Use an automatically configured mqtt 3 or 5 client in your Spring Boot project.
 
 ```kotlin
 dependencies {
-    implementation("de.smartsquare:mqtt-starter:0.20.0")
+    implementation("de.smartsquare:mqtt-starter:0.30.0")
 }
 ```
 
@@ -16,7 +16,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation "de.smartsquare:mqtt-starter:0.20.0"
+    implementation "de.smartsquare:mqtt-starter:0.30.0"
 }
 ```
 
@@ -31,7 +31,7 @@ dependencies {
 <dependency>
     <groupId>de.smartsquare</groupId>
     <artifactId>mqtt-starter</artifactId>
-    <version>0.20.0</version>
+    <version>0.30.0</version>
 </dependency>
 ```
 
@@ -43,6 +43,7 @@ dependencies {
 |-----------------|---------------------|
 | 0.17.0          | 2.x                 |
 | 0.20.0          | 3.x                 |
+| 0.30.0          | 4.x                 |
 
 ## Configuration
 
@@ -264,6 +265,10 @@ It can be disabled by setting `management.health.mqtt.enabled=false`.
 This starter supports GraalVM out of the box. There is nothing special to do.
 
 ## Upgrade Guide
+
+### 0.20.0 -> 0.30.0
+
+- Spring Boot 4 is now required.
 
 ### 0.16.0 -> 0.20.0
 
