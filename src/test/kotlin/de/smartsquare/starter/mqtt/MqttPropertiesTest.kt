@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 
 @SpringBootTest(classes = [ValidationAutoConfiguration::class])

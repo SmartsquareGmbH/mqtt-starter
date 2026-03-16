@@ -226,10 +226,11 @@ The starter supports optional object mapping for converting MQTT message payload
 
 #### Automatic Detection
 
-- **Jackson**: If `com.fasterxml.jackson.databind.ObjectMapper` is available, it will be used automatically.
+- **Jackson 3**: If `tools.jackson.databind.json.JsonMapper` is available, it will be used automatically.
+- **Jackson 2**: If `com.fasterxml.jackson.databind.ObjectMapper` is available, it will be used automatically.
 - **Gson**: If `com.google.gson.Gson` is available, it will be used automatically.
 
-Jackson takes precedence if both are present on the classpath.
+Jackson 3 takes precedence if multiple libraries are present on the classpath.
 
 #### Custom Object Mapper
 

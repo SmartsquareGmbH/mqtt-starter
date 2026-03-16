@@ -1,6 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttQos
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
@@ -8,11 +7,12 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.support.DefaultListableBeanFactory
+import tools.jackson.databind.json.JsonMapper
 
 @Suppress("RedundantSuspendModifier")
 class MqttHandlerTest {
 
-    private val mapper = jacksonObjectMapper()
+    private val mapper = JsonMapper()
     private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(mapper))
     private val messageErrorHandler = MqttMessageErrorHandler()
 

@@ -7,6 +7,7 @@ import com.hivemq.client.mqtt.mqtt3.Mqtt3Client
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import de.smartsquare.starter.mqtt.mapper.ErrorMqttObjectMapper
 import de.smartsquare.starter.mqtt.mapper.GsonMqttObjectMapper
+import de.smartsquare.starter.mqtt.mapper.Jackson2MqttObjectMapper
 import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
 import de.smartsquare.starter.mqtt.mapper.MqttObjectMapper
 import io.reactivex.Scheduler
@@ -16,15 +17,14 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.Order
+import tools.jackson.databind.json.JsonMapper
 import java.util.concurrent.Executor
 
 /**
@@ -33,7 +33,6 @@ import java.util.concurrent.Executor
  */
 @Suppress("TooManyFunctions")
 @AutoConfiguration
-@AutoConfigureAfter(JacksonAutoConfiguration::class) // Ensure other beans are present.
 @ConditionalOnClass(MqttClient::class)
 @ConditionalOnProperty("mqtt.enabled", matchIfMissing = true)
 @RegisterReflectionForBinding(MqttProperties::class)
@@ -121,12 +120,19 @@ class MqttAutoConfiguration {
     @Bean
     @Order(1)
     @ConditionalOnMissingBean
-    @ConditionalOnBean(ObjectMapper::class)
-    fun jacksonMqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
+    @ConditionalOnBean(JsonMapper::class)
+    fun jacksonMqttObjectMapper(provider: ObjectProvider<JsonMapper>): MqttObjectMapper =
         JacksonMqttObjectMapper(provider.getObject())
 
     @Bean
     @Order(2)
+    @ConditionalOnMissingBean
+    @ConditionalOnBean(ObjectMapper::class)
+    fun jackson2MqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
+        Jackson2MqttObjectMapper(provider.getObject())
+
+    @Bean
+    @Order(3)
     @ConditionalOnMissingBean
     @ConditionalOnBean(Gson::class)
     fun gsonMqttObjectMapper(provider: ObjectProvider<Gson>): MqttObjectMapper =

@@ -1,7 +1,6 @@
 package de.smartsquare.starter.mqtt
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.gson.Gson
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.getBean
 import org.springframework.boot.context.annotation.UserConfigurations
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import tools.jackson.databind.json.JsonMapper
 
 @ExtendWith(EmqxExtension::class)
 class MqttAutoConfigurationTest {
@@ -77,9 +77,21 @@ class MqttAutoConfigurationTest {
     }
 
     @Test
+    fun `should use jackson when available`() {
+        runner
+            .withBean(JsonMapper::class.java, { JsonMapper() })
+            .run { context ->
+                val mapper = context.getBean<MqttObjectMapper>()
+
+                mapper.shouldBeInstanceOf<JacksonMqttObjectMapper>()
+            }
+    }
+
+    @Test
     fun `should work when multiple libraries are configured`() {
         runner
-            .withBean(ObjectMapper::class.java, { jacksonObjectMapper() })
+            .withBean(JsonMapper::class.java, { JsonMapper() })
+            .withBean(ObjectMapper::class.java, { ObjectMapper() })
             .withBean(Gson::class.java, { Gson() })
             .run { context ->
                 val mapper = context.getBean<MqttObjectMapper>()

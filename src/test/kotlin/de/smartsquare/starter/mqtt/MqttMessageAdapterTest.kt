@@ -1,6 +1,5 @@
 package de.smartsquare.starter.mqtt
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hivemq.client.mqtt.datatypes.MqttTopic
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish
 import de.smartsquare.starter.mqtt.mapper.JacksonMqttObjectMapper
@@ -9,12 +8,14 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
+import tools.jackson.databind.json.JsonMapper
 import java.math.BigDecimal
 import java.math.BigInteger
 
 class MqttMessageAdapterTest {
 
-    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(jacksonObjectMapper()))
+    private val mapper = JsonMapper()
+    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(mapper))
 
     @Test
     fun `should adapt byte array message`() {
@@ -90,7 +91,7 @@ class MqttMessageAdapterTest {
     @Test
     fun `should adapt object message`() {
         val obj = TemperatureMessage(1)
-        val publish = Mqtt5Publish.builder().topic("test").payload(jacksonObjectMapper().writeValueAsBytes(obj)).build()
+        val publish = Mqtt5Publish.builder().topic("test").payload(mapper.writeValueAsBytes(obj)).build()
         val result = adapter.adapt(Mqtt5PublishContainer(publish), TemperatureMessage::class.java)
         result.shouldBeInstanceOf<TemperatureMessage>() shouldBeEqualTo obj
     }

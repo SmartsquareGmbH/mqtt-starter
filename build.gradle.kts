@@ -32,6 +32,7 @@ dependencies {
     compileOnly(libs.spring.boot.starter.actuator)
 
     compileOnly(libs.jackson.databind)
+    compileOnly(libs.jackson2.databind)
     compileOnly(libs.gson)
 
     api(libs.hivemq.mqtt.client)
@@ -47,7 +48,7 @@ dependencies {
     testImplementation(libs.spring.boot.starter.actuator)
 
     testImplementation(libs.jackson.databind)
-    testImplementation(libs.jackson.module.kotlin)
+    testImplementation(libs.jackson2.databind)
     testImplementation(libs.gson)
 
     testImplementation(libs.kluent)

@@ -6,8 +6,8 @@ import com.hivemq.client.mqtt.MqttClientState.CONNECTING
 import com.hivemq.client.mqtt.MqttClientState.CONNECTING_RECONNECT
 import com.hivemq.client.mqtt.MqttClientState.DISCONNECTED
 import com.hivemq.client.mqtt.MqttClientState.DISCONNECTED_RECONNECT
-import org.springframework.boot.actuate.health.Health
-import org.springframework.boot.actuate.health.HealthIndicator
+import org.springframework.boot.health.contributor.Health
+import org.springframework.boot.health.contributor.HealthIndicator
 
 /**
  * Health indicator for the mqtt client based on its connection state.

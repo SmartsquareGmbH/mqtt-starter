@@ -1,11 +1,11 @@
 package de.smartsquare.starter.mqtt.mapper
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * Jackson implementation of [MqttObjectMapper].
  */
-class JacksonMqttObjectMapper(private val objectMapper: ObjectMapper) : MqttObjectMapper {
-    override fun fromBytes(bytes: ByteArray, targetType: Class<*>): Any = objectMapper.readValue(bytes, targetType)
-    override fun toBytes(value: Any): String = objectMapper.writeValueAsString(value)
+class JacksonMqttObjectMapper(private val jsonMapper: JsonMapper) : MqttObjectMapper {
+    override fun fromBytes(bytes: ByteArray, targetType: Class<*>): Any = jsonMapper.readValue(bytes, targetType)
+    override fun toBytes(value: Any): String = jsonMapper.writeValueAsString(value)
 }

@@ -3,16 +3,16 @@ package de.smartsquare.starter.mqtt
 import de.smartsquare.starter.mqtt.health.MqttHealthAutoConfiguration
 import de.smartsquare.starter.mqtt.health.MqttHealthIndicator
 import org.amshove.kluent.invoking
-import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.amshove.kluent.withMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.getBean
-import org.springframework.boot.actuate.health.HealthEndpoint
-import org.springframework.boot.actuate.health.Status
 import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint
+import org.springframework.boot.health.contributor.Status
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import java.net.URLClassLoader
 
@@ -67,7 +67,7 @@ class MqttHealthAutoConfigurationTest {
         runner.withPropertyValues("mqtt.version=5").run { context ->
             val indicator = context.getBean<MqttHealthIndicator>()
 
-            indicator.health().status.`should be equal to`(Status.UP)
+            indicator.health().status shouldBeEqualTo Status.UP
         }
     }
 
@@ -86,7 +86,7 @@ class MqttHealthAutoConfigurationTest {
             .run { context ->
                 val indicator = context.getBean<MqttHealthIndicator>()
 
-                indicator.health().status.`should be equal to`(Status.DOWN)
+                indicator.health().status shouldBeEqualTo Status.DOWN
             }
     }
 }
