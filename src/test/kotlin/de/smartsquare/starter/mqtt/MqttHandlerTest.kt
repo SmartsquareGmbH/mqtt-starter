@@ -13,7 +13,7 @@ import tools.jackson.databind.json.JsonMapper
 class MqttHandlerTest {
 
     private val mapper = JsonMapper()
-    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(mapper))
+    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(TestObjectProvider(mapper)))
     private val messageErrorHandler = MqttMessageErrorHandler()
 
     @Test

@@ -107,10 +107,7 @@ public class de/smartsquare/starter/mqtt/MqttAutoConfiguration {
 	public fun <init> ()V
 	public fun fallbackMqttObjectMapper ()Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;
 	public fun gracefulMqttScheduler (Ljava/util/concurrent/Executor;)Lio/reactivex/Scheduler;
-	public fun gsonMqttObjectMapper (Lorg/springframework/beans/factory/ObjectProvider;)Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;
 	public fun immediateMqttScheduler ()Lio/reactivex/Scheduler;
-	public fun jackson2MqttObjectMapper (Lorg/springframework/beans/factory/ObjectProvider;)Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;
-	public fun jacksonMqttObjectMapper (Lorg/springframework/beans/factory/ObjectProvider;)Lde/smartsquare/starter/mqtt/mapper/MqttObjectMapper;
 	public fun mqtt3Client (Lde/smartsquare/starter/mqtt/MqttProperties;Lio/reactivex/Scheduler;Ljava/util/List;)Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;
 	public fun mqtt3Connector (Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;Lde/smartsquare/starter/mqtt/MqttSubscriberRegistry;Lde/smartsquare/starter/mqtt/MqttHandler;Lde/smartsquare/starter/mqtt/MqttProperties;)Lde/smartsquare/starter/mqtt/MqttConnector;
 	public fun mqtt3Publisher (Lde/smartsquare/starter/mqtt/MqttMessageAdapter;Lcom/hivemq/client/mqtt/mqtt3/Mqtt3Client;)Lde/smartsquare/starter/mqtt/Mqtt3Publisher;
@@ -297,19 +294,19 @@ public final class de/smartsquare/starter/mqtt/mapper/ErrorMqttObjectMapper : de
 }
 
 public final class de/smartsquare/starter/mqtt/mapper/GsonMqttObjectMapper : de/smartsquare/starter/mqtt/mapper/MqttObjectMapper {
-	public fun <init> (Lcom/google/gson/Gson;)V
+	public fun <init> (Lorg/springframework/beans/factory/ObjectProvider;)V
 	public fun fromBytes ([BLjava/lang/Class;)Ljava/lang/Object;
 	public fun toBytes (Ljava/lang/Object;)Ljava/lang/String;
 }
 
 public final class de/smartsquare/starter/mqtt/mapper/Jackson2MqttObjectMapper : de/smartsquare/starter/mqtt/mapper/MqttObjectMapper {
-	public fun <init> (Lcom/fasterxml/jackson/databind/ObjectMapper;)V
+	public fun <init> (Lorg/springframework/beans/factory/ObjectProvider;)V
 	public fun fromBytes ([BLjava/lang/Class;)Ljava/lang/Object;
 	public fun toBytes (Ljava/lang/Object;)Ljava/lang/String;
 }
 
 public final class de/smartsquare/starter/mqtt/mapper/JacksonMqttObjectMapper : de/smartsquare/starter/mqtt/mapper/MqttObjectMapper {
-	public fun <init> (Ltools/jackson/databind/json/JsonMapper;)V
+	public fun <init> (Lorg/springframework/beans/factory/ObjectProvider;)V
 	public fun fromBytes ([BLjava/lang/Class;)Ljava/lang/Object;
 	public fun toBytes (Ljava/lang/Object;)Ljava/lang/String;
 }

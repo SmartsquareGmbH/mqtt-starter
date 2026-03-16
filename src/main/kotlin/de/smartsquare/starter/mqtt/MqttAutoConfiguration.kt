@@ -17,12 +17,12 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import tools.jackson.databind.json.JsonMapper
 import java.util.concurrent.Executor
@@ -117,26 +117,34 @@ class MqttAutoConfiguration {
     @ConditionalOnProperty("mqtt.shutdown", havingValue = "immediate")
     fun immediateMqttScheduler(): Scheduler = Schedulers.computation()
 
-    @Bean
     @Order(1)
-    @ConditionalOnMissingBean
-    @ConditionalOnBean(JsonMapper::class)
-    fun jacksonMqttObjectMapper(provider: ObjectProvider<JsonMapper>): MqttObjectMapper =
-        JacksonMqttObjectMapper(provider.getObject())
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(JsonMapper::class)
+    internal class JacksonConfiguration {
+        @Bean
+        @ConditionalOnMissingBean
+        fun jacksonMqttObjectMapper(provider: ObjectProvider<JsonMapper>): MqttObjectMapper =
+            JacksonMqttObjectMapper(provider)
+    }
 
-    @Bean
     @Order(2)
-    @ConditionalOnMissingBean
-    @ConditionalOnBean(ObjectMapper::class)
-    fun jackson2MqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
-        Jackson2MqttObjectMapper(provider.getObject())
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(ObjectMapper::class)
+    internal class Jackson2Configuration {
+        @Bean
+        @ConditionalOnMissingBean
+        fun jackson2MqttObjectMapper(provider: ObjectProvider<ObjectMapper>): MqttObjectMapper =
+            Jackson2MqttObjectMapper(provider)
+    }
 
-    @Bean
     @Order(3)
-    @ConditionalOnMissingBean
-    @ConditionalOnBean(Gson::class)
-    fun gsonMqttObjectMapper(provider: ObjectProvider<Gson>): MqttObjectMapper =
-        GsonMqttObjectMapper(provider.getObject())
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(Gson::class)
+    internal class GsonConfiguration {
+        @Bean
+        @ConditionalOnMissingBean
+        fun gsonMqttObjectMapper(provider: ObjectProvider<Gson>): MqttObjectMapper = GsonMqttObjectMapper(provider)
+    }
 
     @Bean
     @ConditionalOnMissingBean

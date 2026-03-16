@@ -15,7 +15,7 @@ import java.math.BigInteger
 class MqttMessageAdapterTest {
 
     private val mapper = JsonMapper()
-    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(mapper))
+    private val adapter = MqttMessageAdapter(JacksonMqttObjectMapper(TestObjectProvider(mapper)))
 
     @Test
     fun `should adapt byte array message`() {

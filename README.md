@@ -269,6 +269,10 @@ This starter supports GraalVM out of the box. There is nothing special to do.
 ### 0.20.0 -> 0.30.0
 
 - Spring Boot 4 is now required.
+- Jackson 3 is now supported and preferred if on the classpath. Jackson 2 and Gson are still supported as well as the 
+  ability to provide a custom `MqttMessageAdapter` bean.
+- The autoconfiguration might now run earlier in the application lifecycle since object mappers are configured lazily
+  now.
 
 ### 0.16.0 -> 0.20.0
 
