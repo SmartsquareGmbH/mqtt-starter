@@ -26,7 +26,7 @@
       "matchManagers": ["gradle"],
       "matchDepTypes": ["plugin"],
       "matchUpdateTypes": ["minor"],
-      "excludePackagePatterns": ["^org\\.jetbrains\\.kotlin"],
+      "matchPackageNames": ["!/^org\\.jetbrains\\.kotlin/"],
       "automerge": true
     }
   ]
