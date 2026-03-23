@@ -1,6 +1,33 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "extends": ["config:recommended"],
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true
+    },
+    {
+      "matchDepTypes": ["testImplementation", "testRuntimeOnly"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true
+    },
+    {
+      "matchManagers": ["github-actions", "gradle-wrapper"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true
+    },
+    {
+      "matchManagers": ["gradle"],
+      "matchDepTypes": ["plugin"],
+      "matchUpdateTypes": ["minor"],
+      "excludePackagePatterns": ["^org\\.jetbrains\\.kotlin"],
+      "automerge": true
+    }
   ]
 }
