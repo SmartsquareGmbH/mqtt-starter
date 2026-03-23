@@ -17,9 +17,7 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+          cache: "gradle"
 
       - name: Publish
         run: ./gradlew publishToMavenCentral
