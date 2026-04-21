@@ -1,32 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices", "schedule:weekly"],
+  "automerge": true,
   "packageRules": [
     {
-      "matchUpdateTypes": ["patch"],
-      "automerge": true
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
     },
     {
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "dependencyDashboardApproval": true
-    },
-    {
-      "matchDepTypes": ["testImplementation", "testRuntimeOnly"],
-      "matchUpdateTypes": ["minor"],
-      "automerge": true
-    },
-    {
-      "matchManagers": ["github-actions", "gradle-wrapper"],
-      "matchUpdateTypes": ["minor"],
-      "automerge": true
-    },
-    {
-      "matchManagers": ["gradle"],
-      "matchDepTypes": ["plugin"],
-      "matchUpdateTypes": ["minor"],
-      "matchPackageNames": ["!/^org\\.jetbrains\\.kotlin/"],
-      "automerge": true
     }
   ]
 }
