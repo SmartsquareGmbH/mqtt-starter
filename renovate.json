@@ -4,16 +4,16 @@
   "automerge": true,
   "packageRules": [
     {
-      "matchManagers": ["gradle", "gradle-wrapper"],
+      "matchManagers": ["gradle"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major gradle dependencies",
       "groupSlug": "all-minor-patch-gradle"
     },
     {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
-      "groupName": "all non-major github actions dependencies",
-      "groupSlug": "all-minor-patch-github-actions"
+      "matchManagers": ["gradle-wrapper"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "gradle wrapper",
+      "groupSlug": "gradle-wrapper"
     },
     {
       "matchUpdateTypes": ["major"],
