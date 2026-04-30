@@ -16,6 +16,12 @@
       "groupSlug": "gradle-wrapper"
     },
     {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "groupName": "all non-major github actions dependencies",
+      "groupSlug": "all-minor-patch-github-actions"
+    },
+    {
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "dependencyDashboardApproval": true
