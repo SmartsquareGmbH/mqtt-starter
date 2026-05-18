@@ -2,7 +2,7 @@
 kotlin = "2.3.21"
 dokka = "2.2.0"
 detekt = "2.0.0-alpha.3"
-kotlinter = "5.4.2"
+kotlinter = "5.5.0"
 maven-publish = "0.36.0"
 versions-plugin = "0.54.0"
 spring-boot = "4.0.6"
