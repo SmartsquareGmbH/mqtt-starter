@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalAbiValidation::class)
+
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
@@ -67,10 +69,7 @@ kotlin {
         javaParameters = true
     }
 
-    @OptIn(ExperimentalAbiValidation::class)
-    abiValidation {
-        enabled = true
-    }
+    abiValidation()
 }
 
 detekt {
