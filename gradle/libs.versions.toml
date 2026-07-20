@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 dokka = "2.2.0"
 detekt = "2.0.0-alpha.5"
 kotlinter = "5.6.0"
