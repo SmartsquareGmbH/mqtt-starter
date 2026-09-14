@@ -1,10 +1,10 @@
 [versions]
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 dokka = "2.2.0"
 detekt = "2.0.0-alpha.6"
 kotlinter = "5.7.0"
 maven-publish = "0.37.0"
-versions-plugin = "0.61.0"
+versions-plugin = "0.62.0"
 spring-boot = "4.1.1"
 hivemq-mqtt-client = "1.4.0"
 kluent = "1.73"
